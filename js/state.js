@@ -6,15 +6,25 @@
 
 import { GAME_ORDER, STARTER_GAME_ID } from "./data.js";
 
-const KEY = "hidden-offer-save-v1";
+// ★ 開発モード：true で起動時に全求人アンロック＋コイン9999
+const DEV_UNLOCK_ALL = true;
+
+// セーブキーは DEV モードを切り替えるたびにバンプ（既存セーブを無効化）
+const KEY = DEV_UNLOCK_ALL ? "hidden-offer-save-dev1" : "hidden-offer-save-v1";
 
 const listeners = new Set();
 
-const defaultState = () => ({
-  coins: 0,
-  unlockedGames: [STARTER_GAME_ID],
-  collections: [], // 獲得したお祈りメール/称号のID（被り重複OK）
-});
+const defaultState = () => DEV_UNLOCK_ALL
+  ? ({
+      coins: 9999,
+      unlockedGames: [...GAME_ORDER],   // 全求人アンロック
+      collections: [],
+    })
+  : ({
+      coins: 0,
+      unlockedGames: [STARTER_GAME_ID],
+      collections: [],
+    });
 
 let state = load();
 
