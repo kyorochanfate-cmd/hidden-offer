@@ -230,103 +230,144 @@ export const SVG_AVATAR_CARD = buildPixel([
 
 // パレット
 const BOSS_PAL = {
-  b: P.hair,        // 黒髪
-  s: "#f0c89a",     // 肌
-  S: "#d09e6a",     // 肌の影
-  e: P.eye,
-  n: "#c89364",     // 鼻
-  m: "#5a2618",     // 口（普通）
-  M: "#3a1a0e",     // 口の影
-  w: "#ffffff",     // 襟
-  N: "#1f3a5f",     // スーツ
-  R: "#c0392b",     // ネクタイ
+  b: "#1a0e08",     // 輪郭・メガネ・暗い部分
+  s: "#fbc59e",     // 肌
+  S: "#d89c72",     // 肌の影
+  H: "#ffe0c8",     // 肌のハイライト
+  e: P.eye,         // 目
+  g: "#a0a0a0",     // 白髪・グレーの横髪
+  y: "#d9a441",     // 金の指輪
+  n: "#1c3254",     // スーツの影・首元
+  w: "#ffffff",     // 白（シャツ・レンズ）
+  N: "#2d4875",     // スーツ紺
+  R: "#b03020",     // ネクタイ赤
   Z: "#5be8ff",     // 汗
 };
 const BOSS_PAL_RAGE = {
   ...BOSS_PAL,
   s: "#e88070",     // 顔が赤い
   S: "#b04030",
+  H: "#f5a898",
   e: "#d2483f",
-  m: "#3a0e08",
-  M: "#1a0604",
 };
 const BOSS_PAL_HAPPY = {
   ...BOSS_PAL,
   s: "#f5d4a8",
+  S: "#d2a075",
+  H: "#ffe8d0",
   e: "#1a1a1a",
-  m: "#7a3022",
 };
 
-// 普通：眉まっすぐ・口への字
+// 普通：眉まっすぐ・口への字、手でメガネを触る
 const BOSS_NORMAL = [
-  "..............",
-  "...bbbbbbbb...",
-  "..bbbbbbbbbb..",   // 髪
-  "..bsssssssSb..",
-  "..ssssssssss..",
-  "..sbbsssssbbS.",   // 眉
-  "..sessoosess..",   // 目
-  "..sssssnnssss.",   // 鼻
-  "..sssMmmmMsss.",   // 口（小さくへの字）
-  "..ssssMMssssS.",
-  "...nNNNNNNn...",   // 首
-  "..NNwNNNNwNN..",   // スーツ襟
-  ".NNNwRRRRwNNN.",   // ネクタイ
-  "..NNNRRRRNNN..",
+  "........................",
+  "........bbbbbbbb........",
+  "......bbHHssssSSbb......",
+  ".....bHHssssssssSSb.....",
+  "....bHHssssssssssSSb....",
+  "....bHssssssssssssSb....",
+  "..g.bssssssssssssSbg.g..",
+  "..ggbsssbbssssbbssSbg...",
+  "..g.bsssBssssssBssSb.g..",
+  "...ssybweewbweewbS......", // メガネの中に目を配置 (bweewbweewb)
+  "...sS.bbbbbbbbbbbS......",
+  "......ssssSSssssS.......", // 鼻の影をSに変更
+  ".......sssmMsssS........",
+  "........bssssSb.........",
+  ".........bSSSb..........",
+  "........nNNNNNn.........",
+  ".......NNwNNNNwNN.......",
+  "......NNNwRRRRwNNN......",
+  ".....NNNNwRRRRwNNNN.....",
+  "....NNNNNNwwwwNNNNNN....",
+  "...NNNNNNNNNNNNNNNNNN...",
+  "...NNNNNNNNNNNNNNNNNN...",
+  "...NNNNNNNNNNNNNNNNNN...",
+  "....NNNNNNNNNNNNNNNN....",
 ];
 
-// 満足：少し目を細めて口角上がる
+// 満足：目を細める、口角が上がる
 const BOSS_HAPPY = [
-  "..............",
-  "...bbbbbbbb...",
-  "..bbbbbbbbbb..",
-  "..bsssssssSb..",
-  "..ssssssssss..",
-  "..sbbsssssbbS.",
-  "..ssMMooMMsss.",   // 目を細める（横線）
-  "..sssssnnssss.",
-  "..sMmmmmmmMss.",   // 微笑
-  "..sssmmmmsssS.",
-  "...nNNNNNNn...",
-  "..NNwNNNNwNN..",
-  ".NNNwRRRRwNNN.",
-  "..NNNRRRRNNN..",
+  "........................",
+  "........bbbbbbbb........",
+  "......bbHHssssSSbb......",
+  ".....bHHssssssssSSb.....",
+  "....bHHssssssssssSSb....",
+  "....bHssssssssssssSb....",
+  "..g.bssssssssssssSbg.g..",
+  "..ggbsssbbssssbbssSbg...",
+  "..g.bsssBssssssBssSb.g..",
+  "...ssybwMMwbwMMwbS......", // 目を細める
+  "...sS.bbbbbbbbbbbS......",
+  "......ssssSSssssS.......",
+  ".......ssMmmmmMssS......", // 微笑み口
+  "........bssssSb.........",
+  ".........bSSSb..........",
+  "........nNNNNNn.........",
+  ".......NNwNNNNwNN.......",
+  "......NNNwRRRRwNNN......",
+  ".....NNNNwRRRRwNNNN.....",
+  "....NNNNNNwwwwNNNNNN....",
+  "...NNNNNNNNNNNNNNNNNN...",
+  "...NNNNNNNNNNNNNNNNNN...",
+  "...NNNNNNNNNNNNNNNNNN...",
+  "....NNNNNNNNNNNNNNNN....",
 ];
 
-// イライラ：眉八の字、口がへの字
+// イライラ：眉八の字、目を鋭く
 const BOSS_IRRITATED = [
-  "..............",
-  "...bbbbbbbb...",
-  "..bbbbbbbbbb..",
-  "..bsssssssSb..",
-  "..ssssssssss..",
-  "..sbBssssbbsS.",   // 眉八の字
-  "..sBessoseBss.",   // 目を鋭く
-  "..sssssnnssss.",
-  "..sMMmmmmMMss.",   // への字さらに
-  "..sssMMMMsssS.",
-  "...nNNNNNNn...",
-  "..NNwNNNNwNN..",
-  ".NNNwRRRRwNNN.",
-  "..NNNRRRRNNN..",
+  "........................",
+  "........bbbbbbbb........",
+  "......bbHHssssSSbb......",
+  ".....bHHssssssssSSb.....",
+  "....bHHssssssssssSSb....",
+  "....bHssssssssssssSb....",
+  "..g.bssssssssssssSbg.g..",
+  "..ggbsssBbssssBbsSbg...", // イライラ眉
+  "..g.bsssBssssssBssSb.g..",
+  "...ssybweewbweewbS......",
+  "...sS.bbbbbbbbbbbS......",
+  "......ssssSSssssS.......",
+  ".......sssmMsssS........",
+  "........bssssSb.........",
+  ".........bSSSb..........",
+  "........nNNNNNn.........",
+  ".......NNwNNNNwNN.......",
+  "......NNNwRRRRwNNN......",
+  ".....NNNNwRRRRwNNNN.....",
+  "....NNNNNNwwwwNNNNNN....",
+  "...NNNNNNNNNNNNNNNNNN...",
+  "...NNNNNNNNNNNNNNNNNN...",
+  "...NNNNNNNNNNNNNNNNNN...",
+  "....NNNNNNNNNNNNNNNN....",
 ];
 
 // 激怒：顔赤・眉吊り上げ・口開いて怒鳴る・汗
 const BOSS_RAGE = [
-  "..............",
-  "...bbbbbbbb...",
-  "..bbbbbbbbbb..",
-  "..bsssssssSb..",
-  "..ssssssssssZ.",   // 汗
-  "..sBBsssssBBsZ",   // 眉吊上
-  "..sezessoseessZ",  // 目鋭く
-  "..sssssnnssss.",
-  "..sMMMMMMMMss.",   // 大きな口
-  "..sMmmmmmmmMss",   // 怒鳴る
-  "...nNNNNNNn...",
-  "..NNwNNNNwNN..",
-  ".NNNwRRRRwNNN.",
-  "..NNNRRRRNNN..",
+  "........................",
+  "........bbbbbbbb........",
+  "......bbHHssssSSbb......",
+  ".....bHHssssssssSSb.....",
+  "....bHHssssssssssSSb....",
+  "....bHssssssssssssSb....",
+  "..g.bssssssssssssSbg.gZ.", // 汗
+  "..ggbsssbbssssbbssSbg.Z.",
+  "..g.bsssBssssssBssSb.g..",
+  "...ssybweewbweewbS......",
+  "...sS.bbbbbbbbbbbS......",
+  "......ssssSSssssS.......",
+  ".......ssmRRmssS........", // 口を開けて怒鳴る
+  "........bssssSb.........",
+  ".........bSSSb..........",
+  "........nNNNNNn.........",
+  ".......NNwNNNNwNN.......",
+  "......NNNwRRRRwNNN......",
+  ".....NNNNwRRRRwNNNN.....",
+  "....NNNNNNwwwwNNNNNN....",
+  "...NNNNNNNNNNNNNNNNNN...",
+  "...NNNNNNNNNNNNNNNNNN...",
+  "...NNNNNNNNNNNNNNNNNN...",
+  "....NNNNNNNNNNNNNNNN....",
 ];
 
 export function generateBossSVG(mood) {

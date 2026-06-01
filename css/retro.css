@@ -32,6 +32,120 @@
   --r-font-jp: "DotGothic16", "BIZ UDGothic", "Yu Gothic", sans-serif;
 }
 
+/* =========================================================================
+   コアコンポーネント復元（pbtn / tap-start / neon-sparks / retro-link）
+   ※ retro.css 編集中に欠落したものを末尾に再追加
+   ========================================================================= */
+
+/* ピクセル風ボタン（3D太枠・立体感） */
+.pbtn {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-family: var(--r-font-jp);
+  font-weight: 700;
+  font-size: 19px;
+  line-height: 1.15;
+  color: #ffffff;
+  background: var(--r-violet);
+  padding: 14px 22px;
+  border: 0;
+  cursor: pointer;
+  user-select: none;
+  text-shadow: 1px 1px 0 #00000080;
+  box-shadow:
+    0 0 0 3px #1a1230,
+    inset 0 -6px 0 rgba(0, 0, 0, .28),
+    inset 0 4px 0 rgba(255, 255, 255, .18);
+  border-radius: 4px;
+  transition: transform .06s linear, filter .15s ease;
+}
+.pbtn:active { transform: translateY(2px); filter: brightness(.92); }
+.pbtn[disabled], .pbtn:disabled {
+  opacity: .55; pointer-events: none; filter: grayscale(.4);
+}
+.pbtn .sub {
+  display: block; font-size: 12px; font-weight: 400;
+  opacity: .85; margin-top: 3px;
+}
+
+/* バリアント */
+.pbtn.green  { background: linear-gradient(180deg, #7ef077, #34a341); color: #08220e; text-shadow: 1px 1px 0 #ffffff60; }
+.pbtn.yellow { background: linear-gradient(180deg, #ffe366, var(--r-gold)); color: #2a1900; text-shadow: 1px 1px 0 #ffffff70; }
+.pbtn.purple { background: linear-gradient(180deg, #c79bff, #7a39d1); }
+.pbtn.pink   { background: linear-gradient(180deg, #ffa1d3, #d23b8a); }
+.pbtn.red    { background: linear-gradient(180deg, #ff8a8a, #c63238); }
+.pbtn.outline {
+  background: transparent;
+  box-shadow:
+    0 0 0 3px var(--r-purple),
+    inset 0 0 0 2px #1a1230;
+  color: var(--r-purple);
+  text-shadow: 0 0 8px rgba(194, 103, 255, .7);
+}
+.pbtn.block { width: 100%; }
+
+/* TAP TO START（点滅） */
+.tap-start {
+  font-family: var(--r-font-en);
+  font-size: 13px;
+  letter-spacing: .14em;
+  color: #fff;
+  text-align: center;
+  padding: 10px 0;
+  text-shadow: 0 0 6px rgba(255, 255, 255, .6);
+  animation: blink-tap 1.2s steps(2, end) infinite;
+}
+.tap-start::before, .tap-start::after {
+  content: "◀ ▶";
+  opacity: .5;
+  margin: 0 6px;
+  letter-spacing: 0;
+}
+@keyframes blink-tap {
+  0%,49% { opacity: 1; }
+  50%,100% { opacity: .35; }
+}
+
+/* テキストリンク（設定など） */
+.retro-link {
+  font-family: var(--r-font-jp);
+  font-weight: 700;
+  font-size: 16px;
+  color: var(--r-sub);
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  padding: 8px 12px;
+  text-shadow: 1px 1px 0 #00000080;
+}
+.retro-link:active { color: #fff; }
+
+/* スパーク装飾（ロゴ周りの星） */
+.neon-sparks {
+  position: relative;
+  display: inline-block;
+}
+.neon-sparks::before, .neon-sparks::after {
+  content: "✦";
+  position: absolute;
+  color: var(--r-yellow);
+  font-size: 14px;
+  text-shadow: 0 0 6px rgba(255, 210, 74, .9);
+  animation: twinkle 1.4s ease-in-out infinite;
+}
+.neon-sparks::before { left: -16px; top: -4px; }
+.neon-sparks::after  { right: -16px; bottom: -2px; animation-delay: .7s; }
+@keyframes twinkle {
+  0%,100% { opacity: 1; transform: scale(1); }
+  50%     { opacity: .4; transform: scale(.6); }
+}
+
+
+
+
 /* 全体ピクセル風レンダリング（画像・SVG） */
 img, svg { image-rendering: pixelated; image-rendering: crisp-edges; }
 
@@ -48,15 +162,18 @@ img, svg { image-rendering: pixelated; image-rendering: crisp-edges; }
   overflow: hidden;
 }
 
-/* スキャンラインの薄いオーバーレイ（CRT風） */
+/* スキャンラインとCRT風ヴィネット（角の暗がり）オーバーレイ */
 .retro::before {
-  content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 1;
-  background: repeating-linear-gradient(
-    0deg,
-    rgba(255,255,255,.025) 0px,
-    rgba(255,255,255,.025) 1px,
-    transparent 1px,
-    transparent 3px);
+  content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 99;
+  background: 
+    repeating-linear-gradient(
+      0deg,
+      rgba(255,255,255,.02) 0px,
+      rgba(255,255,255,.02) 1px,
+      transparent 1px,
+      transparent 3px),
+    radial-gradient(circle, transparent 60%, rgba(10, 8, 26, 0.4) 100%);
+  box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.6);
 }
 
 /* 背景に散らす装飾アイコン（コーヒー/書類/ドル/マウスなど） */
@@ -64,117 +181,26 @@ img, svg { image-rendering: pixelated; image-rendering: crisp-edges; }
   position: absolute; inset: 0; pointer-events: none; z-index: 0;
 }
 .retro-bg-fx .fx {
-  position: absolute; font-size: 28px; opacity: .55; filter: drop-shadow(0 0 6px rgba(0,0,0,.6));
+  position: absolute; font-size: 28px; opacity: .45;
+  filter: drop-shadow(0 0 6px rgba(0,0,0,.6));
   animation: floaty 6s ease-in-out infinite;
+  transition: opacity 0.3s;
 }
-.retro-bg-fx .fx.coin   { color: var(--r-yellow); text-shadow: 0 0 8px rgba(255,210,74,.6); }
-.retro-bg-fx .fx.doc    { color: #e8e6dc; }
-.retro-bg-fx .fx.mouse  { color: #cfcfcf; }
-.retro-bg-fx .fx.coffee { color: #e8b48e; }
-.retro-bg-fx .fx.spark  { color: var(--r-yellow); font-size: 18px; }
+.retro-bg-fx .fx:hover {
+  opacity: 0.85;
+}
+.retro-bg-fx .fx.coin   { color: var(--r-yellow); text-shadow: 0 0 10px rgba(255,210,74,.8); }
+.retro-bg-fx .fx.doc    { color: #e8e6dc; text-shadow: 0 0 10px rgba(232,230,220,.4); }
+.retro-bg-fx .fx.mouse  { color: var(--r-cyan); text-shadow: 0 0 10px rgba(91,232,255,.5); }
+.retro-bg-fx .fx.coffee { color: #e8b48e; text-shadow: 0 0 10px rgba(232,180,142,.5); }
+.retro-bg-fx .fx.spark  { color: var(--r-lime); text-shadow: 0 0 10px rgba(108,240,110,.7); }
+
 @keyframes floaty {
-  0%,100% { transform: translateY(0) rotate(var(--rot, 0deg)); }
-  50%     { transform: translateY(-8px) rotate(calc(var(--rot, 0deg) + 4deg)); }
+  0%, 100% { transform: translateY(0) scale(1) rotate(var(--rot, 0deg)); }
+  50%      { transform: translateY(-12px) scale(1.05) rotate(calc(var(--rot, 0deg) + 6deg)); }
 }
 
 /* 本文ラップ（最前面） */
-.retro > .retro-body { position: relative; z-index: 2; flex: 1; display: flex; flex-direction: column; min-height: 0; }
-
-/* =========================================================================
-   ネオン発光ロゴ
-   ========================================================================= */
-.neon-logo {
-  font-family: var(--r-font-en);
-  font-size: 48px; line-height: .98; letter-spacing: -2px;
-  background: linear-gradient(180deg, #f4a8ff 0%, #c267ff 45%, #6a2bd1 100%);
-  -webkit-background-clip: text; background-clip: text;
-  color: transparent;
-  filter:
-    drop-shadow(0 0 6px rgba(194,103,255,.85))
-    drop-shadow(0 0 14px rgba(255,92,180,.55))
-    drop-shadow(0 0 24px rgba(194,103,255,.35));
-  text-align: center; padding: 6px 0;
-  -webkit-text-stroke: 2px #1a1230;
-}
-.neon-logo.lg { font-size: 56px; }
-.neon-logo.sm { font-size: 28px; }
-
-.neon-sub {
-  font-family: var(--r-font-jp);
-  font-size: 26px; font-weight: 700; letter-spacing: .04em;
-  color: #fff; text-align: center;
-  text-shadow:
-    0 0 4px #fff,
-    0 0 10px rgba(194,103,255,.9),
-    0 0 22px rgba(138,77,255,.7),
-    3px 3px 0 #1a1230;
-}
-
-/* 黄色いスパーク装飾（ロゴの周りに小さな星） */
-.neon-sparks { position: relative; display: inline-block; }
-.neon-sparks::before, .neon-sparks::after {
-  content: "✦"; position: absolute; color: var(--r-yellow); font-size: 14px;
-  text-shadow: 0 0 6px rgba(255,210,74,.9); animation: twinkle 1.4s ease-in-out infinite;
-}
-.neon-sparks::before { left: -16px; top: -4px; }
-.neon-sparks::after  { right: -16px; bottom: -2px; animation-delay: .7s; }
-@keyframes twinkle { 0%,100% { opacity: 1; transform: scale(1); } 50% { opacity: .4; transform: scale(.6); } }
-
-/* =========================================================================
-   ピクセル風ボタン（3D太枠、ベタ塗り、ぷっくり）
-   ========================================================================= */
-.pbtn {
-  position: relative; display: flex; align-items: center; justify-content: center; gap: 8px;
-  font-family: var(--r-font-jp); font-weight: 700; font-size: 19px; line-height: 1.15;
-  color: #ffffff; background: var(--r-violet);
-  padding: 14px 22px; border: 0; cursor: pointer; user-select: none;
-  text-shadow: 1px 1px 0 #00000080;
-  /* ピクセル風の太枠＋立体感（box-shadowで4方向の縁） */
-  box-shadow:
-    0 0 0 3px #1a1230,             /* 外側の黒枠 */
-    inset 0 -6px 0 rgba(0,0,0,.28), /* 下面の影 */
-    inset 0 4px 0 rgba(255,255,255,.18); /* 上面のハイライト */
-  border-radius: 4px;
-  transition: transform .06s linear, filter .15s ease;
-}
-.pbtn:active { transform: translateY(2px); filter: brightness(.92); }
-.pbtn[disabled] { opacity: .55; pointer-events: none; filter: grayscale(.4); }
-.pbtn .sub { display: block; font-size: 12px; font-weight: 400; opacity: .85; margin-top: 3px; }
-
-/* バリアント */
-.pbtn.green  { background: linear-gradient(180deg, #7ef077, #34a341); }
-.pbtn.yellow { background: linear-gradient(180deg, #ffe366, var(--r-gold)); color: #2a1900; text-shadow: 1px 1px 0 #ffffff70; }
-.pbtn.purple { background: linear-gradient(180deg, #c79bff, #7a39d1); }
-.pbtn.pink   { background: linear-gradient(180deg, #ffa1d3, #d23b8a); }
-.pbtn.red    { background: linear-gradient(180deg, #ff8a8a, #c63238); }
-.pbtn.outline {
-  background: transparent;
-  box-shadow:
-    0 0 0 3px var(--r-purple),
-    inset 0 0 0 2px #1a1230;
-  color: var(--r-purple);
-  text-shadow: 0 0 8px rgba(194,103,255,.7);
-}
-.pbtn.block { width: 100%; }
-
-/* TAP TO START（点滅） */
-.tap-start {
-  font-family: var(--r-font-en); font-size: 13px; letter-spacing: .12em;
-  color: #fff; text-align: center; padding: 10px 0;
-  text-shadow: 0 0 6px rgba(255,255,255,.6);
-  animation: blink 1.2s steps(2,end) infinite;
-}
-.tap-start::before, .tap-start::after { content: "ㅡ"; opacity: .5; margin: 0 6px; }
-@keyframes blink { 0%,49% { opacity: 1; } 50%,100% { opacity: .35; } }
-
-/* テキストリンク（設定など） */
-.retro-link {
-  font-family: var(--r-font-jp); font-weight: 700; font-size: 16px; color: var(--r-sub);
-  background: transparent; border: 0; cursor: pointer; padding: 8px 12px;
-  text-shadow: 1px 1px 0 #00000080;
-}
-.retro-link:active { color: #fff; }
-
 /* =========================================================================
    キャラクター枠（タイトル画面のキャラ3体ストリップ）
    ========================================================================= */
@@ -195,18 +221,32 @@ img, svg { image-rendering: pixelated; image-rendering: crisp-edges; }
 }
 
 /* =========================================================================
-   レトロカード（パネル）
-   ========================================================================= */
-.retro-card {
-  background: linear-gradient(180deg, #2a1a45 0%, #1f1335 100%);
-  border: 3px solid #1a1230;
-  box-shadow:
-    inset 0 0 0 2px var(--r-violet),
-    inset 0 3px 0 rgba(255,255,255,.06),
-    0 6px 0 rgba(0,0,0,.4);
-  border-radius: 6px;
-  padding: 14px 16px;
-  color: var(--r-ink);
+.neon-sub {
+  font-family: var(--r-font-jp);
+  font-size: 26px; font-weight: 700; letter-spacing: .04em;
+  color: #fff; text-align: center;
+  text-shadow:
+    0 0 4px #fff,
+    0 0 10px rgba(194,103,255,.9),
+    0 0 22px rgba(138,77,255,.7),
+    3px 3px 0 #1a1230;
+  animation: text-flicker 5s infinite;
+}
+
+/* 日本語メインタイトル用 */
+.neon-logo-jp {
+  font-family: var(--r-font-jp);
+  font-size: 64px; font-weight: 900; letter-spacing: .08em;
+  background: linear-gradient(180deg, #ffffff 0%, #ff8ade 40%, #c267ff 100%);
+  -webkit-background-clip: text; background-clip: text;
+  color: transparent;
+  text-align: center; padding: 4px 0;
+  -webkit-text-stroke: 2.5px #0a0518;
+  filter:
+    drop-shadow(0 0 8px rgba(255,92,180,0.95))
+    drop-shadow(0 0 20px rgba(194,103,255,0.75))
+    drop-shadow(0 0 30px rgba(138,77,255,0.5));
+  animation: neon-flicker 4s infinite alternate;
 }
 .retro-card .label {
   font-family: var(--r-font-en); font-size: 10px; letter-spacing: .14em;
@@ -293,3 +333,3583 @@ img, svg { image-rendering: pixelated; image-rendering: crisp-edges; }
 /* スクロール領域（メタ画面用） */
 .retro-scroll { flex: 1; overflow-y: auto; overflow-x: hidden; }
 .retro-scroll::-webkit-scrollbar { width: 0; }
+/* スクロール領域（メタ画面用） */
+.retro-scroll { flex: 1; overflow-y: auto; overflow-x: hidden; }
+.retro-scroll::-webkit-scrollbar { width: 0; }
+
+/* =========================================================================
+   タイトル画面の佐藤部長＆吹き出し
+   ========================================================================= */
+.boss-showcase {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 10px 0;
+  z-index: 10;
+}
+.boss-showcase img {
+  width: 140px;
+  height: auto;
+  filter: drop-shadow(0 6px 0 rgba(0,0,0,.4));
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+.boss-speech-bubble {
+  position: relative;
+  background: #1a1230;
+  border: 3px solid #ffd24a; /* 黄色のネオン枠 */
+  box-shadow: 
+    0 0 8px rgba(255,210,74,.5),
+    inset 0 0 0 2px #1a1230;
+  color: #ffffff;
+  padding: 10px 14px;
+  font-family: var(--r-font-jp);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.4;
+  border-radius: 6px;
+  margin-top: 14px;
+  max-width: 260px;
+  text-align: center;
+  word-break: break-all;
+  filter: drop-shadow(0 4px 0 rgba(0,0,0,.35));
+}
+/* 吹き出しの三角部分 */
+.boss-speech-bubble::before {
+  content: "";
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 8px;
+  border-style: solid;
+  border-color: transparent transparent #ffd24a transparent;
+}
+.boss-speech-bubble::after {
+  content: "";
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 5px;
+  border-style: solid;
+  border-color: transparent transparent #1a1230 transparent;
+  margin-bottom: -3px; /* 枠線と背景を重ねる */
+}
+.boss-speech-bubble::after {
+  content: "";
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 5px;
+  border-style: solid;
+  border-color: transparent transparent #1a1230 transparent;
+  margin-bottom: -3px; /* 枠線と背景を重ねる */
+}
+
+/* =========================================================================
+   チャット・レスポンス・ラリー（Teams風）
+   ========================================================================= */
+.teams-game {
+  background: #f3f2f1; /* Teams ライトグレー背景 */
+  color: #323130;      /* Teams ダークグレー文字 */
+  font-family: 'Segoe UI', var(--r-font-jp);
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column;
+  overflow: hidden;
+}
+
+.teams-header {
+  background: #6264a7; /* Teams パープル */
+  color: #ffffff;
+  height: 48px;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 16px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  z-index: 10;
+}
+.teams-header .title {
+  font-weight: 600; font-size: 16px;
+}
+.teams-header .btn-back {
+  background: transparent; border: 0; color: #fff; cursor: pointer; font-size: 18px;
+  padding: 4px 8px;
+}
+
+.teams-subbar {
+  background: #ffffff;
+  border-bottom: 1px solid #e1dfdd;
+  padding: 8px 16px;
+  display: flex; align-items: center; justify-content: space-between;
+  font-size: 13px;
+}
+.teams-gauge-container {
+  flex: 1; margin: 0 16px;
+  background: #edebe9; height: 12px; border-radius: 6px; overflow: hidden;
+  border: 1px solid #d2d0ce;
+}
+.teams-gauge-bar {
+  background: #107c41; /* Teams グリーン */
+  height: 100%; width: 100%;
+  transition: width 0.3s ease, background-color 0.3s ease;
+}
+.teams-gauge-bar.warning { background: #d83b01; } /* 警告色 */
+
+.teams-chat-area {
+  flex: 1; overflow-y: auto;
+  padding: 16px;
+  display: flex; flex-direction: column; gap: 12px;
+}
+.teams-chat-area::-webkit-scrollbar { width: 6px; }
+/* タイマーバー */
+.teams-timer-container {
+  height: 4px; background: #edebe9; width: 100%;
+}
+.teams-timer-bar {
+  background: #6264a7; height: 100%; width: 100%;
+  transition: width 0.05s linear;
+}
+
+/* =========================================================================
+   給与支払明細書＆領収印（ハンコ）
+   ========================================================================= */
+.pay-slip {
+  background: #fdfaf2;      /* レトロ紙風の淡いクリーム色 */
+  border: 3px double #1a1230; /* 二重枠線 */
+  border-radius: 4px;
+  padding: 16px 12px;
+  color: #2b2b2b;
+  font-family: var(--r-font-jp);
+  box-shadow: 
+    0 6px 16px rgba(0,0,0,0.5),
+    inset 0 0 0 1px #ffffff;
+  position: relative;
+  overflow: hidden;
+}
+.pay-slip.fired {
+  background: #fff5f5; /* 解雇時はうっすら赤っぽい紙 */
+  border-color: var(--r-red);
+}
+.pay-title {
+  text-align: center;
+  font-size: 20px;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  border-bottom: 2px solid #2b2b2b;
+  padding-bottom: 6px;
+  margin-bottom: 12px;
+  color: #1a1230;
+}
+.pay-slip.fired .pay-title {
+  color: var(--r-red);
+  border-bottom-color: var(--r-red);
+}
+.pay-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  font-weight: 700;
+  margin-bottom: 10px;
+  color: #555555;
+  border-bottom: 1px dashed #c0c0c0;
+  padding-bottom: 4px;
+}
+.pay-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  margin-bottom: 12px;
+}
+.pay-table th, .pay-table td {
+  border: 1px solid #c8c6c4;
+  padding: 6px 8px;
+  text-align: left;
+}
+.pay-table th {
+  background: #f3ede0;
+  font-weight: 700;
+  color: #1a1230;
+}
+.pay-slip.fired .pay-table th {
+  background: #fee;
+}
+.pay-table td:last-child, .pay-table th:last-child {
+  text-align: right;
+  font-family: var(--r-font-en), monospace;
+  font-size: 11px;
+}
+.pay-table tr.pay-total {
+  font-size: 14px;
+  font-weight: 900;
+  background: #f3ede0;
+}
+  bottom: 80px; right: 24px;
+}
+
+/* =========================================================================
+   求人選択（労働選択）画面の独自ネオンデザイン
+   ========================================================================= */
+.job-title-container {
+  text-align: center;
+  padding: 16px 16px 4px;
+}
+.job-title-the {
+  font-family: var(--r-font-en);
+  font-size: 16px;
+  font-weight: bold;
+  letter-spacing: 0.3em;
+  color: #ffffff;
+  margin-bottom: 2px;
+  text-shadow: 0 0 6px rgba(255,255,255,0.6);
+}
+.job-title-main {
+  font-family: var(--r-font-jp);
+  font-size: 36px;
+  font-weight: 900;
+  color: #ffeb3b;
+  text-shadow: 
+    0 0 4px #000,
+    -2px -2px 0 #1a1230,  
+     2px -2px 0 #1a1230,
+    -2px  2px 0 #1a1230,
+     2px  2px 0 #1a1230,
+    0 0 15px rgba(255, 235, 59, 0.9);
+  letter-spacing: 0.1em;
+  margin-bottom: 4px;
+}
+.job-title-sub {
+  font-family: var(--r-font-jp);
+  font-size: 18px;
+  font-weight: bold;
+  color: #ffffff;
+  letter-spacing: 0.15em;
+  text-shadow: 1px 1px 3px rgba(0,0,0,0.8);
+}
+
+/* ジョブカード本体 */
+.job-card {
+  display: flex;
+  flex-direction: column;
+  background: rgba(26, 18, 48, 0.85);
+  border: 3px solid #332755;
+  border-radius: 12px;
+  padding: 12px 14px;
+  cursor: pointer;
+  transition: transform 0.12s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  position: relative;
+  overflow: visible;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+}
+
+.job-card.selected {
+  transform: translateY(-2px) scale(1.01);
+}
+
+.job-card.locked {
+  filter: saturate(0.1) brightness(0.5);
+  cursor: not-allowed;
+  box-shadow: none !important;
+}
+
+/* ジョブカード固有のネオン色 */
+.job-card[data-job="powerpotter"] {
+  border-color: rgba(74, 222, 128, 0.4);
+}
+.job-card[data-job="powerpotter"].selected {
+  border-color: #4ade80;
+  box-shadow: 0 0 18px rgba(74, 222, 128, 0.7), inset 0 0 8px rgba(74, 222, 128, 0.4);
+}
+
+.job-card[data-job="chatrally"] {
+  border-color: rgba(194, 103, 255, 0.4);
+}
+.job-card[data-job="chatrally"].selected {
+  border-color: #c267ff;
+  box-shadow: 0 0 18px rgba(194, 103, 255, 0.7), inset 0 0 8px rgba(194, 103, 255, 0.4);
+}
+.job-card[data-job="jiggler"] {
+  border-color: rgba(47, 174, 143, 0.4);
+}
+.job-card[data-job="jiggler"].selected {
+  border-color: #2fae8f;
+  box-shadow: 0 0 18px rgba(47, 174, 143, 0.7), inset 0 0 8px rgba(47, 174, 143, 0.4);
+}
+.job-card[data-job="exchange"] {
+  border-color: rgba(255, 210, 74, 0.4);
+}
+.job-card[data-job="exchange"].selected {
+  border-color: #ffd24a;
+  box-shadow: 0 0 18px rgba(255, 210, 74, 0.7), inset 0 0 8px rgba(255, 210, 74, 0.4);
+}
+
+.job-card-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  text-align: left;
+  padding-left: 6px;
+}
+/* 下部コントロールエリア */
+.job-controls {
+  padding: 12px 14px;
+  display: flex;
+  gap: 10px;
+}
+
+.job-start-btn {
+  flex: 1.1;
+}
+
+.job-start-btn span, .job-back-btn span {
+  font-size: 15px !important;
+  white-space: nowrap;
+}
+
+.job-start-btn:disabled {
+  background: #374151 !important;
+  color: #9ca3af !important;
+  box-shadow: none !important;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.job-back-btn {
+  flex: 1;
+}
+
+/* =========================================================================
+   求人選択（労働選択）画面のコンパクトネオンデザイン
+   ========================================================================= */
+.job-title-container {
+  text-align: center;
+  padding: 16px 16px 4px;
+}
+.job-title-the {
+  font-family: var(--r-font-en);
+  font-size: 16px;
+  font-weight: bold;
+  letter-spacing: 0.3em;
+  color: #ffffff;
+  margin-bottom: 2px;
+  text-shadow: 0 0 6px rgba(255,255,255,0.6);
+}
+.job-title-main {
+  font-family: var(--r-font-jp);
+  font-size: 36px;
+  font-weight: 900;
+  color: #ffeb3b;
+  text-shadow: 
+    0 0 4px #000,
+    -2px -2px 0 #1a1230,  
+     2px -2px 0 #1a1230,
+    -2px  2px 0 #1a1230,
+     2px  2px 0 #1a1230,
+    0 0 15px rgba(255, 235, 59, 0.9);
+  letter-spacing: 0.1em;
+  margin-bottom: 4px;
+}
+.job-title-sub {
+  font-family: var(--r-font-jp);
+  font-size: 18px;
+  font-weight: bold;
+  color: #ffffff;
+  letter-spacing: 0.15em;
+  text-shadow: 1px 1px 3px rgba(0,0,0,0.8);
+}
+
+/* ジョブ選択画面のコンパクト行（リスト） */
+.job-compact-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(26, 18, 48, 0.85);
+  border: 2px solid #332755;
+  border-radius: 10px;
+  padding: 10px 14px;
+  cursor: pointer;
+  transition: transform 0.1s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  position: relative;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+.job-compact-row:active {
+  transform: scale(0.98);
+}
+
+.job-compact-row.locked {
+  filter: saturate(0.1) brightness(0.5);
+  cursor: not-allowed;
+}
+
+/* ゲームごとのカラーアクセント */
+.job-compact-row[data-job="powerpotter"] {
+  border-color: rgba(74, 222, 128, 0.4);
+}
+.job-compact-row[data-job="powerpotter"]:hover {
+  border-color: #4ade80;
+  box-shadow: 0 0 12px rgba(74, 222, 128, 0.5);
+}
+
+.job-compact-row[data-job="chatrally"] {
+  border-color: rgba(234, 179, 8, 0.4);
+}
+/* Compact Job Row */
+.job-compact-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(26, 18, 48, 0.85);
+  border: 2px solid #332755;
+  border-radius: 10px;
+  padding: 10px 14px;
+  cursor: pointer;
+  transition: transform 0.1s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  position: relative;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+.job-compact-row:active {
+  transform: scale(0.98);
+}
+
+.job-compact-row.locked {
+  filter: saturate(0.1) brightness(0.5);
+  cursor: not-allowed;
+}
+
+/* Accent Colors */
+.job-compact-row[data-job="powerpotter"] { border-color: rgba(74, 222, 128, 0.4); }
+.job-compact-row[data-job="powerpotter"]:hover { border-color: #4ade80; box-shadow: 0 0 12px rgba(74, 222, 128, 0.5); }
+
+.job-compact-row[data-job="chatrally"] { border-color: rgba(234, 179, 8, 0.4); }
+.job-compact-row[data-job="chatrally"]:hover { border-color: #eab308; box-shadow: 0 0 12px rgba(234, 179, 8, 0.5); }
+
+.job-compact-row[data-job="jiggler"] { border-color: rgba(236, 72, 153, 0.4); }
+.job-compact-row[data-job="jiggler"]:hover { border-color: #ec4899; box-shadow: 0 0 12px rgba(236, 72, 153, 0.5); }
+
+.job-compact-row[data-job="exchange"] { border-color: rgba(59, 130, 246, 0.4); }
+.job-compact-row[data-job="exchange"]:hover { border-color: #3b82f6; box-shadow: 0 0 12px rgba(59, 130, 246, 0.5); }
+
+.job-compact-row .av {
+  width: 38px;
+  height: 38px;
+  image-rendering: pixelated;
+  flex: none;
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.job-compact-row .av img, .job-compact-row .av svg {
+  width: 26px;
+  height: auto;
+}
+
+.job-compact-row .av span {
+  font-size: 20px;
+}
+
+.job-compact-row .info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.job-compact-row .title {
+  font-family: var(--r-font-jp);
+  font-size: 16px;
+  font-weight: 900;
+}
+/* Job Detail Dialog */
+.job-detail-dialog {
+  background: #1a1230;
+  border: 3px double #ff5cb4;
+  box-shadow: 0 0 25px rgba(255, 92, 180, 0.5), 0 10px 25px rgba(0,0,0,0.7);
+  border-radius: 16px;
+  width: 100%;
+  max-width: 320px;
+  padding: 18px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  animation: retro-dialog-in 0.22s cubic-bezier(0.1, 0.8, 0.3, 1.15) forwards;
+}
+
+@keyframes retro-dialog-in {
+  0% { transform: scale(0.85); opacity: 0; }
+  100% { transform: scale(1.0); opacity: 1; }
+}
+
+.job-detail-dialog[data-job="powerpotter"] { border-color: #4ade80; box-shadow: 0 0 25px rgba(74, 222, 128, 0.6), 0 10px 25px rgba(0,0,0,0.7); }
+.job-detail-dialog[data-job="chatrally"] { border-color: #eab308; box-shadow: 0 0 25px rgba(234, 179, 8, 0.6), 0 10px 25px rgba(0,0,0,0.7); }
+.job-detail-dialog[data-job="jiggler"] { border-color: #ec4899; box-shadow: 0 0 25px rgba(236, 72, 153, 0.6), 0 10px 25px rgba(0,0,0,0.7); }
+.job-detail-dialog[data-job="exchange"] { border-color: #3b82f6; box-shadow: 0 0 25px rgba(59, 130, 246, 0.6), 0 10px 25px rgba(0,0,0,0.7); }
+
+.job-detail-header {
+  font-family: var(--r-font-jp);
+  font-size: 19px;
+  font-weight: 900;
+  color: #ffffff;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: 8px;
+  text-shadow: 1px 1px 3px rgba(0,0,0,0.8);
+  text-align: center;
+}
+
+.job-detail-desc {
+  font-size: 12px;
+  line-height: 1.45;
+  font-weight: 700;
+  text-align: center;
+  padding: 0 4px;
+}
+.job-detail-dialog[data-job="powerpotter"] .job-detail-desc { color: #f87171; }
+.job-detail-dialog[data-job="chatrally"] .job-detail-desc { color: #fde047; }
+.job-detail-dialog[data-job="jiggler"] .job-detail-desc { color: #fbcfe8; }
+.job-detail-dialog[data-job="exchange"] .job-detail-desc { color: #93c5fd; }
+
+.job-detail-content {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: rgba(0, 0, 0, 0.4);
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.06);
+}
+
+/* 詳細モーダル：左メディア / 右情報 / 下コントロール */
+.job-detail-media {
+  width: 72px;
+  height: 72px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  background: rgba(0, 0, 0, 0.45);
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+  image-rendering: pixelated;
+}
+.job-detail-media img {
+  max-width: 100%;
+  max-height: 100%;
+  image-rendering: pixelated;
+}
+
+.job-detail-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.job-detail-catch {
+  font-family: var(--r-font-jp);
+  font-size: 14px;
+  font-weight: 700;
+  color: #ffffff;
+  line-height: 1.45;
+  text-shadow: 1px 1px 0 #0a081a;
+}
+.job-detail-reward {
+  font-family: var(--r-font-en), monospace;
+  font-size: 11px;
+  letter-spacing: .12em;
+  color: var(--r-yellow);
+  text-shadow: 0 0 6px rgba(255, 210, 74, 0.6);
+  background: rgba(255, 210, 74, 0.12);
+  padding: 4px 8px;
+  border-radius: 4px;
+  align-self: flex-start;
+  border: 1px solid rgba(255, 210, 74, 0.25);
+}
+
+.job-detail-controls {
+  display: flex;
+  gap: 10px;
+  margin-top: 6px;
+}
+.job-detail-controls .pbtn { flex: 1; }
+
+/* チャットラリー詳細用ミニチャットモック */
+.mini-chat-mock {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  background: #1a0d2a;
+  border-radius: 4px;
+  overflow: hidden;
+}
+.mini-chat-sidebar {
+  width: 10px;
+  background: linear-gradient(180deg, #4a154b, #6c2c70);
+  flex: none;
+}
+.mini-chat-body {
+  flex: 1;
+  padding: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.mini-chat-bubble {
+  font-size: 6px;
+  background: #ffffff;
+  color: #1a1a1a;
+  padding: 2px 4px;
+  border-radius: 2px;
+  max-width: 85%;
+  align-self: flex-start;
+  font-family: var(--r-font-jp);
+}
+.mini-chat-stamps {
+  display: flex;
+  gap: 3px;
+  margin-top: 2px;
+}
+.mini-chat-stamp { font-size: 10px; }
+
+/* =========================================================================
+   マウス・ジグラー (jiggler.js) 専用スタイル
+   ========================================================================= */
+.jig-game {
+  width: 100%;
+  height: 100%;
+  background: #0f0a1c;
+  display: flex;
+  flex-direction: column;
+  color: #fff;
+  font-family: var(--r-font-jp);
+}
+
+.jig-titlebar {
+  background: #1e1e2e;
+  border-bottom: 2px solid #2d2d3d;
+  padding: 6px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.jig-filename {
+  font-size: 11px;
+  color: #a6adc8;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1;
+  text-align: center;
+}
+
+.jig-clock {
+  font-family: var(--r-font-en), monospace;
+  font-size: 14px;
+  color: var(--r-yellow);
+  font-weight: bold;
+}
+
+.jig-screen {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 12px;
+  gap: 12px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* 在席ステータス表示 */
+.jig-status-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #181825;
+  border: 1px solid #313244;
+  border-radius: 6px;
+  padding: 8px 12px;
+}
+
+.jig-status-lamp-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.jig-status-lamp {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #f38ba8; /* 赤 */
+  box-shadow: 0 0 8px #f38ba8;
+  transition: background 0.2s, box-shadow 0.2s;
+}
+
+.jig-status-lamp.active {
+  background: #a6e3a1; /* 緑 */
+  box-shadow: 0 0 8px #a6e3a1;
+}
+
+.jig-status-lamp.warning {
+  background: #f9e2af; /* 黄 */
+  box-shadow: 0 0 8px #f9e2af;
+}
+
+.jig-status-text {
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.jig-counter {
+  font-size: 11px;
+  font-weight: bold;
+  color: var(--r-yellow);
+}
+
+/* ゲージ */
+.jig-gauges {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* =========================================================================
+   マウス・ジグラー (jiggler.js) 専用スタイル (Teams UI & スプリットレイアウト)
+   ========================================================================= */
+
+.jig-game {
+  width: 100%;
+  height: 100%;
+  background: #0d081b;
+  display: flex;
+  flex-direction: column;
+  color: #fff;
+  font-family: var(--r-font-jp);
+}
+
+.jig-titlebar {
+  background: #1e1e2e;
+  border-bottom: 2px solid #2d2d3d;
+  padding: 6px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.jig-filename {
+  font-size: 11px;
+  color: #a6adc8;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1;
+  text-align: center;
+}
+
+.jig-clock {
+  font-family: var(--r-font-en), monospace;
+  font-size: 14px;
+  color: var(--r-yellow);
+  font-weight: bold;
+}
+
+/* --- 上半分：Microsoft Teams UI --- */
+.teams-window {
+  display: flex;
+  flex-direction: column;
+  height: 40%;
+  background: #201f1f; /* Teams Dark theme background */
+  border: 3px solid #3b3a39;
+  border-radius: 6px;
+  margin: 10px 10px 6px;
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  font-size: 11px;
+}
+
+.teams-top-bar {
+  height: 32px;
+  background: #201f1f;
+  border-bottom: 1px solid #3b3a39;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 10px;
+  color: #fff;
+  user-select: none;
+}
+
+.teams-title {
+  font-weight: 600;
+  color: #edebe9;
+  font-size: 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.teams-title::before {
+  content: "T";
+  background: #6264a7; /* Teams Purple */
+  color: white;
+  width: 14px;
+  height: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 3px;
+  font-weight: bold;
+  font-size: 9px;
+}
+
+.teams-search-bar {
+  background: #292929;
+  border: 1px solid #3b3a39;
+  border-radius: 4px;
+  padding: 2px 10px;
+  width: 140px;
+  text-align: center;
+  color: #a19f9d;
+  font-size: 9px;
+}
+
+.teams-profile-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  position: relative;
+}
+
+.teams-profile-avatar {
+  width: 20px;
+  height: 20px;
+  background: #7a24db;
+  border-radius: 50%;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 9px;
+}
+
+.teams-profile-status {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  border: 1.5px solid #201f1f;
+  background: #6bb700;
+  box-shadow: 0 0 4px #6bb700;
+}
+.teams-profile-status.active {
+  background: #6bb700;
+  box-shadow: 0 0 4px #6bb700;
+}
+.teams-profile-status.warning {
+  background: #f8a800;
+  box-shadow: 0 0 4px #f8a800;
+}
+
+.teams-main {
+  flex: 1;
+  display: flex;
+  background: #1f1f1f;
+  min-height: 0;
+}
+
+.teams-app-rail {
+  width: 36px;
+  background: #201f1f;
+  border-right: 1px solid #292929;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 6px;
+  gap: 12px;
+  user-select: none;
+}
+
+.rail-item {
+  position: relative;
+  font-size: 15px;
+  cursor: pointer;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  color: #a19f9d;
+  transition: color 0.2s, background 0.2s;
+}
+
+.rail-item.active {
+  color: #6264a7;
+  background: #292828;
+}
+
+.rail-badge {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  background: #d83b01;
+  color: white;
+  border-radius: 50%;
+  font-size: 8px;
+  width: 12px;
+  height: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+}
+
+.teams-chat-list {
+  width: 90px;
+  background: #252424;
+  border-right: 1px solid #292929;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  user-select: none;
+}
+
+.chat-list-item {
+  display: flex;
+  align-items: center;
+  padding: 6px;
+  gap: 6px;
+  border-bottom: 1px solid #201f1f;
+  position: relative;
+  cursor: pointer;
+  background: transparent;
+  transition: background 0.15s;
+}
+
+.chat-list-item.active {
+  background: #2f2f2f;
+}
+
+.chat-avatar {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #c34e0a;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 8px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.chat-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.chat-name {
+  font-weight: 600;
+  color: #f3f2f1;
+  font-size: 9px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.chat-preview {
+  font-size: 8px;
+  color: #a19f9d;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-top: 1px;
+}
+
+.chat-status-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  position: absolute;
+  bottom: 6px;
+  left: 19px;
+  border: 1px solid #252424;
+}
+.chat-status-dot.available {
+  background: #6bb700;
+}
+.chat-status-dot.away {
+  background: #f8a800;
+}
+.chat-status-dot.offline {
+  background: #8a8886;
+}
+
+.teams-chat-room {
+  flex: 1;
+  background: #1f1f1f;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.teams-room-header {
+  height: 30px;
+  border-bottom: 1px solid #292929;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 10px;
+  background: #1f1f1f;
+}
+
+.room-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.room-name {
+  font-weight: bold;
+  color: #fff;
+  font-size: 10px;
+}
+
+.room-status {
+  font-size: 8px;
+  color: #a19f9d;
+}
+
+.teams-monitor-banner {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(0, 0, 0, 0.3);
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: 1px solid #3b3a39;
+  max-width: 140px;
+}
+
+.teams-monitor-label {
+  font-size: 8px;
+  font-weight: 700;
+  color: #a19f9d;
+  white-space: nowrap;
+}
+
+.teams-monitor-val {
+  font-size: 8px;
+  font-weight: bold;
+  color: var(--r-yellow);
+  font-family: monospace;
+}
+
+.teams-monitor-track {
+  width: 40px;
+  height: 4px;
+  background: #111;
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.teams-monitor-fill {
+  height: 100%;
+  background: var(--ok);
+  transition: width 0.1s linear;
+}
+
+.teams-messages-container {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 0;
+  background: #1f1f1f;
+}
+
+.teams-msg {
+  display: flex;
+  gap: 8px;
+  max-width: 100%;
+  animation: teams-msg-fade 0.2s ease-out;
+}
+
+@keyframes teams-msg-fade {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.teams-msg-avatar {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 9px;
+  color: white;
+  flex-shrink: 0;
+}
+
+.teams-msg-avatar.boss {
+  background: #c34e0a;
+}
+.teams-msg-avatar.me {
+  background: #7a24db;
+}
+
+.teams-msg-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.teams-msg-meta {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  margin-bottom: 2px;
+}
+
+.teams-msg-sender {
+  font-weight: bold;
+  color: #f3f2f1;
+  font-size: 9px;
+}
+
+.teams-msg-time {
+  font-size: 7px;
+  color: #8a8886;
+}
+
+.teams-msg-text {
+  font-size: 9.5px;
+  color: #edebe9;
+  line-height: 1.4;
+  word-break: break-word;
+  background: #292929;
+  padding: 6px 8px;
+  border-radius: 0 6px 6px 6px;
+  display: inline-block;
+}
+
+.teams-msg.my-message .teams-msg-text {
+  background: #3b3a39;
+}
+
+.teams-inline-reply-box {
+  background: #201f1f;
+  border: 1px solid var(--r-red);
+  border-radius: 6px;
+  padding: 8px;
+  margin-top: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  box-shadow: 0 4px 12px rgba(255, 91, 110, 0.25);
+  animation: teams-reply-slide 0.2s cubic-bezier(0.1, 0.8, 0.3, 1.1) forwards;
+}
+
+@keyframes teams-reply-slide {
+  from { opacity: 0; transform: scaleY(0.8); transform-origin: top; }
+  to { opacity: 1; transform: scaleY(1); transform-origin: top; }
+}
+
+.teams-countdown-track {
+  width: 100%;
+  height: 4px;
+  background: #111;
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.teams-countdown-fill {
+  height: 100%;
+  background: var(--r-red);
+  width: 100%;
+  transition: width 0.1s linear;
+}
+
+.teams-reply-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.teams-reply-btn {
+  background: var(--ok) !important;
+  color: #000 !important;
+  font-weight: 800 !important;
+  border: none !important;
+  padding: 6px 12px !important;
+  border-radius: 4px !important;
+  cursor: pointer !important;
+  font-size: 10.5px !important;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  box-shadow: 0 2px 6px rgba(0, 255, 0, 0.2);
+  transition: transform 0.1s, background 0.1s;
+}
+
+.teams-reply-btn:active {
+  transform: scale(0.95);
+  background: #90d38b !important;
+}
+
+.teams-input-bar {
+  padding: 8px;
+  background: #1f1f1f;
+  border-top: 1px solid #292929;
+  user-select: none;
+}
+
+.teams-input-placeholder {
+  background: #292929;
+  border: 1px solid #3b3a39;
+  border-radius: 4px;
+  padding: 6px;
+  color: #8a8886;
+  font-size: 8px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* --- 下半分：物理デスク（分割レイアウト） --- */
+.jig-desk-split {
+  flex: 1;
+  display: flex;
+  gap: 10px;
+  padding: 0 10px 10px;
+  min-height: 0;
+}
+
+.jig-mouse-area {
+  flex: 1;
+  background: #11111b;
+  border: 2px dashed #89b4fa; /* Cyan dashed border */
+  border-radius: 10px;
+  position: relative;
+  overflow: hidden;
+  display: block; /* To position absolute child correctly */
+  cursor: grab;
+  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.8);
+  transition: border-color 0.2s;
+}
+
+.jig-mouse-area:active {
+  cursor: grabbing;
+  border-color: #ff5cb4;
+}
+
+.jig-desktop-label {
+  position: absolute;
+  top: 6px;
+  left: 8px;
+  font-size: 9px;
+  color: #89b4fa;
+  font-weight: bold;
+  pointer-events: none;
+  text-shadow: 0 1px 2px #000;
+}
+
+.jig-virtual-mouse {
+  width: 32px;
+  height: 46px;
+  background: #1e1e2e;
+  border: 2px solid #89b4fa;
+  border-radius: 16px 16px 10px 10px;
+  position: absolute;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.8);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 5px;
+  box-sizing: border-box;
+  pointer-events: none;
+  touch-action: none;
+  transition: transform 0.1s;
+}
+
+.jig-mouse-wheel {
+  width: 4px;
+  height: 10px;
+  background: #ff5cb4;
+  border-radius: 2px;
+  box-shadow: 0 0 4px #ff5cb4;
+}
+
+.jig-virtual-mouse::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 23px;
+  left: 50%;
+  width: 2px;
+  background: #89b4fa;
+  transform: translateX(-50%);
+}
+
+.jig-virtual-mouse.jiggle-shake {
+  animation: mouse-shake-anim 0.15s ease-in-out;
+}
+
+@keyframes mouse-shake-anim {
+  0%, 100% { transform: translate(0, 0); }
+  25% { transform: translate(-3px, 2px) rotate(-3deg); }
+  75% { transform: translate(3px, -2px) rotate(3deg); }
+}
+
+.jig-sabori-area {
+  flex: 1.15;
+  background: #181825;
+  border: 2px solid rgba(194, 103, 255, 0.4);
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+  transition: border-color 0.2s, box-shadow 0.2s;
+  min-height: 0;
+}
+
+.jig-sabori-area.active {
+  border-color: #c267ff;
+  box-shadow: 0 0 12px rgba(194, 103, 255, 0.5), 0 4px 10px rgba(0,0,0,0.4);
+}
+
+.jig-sabori-header {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  background: rgba(0,0,0,0.2);
+  padding: 6px;
+  border-radius: 6px;
+  border: 1px solid rgba(255,255,255,0.03);
+}
+
+.jig-sabori-title {
+  font-size: 10px;
+  font-weight: bold;
+  color: #cdd6f4;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.jig-sabori-val-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 9px;
+  font-weight: bold;
+  color: #fab387;
+}
+
+.jig-fill.sabori {
+  height: 100%;
+  width: 0%;
+  background: #fab387;
+  transition: width 0.1s linear;
+  border-radius: 5px;
+}
+
+.jig-fill.sabori.flash {
+  animation: sabori-flash-anim 0.3s;
+}
+
+@keyframes sabori-flash-anim {
+  0%, 100% { filter: brightness(1); }
+  50% { filter: brightness(2); background: #fff; }
+}
+
+.jig-worker-showcase {
+  width: 100%;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  min-height: 0;
+  margin: 6px 0;
+}
+
+.jig-worker-image {
+  max-width: 100%;
+  max-height: 120px;
+  object-fit: contain;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+  image-rendering: pixelated;
+  transition: transform 0.15s ease;
+}
+
+.jig-worker-image.saboring {
+  animation: saboring-shake-anim 0.25s infinite alternate ease-in-out;
+}
+
+@keyframes saboring-shake-anim {
+  0% { transform: translateY(0) rotate(-1deg); }
+  100% { transform: translateY(-2px) rotate(1deg); }
+}
+
+.jig-work-effect {
+  position: absolute;
+  font-size: 18px;
+  pointer-events: none;
+  opacity: 0;
+  animation: float-up-effect 0.8s ease-out forwards;
+  z-index: 10;
+}
+
+@keyframes float-up-effect {
+  0% { transform: translateY(15px) scale(0.6); opacity: 0; }
+  30% { opacity: 1; }
+  100% { transform: translateY(-45px) scale(1.3); opacity: 0; }
+}
+
+.jig-sabori-btn {
+  width: 100%;
+  padding: 10px 0 !important;
+}
+
+.jig-sabori-btn span {
+  font-size: 15px !important;
+  font-weight: 900;
+}
+
+.jig-sabori-btn.active {
+  background: #c267ff !important;
+  box-shadow: 0 0 15px rgba(194,103,255,0.8) !important;
+  transform: translateY(2px);
+}
+
+/* =========================================================================
+   ChatRally (Teams 風) — 破損したスタイルの上書き再定義
+   ========================================================================= */
+.teams-game {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  background: #f5f5f7;
+  color: #252423;
+  font-family: "Noto Sans JP", "BIZ UDGothic", "Yu Gothic", sans-serif;
+  overflow: hidden;
+}
+
+.teams-header {
+  background: #6264a7;
+  color: #fff;
+  padding: calc(10px + var(--safe-top)) 12px 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+}
+.teams-header .btn-back {
+  background: rgba(255,255,255,.18);
+  border: 0;
+  color: #fff;
+  width: 30px;
+  height: 30px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+}
+.teams-header .title {
+  flex: 1;
+  text-align: center;
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.teams-subbar {
+  background: #fff;
+  padding: 8px 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 11px;
+  color: #252423;
+  border-bottom: 1px solid #e1dfdd;
+  flex-wrap: wrap;
+}
+.teams-gauge-container {
+  flex: 1;
+  min-width: 80px;
+  height: 8px;
+  background: #e1dfdd;
+  border-radius: 4px;
+  overflow: hidden;
+}
+.teams-gauge-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #6264a7, #8a8df0);
+  transition: width .25s ease;
+}
+.teams-gauge-bar.warning {
+  background: linear-gradient(90deg, #d13438, #e34c52);
+}
+
+.teams-timer-container {
+  height: 3px;
+  background: #e1dfdd;
+}
+.teams-timer-bar {
+  height: 100%;
+  background: #6264a7;
+  transition: width .1s linear;
+}
+
+.teams-chat-area {
+  flex: 1;
+  overflow-y: auto;
+  background: #fff;
+  padding: 14px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.teams-chat-area::-webkit-scrollbar { width: 6px; }
+.teams-chat-area::-webkit-scrollbar-thumb { background: #d2d0ce; border-radius: 6px; }
+
+.teams-msg {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  animation: teams-msg-in .25s ease;
+}
+@keyframes teams-msg-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: none; }
+}
+
+.teams-avatar {
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  border-radius: 50%;
+  background: #6264a7;
+  color: #fff;
+  display: grid;
+  place-items: center;
+  font-size: 13px;
+  font-weight: 700;
+  flex: none;
+  overflow: hidden;
+}
+.teams-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  image-rendering: pixelated;
+}
+.teams-avatar span { line-height: 1; }
+
+.teams-msg-content {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.teams-msg-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.teams-sender-name {
+  font-weight: 700;
+  font-size: 13px;
+  color: #252423;
+}
+.teams-timestamp {
+  font-size: 11px;
+  color: #8a8886;
+}
+
+.teams-bubble {
+  background: #f3f2f1;
+  color: #252423;
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid #e1dfdd;
+  font-size: 13px;
+  line-height: 1.55;
+  word-wrap: break-word;
+  display: inline-block;
+  max-width: 100%;
+}
+
+.teams-msg.system {
+  justify-content: center;
+}
+.teams-msg.system .teams-msg-content {
+  align-items: center;
+}
+.teams-msg.system .teams-bubble {
+  background: #fff4ce;
+  border-color: #f0d97c;
+  color: #6e5907;
+  font-size: 12px;
+  text-align: center;
+  font-weight: 600;
+}
+
+/* リアクションパネル */
+.teams-reaction-panel {
+  background: #faf9f8;
+  border-top: 1px solid #e1dfdd;
+  padding: 10px 12px calc(12px + var(--safe-bottom));
+}
+.teams-reaction-title {
+  font-size: 11px;
+  color: #605e5c;
+  margin-bottom: 8px;
+  text-align: center;
+  font-weight: 700;
+}
+.teams-stamps {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+}
+.teams-stamp-btn {
+  background: #fff;
+  border: 1px solid #d2d0ce;
+  border-radius: 6px;
+  padding: 10px 4px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  font-family: inherit;
+  transition: transform .08s, background .15s;
+}
+.teams-stamp-btn:active {
+  background: #f3f2f1;
+  transform: scale(.96);
+}
+.teams-stamp-btn:disabled {
+  opacity: .5;
+  cursor: default;
+}
+.teams-stamp-btn span:first-child { font-size: 22px; line-height: 1; }
+.teams-stamp-label {
+  font-size: 10px;
+  color: #605e5c;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* ======== 以下、過去ブロックの重複は削除済み ======== */
+
+
+/* レトロ画面の土台 */
+.retro {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column;
+  background:
+    radial-gradient(120% 80% at 50% 0%, #4a2670 0%, transparent 60%),
+    radial-gradient(120% 80% at 50% 100%, #2a1a45 0%, transparent 60%),
+    linear-gradient(180deg, #14102a 0%, #0a081a 100%);
+  color: var(--r-ink);
+  font-family: var(--r-font-jp);
+  overflow: hidden;
+}
+
+/* スキャンラインとCRT風ヴィネット（角の暗がり）オーバーレイ */
+.retro::before {
+  content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 99;
+  background: 
+    repeating-linear-gradient(
+      0deg,
+      rgba(255,255,255,.02) 0px,
+      rgba(255,255,255,.02) 1px,
+      transparent 1px,
+      transparent 3px),
+    radial-gradient(circle, transparent 60%, rgba(10, 8, 26, 0.4) 100%);
+  box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.6);
+}
+
+/* 背景に散らす装飾アイコン（コーヒー/書類/ドル/マウスなど） */
+.retro-bg-fx {
+  position: absolute; inset: 0; pointer-events: none; z-index: 0;
+}
+.retro-bg-fx .fx {
+  position: absolute; font-size: 28px; opacity: .45;
+  filter: drop-shadow(0 0 6px rgba(0,0,0,.6));
+  animation: floaty 6s ease-in-out infinite;
+  transition: opacity 0.3s;
+}
+.retro-bg-fx .fx:hover {
+  opacity: 0.85;
+}
+.retro-bg-fx .fx.coin   { color: var(--r-yellow); text-shadow: 0 0 10px rgba(255,210,74,.8); }
+.retro-bg-fx .fx.doc    { color: #e8e6dc; text-shadow: 0 0 10px rgba(232,230,220,.4); }
+.retro-bg-fx .fx.mouse  { color: var(--r-cyan); text-shadow: 0 0 10px rgba(91,232,255,.5); }
+.retro-bg-fx .fx.coffee { color: #e8b48e; text-shadow: 0 0 10px rgba(232,180,142,.5); }
+.retro-bg-fx .fx.spark  { color: var(--r-lime); text-shadow: 0 0 10px rgba(108,240,110,.7); }
+
+@keyframes floaty {
+  0%, 100% { transform: translateY(0) scale(1) rotate(var(--rot, 0deg)); }
+  50%      { transform: translateY(-12px) scale(1.05) rotate(calc(var(--rot, 0deg) + 6deg)); }
+}
+
+/* 本文ラップ（最前面） */
+/* =========================================================================
+   キャラクター枠（タイトル画面のキャラ3体ストリップ）
+   ========================================================================= */
+.char-strip {
+  display: flex; justify-content: center; gap: 14px; padding: 6px 12px 12px;
+}
+.char {
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+}
+.char-art {
+  width: 78px; height: 78px;
+  image-rendering: pixelated;
+  filter: drop-shadow(0 4px 0 rgba(0,0,0,.35));
+}
+.char-name {
+  font-family: var(--r-font-jp); font-weight: 700; font-size: 13px;
+  color: #fff; text-shadow: 2px 2px 0 #1a1230;
+}
+
+/* =========================================================================
+.neon-sub {
+  font-family: var(--r-font-jp);
+  font-size: 26px; font-weight: 700; letter-spacing: .04em;
+  color: #fff; text-align: center;
+  text-shadow:
+    0 0 4px #fff,
+    0 0 10px rgba(194,103,255,.9),
+    0 0 22px rgba(138,77,255,.7),
+    3px 3px 0 #1a1230;
+  animation: text-flicker 5s infinite;
+}
+
+/* 日本語メインタイトル用 */
+.neon-logo-jp {
+  font-family: var(--r-font-jp);
+  font-size: 64px; font-weight: 900; letter-spacing: .08em;
+  background: linear-gradient(180deg, #ffffff 0%, #ff8ade 40%, #c267ff 100%);
+  -webkit-background-clip: text; background-clip: text;
+  color: transparent;
+  text-align: center; padding: 4px 0;
+  -webkit-text-stroke: 2.5px #0a0518;
+  filter:
+    drop-shadow(0 0 8px rgba(255,92,180,0.95))
+    drop-shadow(0 0 20px rgba(194,103,255,0.75))
+    drop-shadow(0 0 30px rgba(138,77,255,0.5));
+  animation: neon-flicker 4s infinite alternate;
+}
+.retro-card .label {
+  font-family: var(--r-font-en); font-size: 10px; letter-spacing: .14em;
+  color: var(--r-yellow); margin-bottom: 4px;
+}
+.retro-card .h { font-family: var(--r-font-jp); font-weight: 700; font-size: 18px; }
+.retro-card .body { font-size: 14px; color: var(--r-sub); line-height: 1.55; margin-top: 4px; }
+
+/* チップ（コイン残高など） */
+.retro-chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: #1a1230; color: var(--r-yellow); font-family: var(--r-font-jp);
+  font-weight: 700; font-size: 13px; padding: 6px 10px; border-radius: 4px;
+  box-shadow: inset 0 0 0 2px var(--r-gold), 0 2px 0 rgba(0,0,0,.5);
+  text-shadow: 0 0 6px rgba(255,210,74,.7);
+}
+.retro-chip .coin { color: var(--r-gold); }
+
+/* ヘッダ（戻る矢印） */
+.retro-appbar {
+  display: flex; align-items: center; gap: 10px;
+  padding: calc(14px + var(--safe-top)) 14px 12px;
+}
+.retro-back {
+  width: 40px; height: 40px;
+  background: #1a1230; color: #fff; font-family: var(--r-font-en); font-size: 14px;
+  border: 0; cursor: pointer; border-radius: 4px;
+  box-shadow: inset 0 0 0 2px var(--r-violet), 0 3px 0 rgba(0,0,0,.5);
+}
+.retro-back:active { transform: translateY(2px); box-shadow: inset 0 0 0 2px var(--r-violet), 0 1px 0 rgba(0,0,0,.5); }
+.retro-page-title {
+  font-family: var(--r-font-jp); font-weight: 700; font-size: 20px;
+  text-shadow: 2px 2px 0 #1a1230, 0 0 12px rgba(194,103,255,.4);
+}
+
+/* リスト項目（求人・コレクション） */
+.retro-row {
+  display: flex; align-items: center; gap: 10px;
+  background: #20153a;
+  border: 3px solid #1a1230;
+  box-shadow: inset 0 0 0 2px var(--r-violet);
+  border-radius: 5px; padding: 10px 12px;
+  cursor: pointer; transition: transform .06s, filter .15s;
+}
+.retro-row:active { transform: translateY(2px); }
+.retro-row .av {
+  width: 44px; height: 44px; image-rendering: pixelated; flex: none;
+  background: #14102a; border-radius: 4px;
+}
+.retro-row .t { flex: 1; min-width: 0; }
+.retro-row .t .tt { font-family: var(--r-font-jp); font-weight: 700; font-size: 15px; color: #fff; }
+.retro-row .t .ss { font-size: 12px; color: var(--r-sub); margin-top: 2px; }
+.retro-row .go { font-family: var(--r-font-en); color: var(--r-yellow); font-size: 14px; }
+.retro-row.locked { filter: saturate(.2) brightness(.7); cursor: default; }
+.retro-row.locked .t .tt { color: var(--r-mute); }
+
+/* セクションタイトル */
+.retro-section {
+  font-family: var(--r-font-jp); font-weight: 700; font-size: 14px; color: #fff;
+  padding: 14px 14px 8px; display: flex; align-items: center; gap: 8px;
+  text-shadow: 2px 2px 0 #1a1230;
+}
+.retro-section::before {
+  content: ""; width: 10px; height: 10px; background: var(--r-yellow);
+  box-shadow: 0 0 8px rgba(255,210,74,.8);
+}
+
+/* =========================================================================
+   レトロ・モーダル（ガチャ結果・リザルト）
+   ========================================================================= */
+.retro-modal-mask {
+  position: absolute; inset: 0; background: rgba(10,8,26,.85);
+  display: grid; place-items: center; padding: 18px; z-index: 200;
+  animation: retro-in .18s ease;
+}
+@keyframes retro-in { from { opacity: 0; } to { opacity: 1; } }
+
+/* 給料コインのきらめき */
+.coin-pop {
+  display: inline-block; color: var(--r-yellow); font-family: var(--r-font-jp);
+  font-weight: 700; text-shadow: 0 0 8px rgba(255,210,74,.9), 2px 2px 0 #1a1230;
+}
+
+/* スクロール領域（メタ画面用） */
+.retro-scroll { flex: 1; overflow-y: auto; overflow-x: hidden; }
+.retro-scroll::-webkit-scrollbar { width: 0; }
+/* スクロール領域（メタ画面用） */
+.retro-scroll { flex: 1; overflow-y: auto; overflow-x: hidden; }
+.retro-scroll::-webkit-scrollbar { width: 0; }
+
+/* =========================================================================
+   タイトル画面の佐藤部長＆吹き出し
+   ========================================================================= */
+.boss-showcase {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 10px 0;
+  z-index: 10;
+}
+.boss-showcase img {
+  width: 140px;
+  height: auto;
+  filter: drop-shadow(0 6px 0 rgba(0,0,0,.4));
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+.boss-speech-bubble {
+  position: relative;
+  background: #1a1230;
+  border: 3px solid #ffd24a; /* 黄色のネオン枠 */
+  box-shadow: 
+    0 0 8px rgba(255,210,74,.5),
+    inset 0 0 0 2px #1a1230;
+  color: #ffffff;
+  padding: 10px 14px;
+  font-family: var(--r-font-jp);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.4;
+  border-radius: 6px;
+  margin-top: 14px;
+  max-width: 260px;
+  text-align: center;
+  word-break: break-all;
+  filter: drop-shadow(0 4px 0 rgba(0,0,0,.35));
+}
+/* 吹き出しの三角部分 */
+.boss-speech-bubble::before {
+  content: "";
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 8px;
+  border-style: solid;
+  border-color: transparent transparent #ffd24a transparent;
+}
+.boss-speech-bubble::after {
+  content: "";
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 5px;
+  border-style: solid;
+  border-color: transparent transparent #1a1230 transparent;
+  margin-bottom: -3px; /* 枠線と背景を重ねる */
+}
+.boss-speech-bubble::after {
+  content: "";
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 5px;
+  border-style: solid;
+  border-color: transparent transparent #1a1230 transparent;
+  margin-bottom: -3px; /* 枠線と背景を重ねる */
+}
+
+/* =========================================================================
+   チャット・レスポンス・ラリー（Teams風）
+   ========================================================================= */
+.teams-game {
+  background: #f3f2f1; /* Teams ライトグレー背景 */
+  color: #323130;      /* Teams ダークグレー文字 */
+  font-family: 'Segoe UI', var(--r-font-jp);
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column;
+  overflow: hidden;
+}
+
+.teams-header {
+  background: #6264a7; /* Teams パープル */
+  color: #ffffff;
+  height: 48px;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 16px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  z-index: 10;
+}
+.teams-header .title {
+  font-weight: 600; font-size: 16px;
+}
+.teams-header .btn-back {
+  background: transparent; border: 0; color: #fff; cursor: pointer; font-size: 18px;
+  padding: 4px 8px;
+}
+
+.teams-subbar {
+  background: #ffffff;
+  border-bottom: 1px solid #e1dfdd;
+  padding: 8px 16px;
+  display: flex; align-items: center; justify-content: space-between;
+  font-size: 13px;
+}
+.teams-gauge-container {
+  flex: 1; margin: 0 16px;
+  background: #edebe9; height: 12px; border-radius: 6px; overflow: hidden;
+  border: 1px solid #d2d0ce;
+}
+.teams-gauge-bar {
+  background: #107c41; /* Teams グリーン */
+  height: 100%; width: 100%;
+  transition: width 0.3s ease, background-color 0.3s ease;
+}
+.teams-gauge-bar.warning { background: #d83b01; } /* 警告色 */
+
+.teams-chat-area {
+  flex: 1; overflow-y: auto;
+  padding: 16px;
+  display: flex; flex-direction: column; gap: 12px;
+}
+.teams-chat-area::-webkit-scrollbar { width: 6px; }
+/* タイマーバー */
+.teams-timer-container {
+  height: 4px; background: #edebe9; width: 100%;
+}
+.teams-timer-bar {
+  background: #6264a7; height: 100%; width: 100%;
+  transition: width 0.05s linear;
+}
+
+/* =========================================================================
+   給与支払明細書＆領収印（ハンコ）
+   ========================================================================= */
+.pay-slip {
+  background: #fdfaf2;      /* レトロ紙風の淡いクリーム色 */
+  border: 3px double #1a1230; /* 二重枠線 */
+  border-radius: 4px;
+  padding: 16px 12px;
+  color: #2b2b2b;
+  font-family: var(--r-font-jp);
+  box-shadow: 
+    0 6px 16px rgba(0,0,0,0.5),
+    inset 0 0 0 1px #ffffff;
+  position: relative;
+  overflow: hidden;
+}
+.pay-slip.fired {
+  background: #fff5f5; /* 解雇時はうっすら赤っぽい紙 */
+  border-color: var(--r-red);
+}
+.pay-title {
+  text-align: center;
+  font-size: 20px;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  border-bottom: 2px solid #2b2b2b;
+  padding-bottom: 6px;
+  margin-bottom: 12px;
+  color: #1a1230;
+}
+.pay-slip.fired .pay-title {
+  color: var(--r-red);
+  border-bottom-color: var(--r-red);
+}
+.pay-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  font-weight: 700;
+  margin-bottom: 10px;
+  color: #555555;
+  border-bottom: 1px dashed #c0c0c0;
+  padding-bottom: 4px;
+}
+.pay-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  margin-bottom: 12px;
+}
+.pay-table th, .pay-table td {
+  border: 1px solid #c8c6c4;
+  padding: 6px 8px;
+  text-align: left;
+}
+.pay-table th {
+  background: #f3ede0;
+  font-weight: 700;
+  color: #1a1230;
+}
+.pay-slip.fired .pay-table th {
+  background: #fee;
+}
+.pay-table td:last-child, .pay-table th:last-child {
+  text-align: right;
+  font-family: var(--r-font-en), monospace;
+  font-size: 11px;
+}
+.pay-table tr.pay-total {
+  font-size: 14px;
+  font-weight: 900;
+  background: #f3ede0;
+}
+  bottom: 80px; right: 24px;
+}
+
+/* =========================================================================
+   求人選択（労働選択）画面の独自ネオンデザイン
+   ========================================================================= */
+.job-title-container {
+  text-align: center;
+  padding: 16px 16px 4px;
+}
+.job-title-the {
+  font-family: var(--r-font-en);
+  font-size: 16px;
+  font-weight: bold;
+  letter-spacing: 0.3em;
+  color: #ffffff;
+  margin-bottom: 2px;
+  text-shadow: 0 0 6px rgba(255,255,255,0.6);
+}
+.job-title-main {
+  font-family: var(--r-font-jp);
+  font-size: 36px;
+  font-weight: 900;
+  color: #ffeb3b;
+  text-shadow: 
+    0 0 4px #000,
+    -2px -2px 0 #1a1230,  
+     2px -2px 0 #1a1230,
+    -2px  2px 0 #1a1230,
+     2px  2px 0 #1a1230,
+    0 0 15px rgba(255, 235, 59, 0.9);
+  letter-spacing: 0.1em;
+  margin-bottom: 4px;
+}
+.job-title-sub {
+  font-family: var(--r-font-jp);
+  font-size: 18px;
+  font-weight: bold;
+  color: #ffffff;
+  letter-spacing: 0.15em;
+  text-shadow: 1px 1px 3px rgba(0,0,0,0.8);
+}
+
+/* ジョブカード本体 */
+.job-card {
+  display: flex;
+  flex-direction: column;
+  background: rgba(26, 18, 48, 0.85);
+  border: 3px solid #332755;
+  border-radius: 12px;
+  padding: 12px 14px;
+  cursor: pointer;
+  transition: transform 0.12s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  position: relative;
+  overflow: visible;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+}
+
+.job-card.selected {
+  transform: translateY(-2px) scale(1.01);
+}
+
+.job-card.locked {
+  filter: saturate(0.1) brightness(0.5);
+  cursor: not-allowed;
+  box-shadow: none !important;
+}
+
+/* ジョブカード固有のネオン色 */
+.job-card[data-job="powerpotter"] {
+  border-color: rgba(74, 222, 128, 0.4);
+}
+.job-card[data-job="powerpotter"].selected {
+  border-color: #4ade80;
+  box-shadow: 0 0 18px rgba(74, 222, 128, 0.7), inset 0 0 8px rgba(74, 222, 128, 0.4);
+}
+
+.job-card[data-job="chatrally"] {
+  border-color: rgba(194, 103, 255, 0.4);
+}
+.job-card[data-job="chatrally"].selected {
+  border-color: #c267ff;
+  box-shadow: 0 0 18px rgba(194, 103, 255, 0.7), inset 0 0 8px rgba(194, 103, 255, 0.4);
+}
+.job-card[data-job="jiggler"] {
+  border-color: rgba(47, 174, 143, 0.4);
+}
+.job-card[data-job="jiggler"].selected {
+  border-color: #2fae8f;
+  box-shadow: 0 0 18px rgba(47, 174, 143, 0.7), inset 0 0 8px rgba(47, 174, 143, 0.4);
+}
+.job-card[data-job="exchange"] {
+  border-color: rgba(255, 210, 74, 0.4);
+}
+.job-card[data-job="exchange"].selected {
+  border-color: #ffd24a;
+  box-shadow: 0 0 18px rgba(255, 210, 74, 0.7), inset 0 0 8px rgba(255, 210, 74, 0.4);
+}
+
+.job-card-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  text-align: left;
+  padding-left: 6px;
+}
+/* 下部コントロールエリア */
+.job-controls {
+  padding: 12px 14px;
+  display: flex;
+  gap: 10px;
+}
+
+.job-start-btn {
+  flex: 1.1;
+}
+
+.job-start-btn span, .job-back-btn span {
+  font-size: 15px !important;
+  white-space: nowrap;
+}
+
+.job-start-btn:disabled {
+  background: #374151 !important;
+  color: #9ca3af !important;
+  box-shadow: none !important;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.job-back-btn {
+  flex: 1;
+}
+
+/* =========================================================================
+   求人選択（労働選択）画面のコンパクトネオンデザイン
+   ========================================================================= */
+.job-title-container {
+  text-align: center;
+  padding: 16px 16px 4px;
+}
+.job-title-the {
+  font-family: var(--r-font-en);
+  font-size: 16px;
+  font-weight: bold;
+  letter-spacing: 0.3em;
+  color: #ffffff;
+  margin-bottom: 2px;
+  text-shadow: 0 0 6px rgba(255,255,255,0.6);
+}
+.job-title-main {
+  font-family: var(--r-font-jp);
+  font-size: 36px;
+  font-weight: 900;
+  color: #ffeb3b;
+  text-shadow: 
+    0 0 4px #000,
+    -2px -2px 0 #1a1230,  
+     2px -2px 0 #1a1230,
+    -2px  2px 0 #1a1230,
+     2px  2px 0 #1a1230,
+    0 0 15px rgba(255, 235, 59, 0.9);
+  letter-spacing: 0.1em;
+  margin-bottom: 4px;
+}
+.job-title-sub {
+  font-family: var(--r-font-jp);
+  font-size: 18px;
+  font-weight: bold;
+  color: #ffffff;
+  letter-spacing: 0.15em;
+  text-shadow: 1px 1px 3px rgba(0,0,0,0.8);
+}
+
+/* ジョブ選択画面のコンパクト行（リスト） */
+.job-compact-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(26, 18, 48, 0.85);
+  border: 2px solid #332755;
+  border-radius: 10px;
+  padding: 10px 14px;
+  cursor: pointer;
+  transition: transform 0.1s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  position: relative;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+.job-compact-row:active {
+  transform: scale(0.98);
+}
+
+.job-compact-row.locked {
+  filter: saturate(0.1) brightness(0.5);
+  cursor: not-allowed;
+}
+
+/* ゲームごとのカラーアクセント */
+.job-compact-row[data-job="powerpotter"] {
+  border-color: rgba(74, 222, 128, 0.4);
+}
+.job-compact-row[data-job="powerpotter"]:hover {
+  border-color: #4ade80;
+  box-shadow: 0 0 12px rgba(74, 222, 128, 0.5);
+}
+
+.job-compact-row[data-job="chatrally"] {
+  border-color: rgba(234, 179, 8, 0.4);
+}
+/* Compact Job Row */
+.job-compact-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(26, 18, 48, 0.85);
+  border: 2px solid #332755;
+  border-radius: 10px;
+  padding: 10px 14px;
+  cursor: pointer;
+  transition: transform 0.1s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  position: relative;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+.job-compact-row:active {
+  transform: scale(0.98);
+}
+
+.job-compact-row.locked {
+  filter: saturate(0.1) brightness(0.5);
+  cursor: not-allowed;
+}
+
+/* Accent Colors */
+.job-compact-row[data-job="powerpotter"] { border-color: rgba(74, 222, 128, 0.4); }
+.job-compact-row[data-job="powerpotter"]:hover { border-color: #4ade80; box-shadow: 0 0 12px rgba(74, 222, 128, 0.5); }
+
+.job-compact-row[data-job="chatrally"] { border-color: rgba(234, 179, 8, 0.4); }
+.job-compact-row[data-job="chatrally"]:hover { border-color: #eab308; box-shadow: 0 0 12px rgba(234, 179, 8, 0.5); }
+
+.job-compact-row[data-job="jiggler"] { border-color: rgba(236, 72, 153, 0.4); }
+.job-compact-row[data-job="jiggler"]:hover { border-color: #ec4899; box-shadow: 0 0 12px rgba(236, 72, 153, 0.5); }
+
+.job-compact-row[data-job="exchange"] { border-color: rgba(59, 130, 246, 0.4); }
+.job-compact-row[data-job="exchange"]:hover { border-color: #3b82f6; box-shadow: 0 0 12px rgba(59, 130, 246, 0.5); }
+
+.job-compact-row .av {
+  width: 38px;
+  height: 38px;
+  image-rendering: pixelated;
+  flex: none;
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.job-compact-row .av img, .job-compact-row .av svg {
+  width: 26px;
+  height: auto;
+}
+
+.job-compact-row .av span {
+  font-size: 20px;
+}
+
+.job-compact-row .info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.job-compact-row .title {
+  font-family: var(--r-font-jp);
+  font-size: 16px;
+  font-weight: 900;
+}
+/* Job Detail Dialog */
+.job-detail-dialog {
+  background: #1a1230;
+  border: 3px double #ff5cb4;
+  box-shadow: 0 0 25px rgba(255, 92, 180, 0.5), 0 10px 25px rgba(0,0,0,0.7);
+  border-radius: 16px;
+  width: 100%;
+  max-width: 320px;
+  padding: 18px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  animation: retro-dialog-in 0.22s cubic-bezier(0.1, 0.8, 0.3, 1.15) forwards;
+}
+
+@keyframes retro-dialog-in {
+  0% { transform: scale(0.85); opacity: 0; }
+  100% { transform: scale(1.0); opacity: 1; }
+}
+
+.job-detail-dialog[data-job="powerpotter"] { border-color: #4ade80; box-shadow: 0 0 25px rgba(74, 222, 128, 0.6), 0 10px 25px rgba(0,0,0,0.7); }
+.job-detail-dialog[data-job="chatrally"] { border-color: #eab308; box-shadow: 0 0 25px rgba(234, 179, 8, 0.6), 0 10px 25px rgba(0,0,0,0.7); }
+.job-detail-dialog[data-job="jiggler"] { border-color: #ec4899; box-shadow: 0 0 25px rgba(236, 72, 153, 0.6), 0 10px 25px rgba(0,0,0,0.7); }
+.job-detail-dialog[data-job="exchange"] { border-color: #3b82f6; box-shadow: 0 0 25px rgba(59, 130, 246, 0.6), 0 10px 25px rgba(0,0,0,0.7); }
+
+.job-detail-header {
+  font-family: var(--r-font-jp);
+  font-size: 19px;
+  font-weight: 900;
+  color: #ffffff;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: 8px;
+  text-shadow: 1px 1px 3px rgba(0,0,0,0.8);
+  text-align: center;
+}
+
+.job-detail-desc {
+  font-size: 12px;
+  line-height: 1.45;
+  font-weight: 700;
+  text-align: center;
+  padding: 0 4px;
+}
+.job-detail-dialog[data-job="powerpotter"] .job-detail-desc { color: #f87171; }
+.job-detail-dialog[data-job="chatrally"] .job-detail-desc { color: #fde047; }
+.job-detail-dialog[data-job="jiggler"] .job-detail-desc { color: #fbcfe8; }
+.job-detail-dialog[data-job="exchange"] .job-detail-desc { color: #93c5fd; }
+
+.job-detail-content {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: rgba(0, 0, 0, 0.4);
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.06);
+}
+
+/* 詳細モーダル：左メディア / 右情報 / 下コントロール */
+.job-detail-media {
+  width: 72px;
+  height: 72px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  background: rgba(0, 0, 0, 0.45);
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+  image-rendering: pixelated;
+}
+.job-detail-media img {
+  max-width: 100%;
+  max-height: 100%;
+  image-rendering: pixelated;
+}
+
+.job-detail-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.job-detail-catch {
+  font-family: var(--r-font-jp);
+  font-size: 14px;
+  font-weight: 700;
+  color: #ffffff;
+  line-height: 1.45;
+  text-shadow: 1px 1px 0 #0a081a;
+}
+.job-detail-reward {
+  font-family: var(--r-font-en), monospace;
+  font-size: 11px;
+  letter-spacing: .12em;
+  color: var(--r-yellow);
+  text-shadow: 0 0 6px rgba(255, 210, 74, 0.6);
+  background: rgba(255, 210, 74, 0.12);
+  padding: 4px 8px;
+  border-radius: 4px;
+  align-self: flex-start;
+  border: 1px solid rgba(255, 210, 74, 0.25);
+}
+
+.job-detail-controls {
+  display: flex;
+  gap: 10px;
+  margin-top: 6px;
+}
+.job-detail-controls .pbtn { flex: 1; }
+
+/* チャットラリー詳細用ミニチャットモック */
+.mini-chat-mock {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  background: #1a0d2a;
+  border-radius: 4px;
+  overflow: hidden;
+}
+.mini-chat-sidebar {
+  width: 10px;
+  background: linear-gradient(180deg, #4a154b, #6c2c70);
+  flex: none;
+}
+.mini-chat-body {
+  flex: 1;
+  padding: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.mini-chat-bubble {
+  font-size: 6px;
+  background: #ffffff;
+  color: #1a1a1a;
+  padding: 2px 4px;
+  border-radius: 2px;
+  max-width: 85%;
+  align-self: flex-start;
+  font-family: var(--r-font-jp);
+}
+.mini-chat-stamps {
+  display: flex;
+  gap: 3px;
+  margin-top: 2px;
+}
+.mini-chat-stamp { font-size: 10px; }
+
+/* =========================================================================
+   マウス・ジグラー (jiggler.js) 専用スタイル
+   ========================================================================= */
+.jig-game {
+  width: 100%;
+  height: 100%;
+  background: #0f0a1c;
+  display: flex;
+  flex-direction: column;
+  color: #fff;
+  font-family: var(--r-font-jp);
+}
+
+.jig-titlebar {
+  background: #1e1e2e;
+  border-bottom: 2px solid #2d2d3d;
+  padding: 6px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.jig-filename {
+  font-size: 11px;
+  color: #a6adc8;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1;
+  text-align: center;
+}
+
+.jig-clock {
+  font-family: var(--r-font-en), monospace;
+  font-size: 14px;
+  color: var(--r-yellow);
+  font-weight: bold;
+}
+
+.jig-screen {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 12px;
+  gap: 12px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* 在席ステータス表示 */
+.jig-status-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #181825;
+  border: 1px solid #313244;
+  border-radius: 6px;
+  padding: 8px 12px;
+}
+
+.jig-status-lamp-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.jig-status-lamp {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #f38ba8; /* 赤 */
+  box-shadow: 0 0 8px #f38ba8;
+  transition: background 0.2s, box-shadow 0.2s;
+}
+
+.jig-status-lamp.active {
+  background: #a6e3a1; /* 緑 */
+  box-shadow: 0 0 8px #a6e3a1;
+}
+
+.jig-status-lamp.warning {
+  background: #f9e2af; /* 黄 */
+  box-shadow: 0 0 8px #f9e2af;
+}
+
+.jig-status-text {
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.jig-counter {
+  font-size: 11px;
+  font-weight: bold;
+  color: var(--r-yellow);
+}
+
+/* ゲージ */
+.jig-gauges {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* =========================================================================
+   マウス・ジグラー (jiggler.js) 専用スタイル (Teams UI & スプリットレイアウト)
+   ========================================================================= */
+
+.jig-game {
+  width: 100%;
+  height: 100%;
+  background: #0d081b;
+  display: flex;
+  flex-direction: column;
+  color: #fff;
+  font-family: var(--r-font-jp);
+}
+
+.jig-titlebar {
+  background: #1e1e2e;
+  border-bottom: 2px solid #2d2d3d;
+  padding: 6px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.jig-filename {
+  font-size: 11px;
+  color: #a6adc8;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1;
+  text-align: center;
+}
+
+.jig-clock {
+  font-family: var(--r-font-en), monospace;
+  font-size: 14px;
+  color: var(--r-yellow);
+  font-weight: bold;
+}
+
+/* --- 上半分：Microsoft Teams UI --- */
+.teams-window {
+  display: flex;
+  flex-direction: column;
+  height: 40%;
+  background: #201f1f; /* Teams Dark theme background */
+  border: 3px solid #3b3a39;
+  border-radius: 6px;
+  margin: 10px 10px 6px;
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  font-size: 11px;
+}
+
+.teams-top-bar {
+  height: 32px;
+  background: #201f1f;
+  border-bottom: 1px solid #3b3a39;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 10px;
+  color: #fff;
+  user-select: none;
+}
+
+.teams-title {
+  font-weight: 600;
+  color: #edebe9;
+  font-size: 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.teams-title::before {
+  content: "T";
+  background: #6264a7; /* Teams Purple */
+  color: white;
+  width: 14px;
+  height: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 3px;
+  font-weight: bold;
+  font-size: 9px;
+}
+
+.teams-search-bar {
+  background: #292929;
+  border: 1px solid #3b3a39;
+  border-radius: 4px;
+  padding: 2px 10px;
+  width: 140px;
+  text-align: center;
+  color: #a19f9d;
+  font-size: 9px;
+}
+
+.teams-profile-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  position: relative;
+}
+
+.teams-profile-avatar {
+  width: 20px;
+  height: 20px;
+  background: #7a24db;
+  border-radius: 50%;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 9px;
+}
+
+.teams-profile-status {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  border: 1.5px solid #201f1f;
+  background: #6bb700;
+  box-shadow: 0 0 4px #6bb700;
+}
+.teams-profile-status.active {
+  background: #6bb700;
+  box-shadow: 0 0 4px #6bb700;
+}
+.teams-profile-status.warning {
+  background: #f8a800;
+  box-shadow: 0 0 4px #f8a800;
+}
+
+.teams-main {
+  flex: 1;
+  display: flex;
+  background: #1f1f1f;
+  min-height: 0;
+}
+
+.teams-app-rail {
+  width: 36px;
+  background: #201f1f;
+  border-right: 1px solid #292929;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 6px;
+  gap: 12px;
+  user-select: none;
+}
+
+.rail-item {
+  position: relative;
+  font-size: 15px;
+  cursor: pointer;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  color: #a19f9d;
+  transition: color 0.2s, background 0.2s;
+}
+
+.rail-item.active {
+  color: #6264a7;
+  background: #292828;
+}
+
+.rail-badge {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  background: #d83b01;
+  color: white;
+  border-radius: 50%;
+  font-size: 8px;
+  width: 12px;
+  height: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+}
+
+.teams-chat-list {
+  width: 90px;
+  background: #252424;
+  border-right: 1px solid #292929;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  user-select: none;
+}
+
+.chat-list-item {
+  display: flex;
+  align-items: center;
+  padding: 6px;
+  gap: 6px;
+  border-bottom: 1px solid #201f1f;
+  position: relative;
+  cursor: pointer;
+  background: transparent;
+  transition: background 0.15s;
+}
+
+.chat-list-item.active {
+  background: #2f2f2f;
+}
+
+.chat-avatar {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #c34e0a;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 8px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.chat-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.chat-name {
+  font-weight: 600;
+  color: #f3f2f1;
+  font-size: 9px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.chat-preview {
+  font-size: 8px;
+  color: #a19f9d;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-top: 1px;
+}
+
+.chat-status-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  position: absolute;
+  bottom: 6px;
+  left: 19px;
+  border: 1px solid #252424;
+}
+.chat-status-dot.available {
+  background: #6bb700;
+}
+.chat-status-dot.away {
+  background: #f8a800;
+}
+.chat-status-dot.offline {
+  background: #8a8886;
+}
+
+.teams-chat-room {
+  flex: 1;
+  background: #1f1f1f;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.teams-room-header {
+  height: 30px;
+  border-bottom: 1px solid #292929;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 10px;
+  background: #1f1f1f;
+}
+
+.room-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.room-name {
+  font-weight: bold;
+  color: #fff;
+  font-size: 10px;
+}
+
+.room-status {
+  font-size: 8px;
+  color: #a19f9d;
+}
+
+.teams-monitor-banner {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(0, 0, 0, 0.3);
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: 1px solid #3b3a39;
+  max-width: 140px;
+}
+
+.teams-monitor-label {
+  font-size: 8px;
+  font-weight: 700;
+  color: #a19f9d;
+  white-space: nowrap;
+}
+
+.teams-monitor-val {
+  font-size: 8px;
+  font-weight: bold;
+  color: var(--r-yellow);
+  font-family: monospace;
+}
+
+.teams-monitor-track {
+  width: 40px;
+  height: 4px;
+  background: #111;
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.teams-monitor-fill {
+  height: 100%;
+  background: var(--ok);
+  transition: width 0.1s linear;
+}
+
+.teams-messages-container {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 0;
+  background: #1f1f1f;
+}
+
+.teams-msg {
+  display: flex;
+  gap: 8px;
+  max-width: 100%;
+  animation: teams-msg-fade 0.2s ease-out;
+}
+
+@keyframes teams-msg-fade {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.teams-msg-avatar {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 9px;
+  color: white;
+  flex-shrink: 0;
+}
+
+.teams-msg-avatar.boss {
+  background: #c34e0a;
+}
+.teams-msg-avatar.me {
+  background: #7a24db;
+}
+
+.teams-msg-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.teams-msg-meta {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  margin-bottom: 2px;
+}
+
+.teams-msg-sender {
+  font-weight: bold;
+  color: #f3f2f1;
+  font-size: 9px;
+}
+
+.teams-msg-time {
+  font-size: 7px;
+  color: #8a8886;
+}
+
+.teams-msg-text {
+  font-size: 9.5px;
+  color: #edebe9;
+  line-height: 1.4;
+  word-break: break-word;
+  background: #292929;
+  padding: 6px 8px;
+  border-radius: 0 6px 6px 6px;
+  display: inline-block;
+}
+
+.teams-msg.my-message .teams-msg-text {
+  background: #3b3a39;
+}
+
+.teams-inline-reply-box {
+  background: #201f1f;
+  border: 1px solid var(--r-red);
+  border-radius: 6px;
+  padding: 8px;
+  margin-top: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  box-shadow: 0 4px 12px rgba(255, 91, 110, 0.25);
+  animation: teams-reply-slide 0.2s cubic-bezier(0.1, 0.8, 0.3, 1.1) forwards;
+}
+
+@keyframes teams-reply-slide {
+  from { opacity: 0; transform: scaleY(0.8); transform-origin: top; }
+  to { opacity: 1; transform: scaleY(1); transform-origin: top; }
+}
+
+.teams-countdown-track {
+  width: 100%;
+  height: 4px;
+  background: #111;
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.teams-countdown-fill {
+  height: 100%;
+  background: var(--r-red);
+  width: 100%;
+  transition: width 0.1s linear;
+}
+
+.teams-reply-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.teams-reply-btn {
+  background: var(--ok) !important;
+  color: #000 !important;
+  font-weight: 800 !important;
+  border: none !important;
+  padding: 6px 12px !important;
+  border-radius: 4px !important;
+  cursor: pointer !important;
+  font-size: 10.5px !important;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  box-shadow: 0 2px 6px rgba(0, 255, 0, 0.2);
+  transition: transform 0.1s, background 0.1s;
+}
+
+.teams-reply-btn:active {
+  transform: scale(0.95);
+  background: #90d38b !important;
+}
+
+.teams-input-bar {
+  padding: 8px;
+  background: #1f1f1f;
+  border-top: 1px solid #292929;
+  user-select: none;
+}
+
+.teams-input-placeholder {
+  background: #292929;
+  border: 1px solid #3b3a39;
+  border-radius: 4px;
+  padding: 6px;
+  color: #8a8886;
+  font-size: 8px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* --- 下半分：物理デスク（分割レイアウト） --- */
+.jig-desk-split {
+  flex: 1;
+  display: flex;
+  gap: 10px;
+  padding: 0 10px 10px;
+  min-height: 0;
+}
+
+.jig-mouse-area {
+  flex: 1;
+  background: #11111b;
+  border: 2px dashed #89b4fa; /* Cyan dashed border */
+  border-radius: 10px;
+  position: relative;
+  overflow: hidden;
+  display: block; /* To position absolute child correctly */
+  cursor: grab;
+  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.8);
+  transition: border-color 0.2s;
+}
+
+.jig-mouse-area:active {
+  cursor: grabbing;
+  border-color: #ff5cb4;
+}
+
+.jig-desktop-label {
+  position: absolute;
+  top: 6px;
+  left: 8px;
+  font-size: 9px;
+  color: #89b4fa;
+  font-weight: bold;
+  pointer-events: none;
+  text-shadow: 0 1px 2px #000;
+}
+
+.jig-virtual-mouse {
+  width: 32px;
+  height: 46px;
+  background: #1e1e2e;
+  border: 2px solid #89b4fa;
+  border-radius: 16px 16px 10px 10px;
+  position: absolute;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.8);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 5px;
+  box-sizing: border-box;
+  pointer-events: none;
+  touch-action: none;
+  transition: transform 0.1s;
+}
+
+.jig-mouse-wheel {
+  width: 4px;
+  height: 10px;
+  background: #ff5cb4;
+  border-radius: 2px;
+  box-shadow: 0 0 4px #ff5cb4;
+}
+
+.jig-virtual-mouse::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 23px;
+  left: 50%;
+  width: 2px;
+  background: #89b4fa;
+  transform: translateX(-50%);
+}
+
+.jig-virtual-mouse.jiggle-shake {
+  animation: mouse-shake-anim 0.15s ease-in-out;
+}
+
+@keyframes mouse-shake-anim {
+  0%, 100% { transform: translate(0, 0); }
+  25% { transform: translate(-3px, 2px) rotate(-3deg); }
+  75% { transform: translate(3px, -2px) rotate(3deg); }
+}
+
+.jig-sabori-area {
+  flex: 1.15;
+  background: #181825;
+  border: 2px solid rgba(194, 103, 255, 0.4);
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+  transition: border-color 0.2s, box-shadow 0.2s;
+  min-height: 0;
+}
+
+.jig-sabori-area.active {
+  border-color: #c267ff;
+  box-shadow: 0 0 12px rgba(194, 103, 255, 0.5), 0 4px 10px rgba(0,0,0,0.4);
+}
+
+.jig-sabori-header {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  background: rgba(0,0,0,0.2);
+  padding: 6px;
+  border-radius: 6px;
+  border: 1px solid rgba(255,255,255,0.03);
+}
+
+.jig-sabori-title {
+  font-size: 10px;
+  font-weight: bold;
+  color: #cdd6f4;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.jig-sabori-val-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 9px;
+  font-weight: bold;
+  color: #fab387;
+}
+
+.jig-fill.sabori {
+  height: 100%;
+  width: 0%;
+  background: #fab387;
+  transition: width 0.1s linear;
+  border-radius: 5px;
+}
+
+.jig-fill.sabori.flash {
+  animation: sabori-flash-anim 0.3s;
+}
+
+@keyframes sabori-flash-anim {
+  0%, 100% { filter: brightness(1); }
+  50% { filter: brightness(2); background: #fff; }
+}
+
+.jig-worker-showcase {
+  width: 100%;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  min-height: 0;
+  margin: 6px 0;
+}
+
+.jig-worker-image {
+  max-width: 100%;
+  max-height: 120px;
+  object-fit: contain;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+  image-rendering: pixelated;
+  transition: transform 0.15s ease;
+}
+
+.jig-worker-image.saboring {
+  animation: saboring-shake-anim 0.25s infinite alternate ease-in-out;
+}
+
+@keyframes saboring-shake-anim {
+  0% { transform: translateY(0) rotate(-1deg); }
+  100% { transform: translateY(-2px) rotate(1deg); }
+}
+
+.jig-work-effect {
+  position: absolute;
+  font-size: 18px;
+  pointer-events: none;
+  opacity: 0;
+  animation: float-up-effect 0.8s ease-out forwards;
+  z-index: 10;
+}
+
+@keyframes float-up-effect {
+  0% { transform: translateY(15px) scale(0.6); opacity: 0; }
+  30% { opacity: 1; }
+  100% { transform: translateY(-45px) scale(1.3); opacity: 0; }
+}
+
+.jig-sabori-btn {
+  width: 100%;
+  padding: 10px 0 !important;
+}
+
+.jig-sabori-btn span {
+  font-size: 15px !important;
+  font-weight: 900;
+}
+
+.jig-sabori-btn.active {
+  background: #c267ff !important;
+  box-shadow: 0 0 15px rgba(194,103,255,0.8) !important;
+  transform: translateY(2px);
+}
+
+/* =========================================================================
+   ChatRally (Teams 風) — 破損したスタイルの上書き再定義
+   ========================================================================= */
+.teams-game {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  background: #f5f5f7;
+  color: #252423;
+  font-family: "Noto Sans JP", "BIZ UDGothic", "Yu Gothic", sans-serif;
+  overflow: hidden;
+}
+
+.teams-header {
+  background: #6264a7;
+  color: #fff;
+  padding: calc(10px + var(--safe-top)) 12px 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+}
+.teams-header .btn-back {
+  background: rgba(255,255,255,.18);
+  border: 0;
+  color: #fff;
+  width: 30px;
+  height: 30px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+}
+.teams-header .title {
+  flex: 1;
+  text-align: center;
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.teams-subbar {
+  background: #fff;
+  padding: 8px 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 11px;
+  color: #252423;
+  border-bottom: 1px solid #e1dfdd;
+  flex-wrap: wrap;
+}
+.teams-gauge-container {
+  flex: 1;
+  min-width: 80px;
+  height: 8px;
+  background: #e1dfdd;
+  border-radius: 4px;
+  overflow: hidden;
+}
+.teams-gauge-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #6264a7, #8a8df0);
+  transition: width .25s ease;
+}
+.teams-gauge-bar.warning {
+  background: linear-gradient(90deg, #d13438, #e34c52);
+}
+
+.teams-timer-container {
+  height: 3px;
+  background: #e1dfdd;
+}
+.teams-timer-bar {
+  height: 100%;
+  background: #6264a7;
+  transition: width .1s linear;
+}
+
+.teams-chat-area {
+  flex: 1;
+  overflow-y: auto;
+  background: #fff;
+  padding: 14px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.teams-chat-area::-webkit-scrollbar { width: 6px; }
+.teams-chat-area::-webkit-scrollbar-thumb { background: #d2d0ce; border-radius: 6px; }
+
+.teams-msg {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  animation: teams-msg-in .25s ease;
+}
+@keyframes teams-msg-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: none; }
+}
+
+.teams-avatar {
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  border-radius: 50%;
+  background: #6264a7;
+  color: #fff;
+  display: grid;
+  place-items: center;
+  font-size: 13px;
+  font-weight: 700;
+  flex: none;
+  overflow: hidden;
+}
+.teams-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  image-rendering: pixelated;
+}
+.teams-avatar span { line-height: 1; }
+
+.teams-msg-content {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.teams-msg-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.teams-sender-name {
+  font-weight: 700;
+  font-size: 13px;
+  color: #252423;
+}
+.teams-timestamp {
+  font-size: 11px;
+  color: #8a8886;
+}
+
+.teams-bubble {
+  background: #f3f2f1;
+  color: #252423;
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid #e1dfdd;
+  font-size: 13px;
+  line-height: 1.55;
+  word-wrap: break-word;
+  display: inline-block;
+  max-width: 100%;
+}
+
+.teams-msg.system {
+  justify-content: center;
+}
+.teams-msg.system .teams-msg-content {
+  align-items: center;
+}
+.teams-msg.system .teams-bubble {
+  background: #fff4ce;
+  border-color: #f0d97c;
+  color: #6e5907;
+  font-size: 12px;
+  text-align: center;
+  font-weight: 600;
+}
+
+/* リアクションパネル */
+.teams-reaction-panel {
+  background: #faf9f8;
+  border-top: 1px solid #e1dfdd;
+  padding: 10px 12px calc(12px + var(--safe-bottom));
+}
+.teams-reaction-title {
+  font-size: 11px;
+  color: #605e5c;
+  margin-bottom: 8px;
+  text-align: center;
+  font-weight: 700;
+}
+.teams-stamps {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+}
+.teams-stamp-btn {
+  background: #fff;
+  border: 1px solid #d2d0ce;
+  border-radius: 6px;
+  padding: 10px 4px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  font-family: inherit;
+  transition: transform .08s, background .15s;
+}
+.teams-stamp-btn:active {
+  background: #f3f2f1;
+  transform: scale(.96);
+}
+.teams-stamp-btn:disabled {
+  opacity: .5;
+  cursor: default;
+}
+.teams-stamp-btn span:first-child { font-size: 22px; line-height: 1; }
+.teams-stamp-label {
+  font-size: 10px;
+  color: #605e5c;
+  font-weight: 700;
+  white-space: nowrap;
+}

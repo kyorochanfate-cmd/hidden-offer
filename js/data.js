@@ -9,9 +9,9 @@ export const GACHA_COST = 50;
 export const GAMES = {
   powerpotter: {
     id: "powerpotter",
-    title: "PowerPotter",
+    title: "スライド職人",
     subtitle: "Slides of Fury",
-    jpTitle: "パワーポッター",
+    jpTitle: "スライド職人",
     theme: "終わりなきスライド修正",
     posting: "大手SIerでのパワポスライド爆速量産マスター",
     salary: "コインによる歩合制 / お祈り保険完備",

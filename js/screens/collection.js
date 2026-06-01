@@ -47,7 +47,7 @@ export function renderCollection(mount) {
 
   const screen = el("div.screen.retro", {}, [
     el("div.retro-bg-fx", {}, [
-      el("div.fx.coin", { style: { left: "86%", top: "10%", fontSize: "22px" }, text: "$" }),
+      el("div.fx.coin", { style: { left: "86%", top: "10%", fontSize: "22px" }, text: "¥" }),
       el("div.fx.doc",  { style: { left: "6%",  top: "84%", fontSize: "20px" }, text: "📄" }),
     ]),
     el("div.retro-body", {}, [

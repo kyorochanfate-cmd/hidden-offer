@@ -11,7 +11,7 @@ const KEY = "hidden-offer-save-v1";
 const listeners = new Set();
 
 const defaultState = () => ({
-  coins: 100,
+  coins: 0,
   unlockedGames: [STARTER_GAME_ID],
   collections: [], // 獲得したお祈りメール/称号のID（被り重複OK）
 });

@@ -233,7 +233,7 @@
 
 .pp-prow { display: flex; flex-direction: column; gap: 4px; }
 .pp-plabel { font-size: 10px; color: var(--pp-ink-soft); font-weight: 600; }
-.pp-pswatches { display: grid; grid-template-columns: repeat(6, 1fr); gap: 3px; }
+.pp-pswatches { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; }
 .pp-swatch {
   width: 100%; aspect-ratio: 1; border: 1px solid var(--pp-sep-dark); border-radius: 2px;
   cursor: pointer; padding: 0;
@@ -276,7 +276,11 @@
 .pp-logo .ering { width: 100px; height: 100px; border-radius: 999px; border: 4px solid var(--pp-accent); transition: all .2s ease; }
 .pp-logo .etext { font-weight: 800; transition: color .15s, font-size .15s; }
 .pp-chart { width: 100%; flex: 1; display: flex; flex-direction: column; padding: 6px 10px; min-height: 110px; }
-.pp-chart .echart-bars { flex: 1; display: flex; align-items: flex-end; gap: 6px; padding-bottom: 4px; border-bottom: 1.5px solid var(--pp-ink-muted); }
+.pp-chart .echart-area { flex: 1; display: flex; gap: 6px; padding-bottom: 4px; border-bottom: 1.5px solid var(--pp-ink-muted); height: 100px; justify-content: center; }
+.pp-chart .echart-bars { align-items: flex-end; }
+.pp-chart .echart-line { align-items: center; justify-content: center; }
+.pp-chart .echart-pie { align-items: center; justify-content: center; }
+.pp-chart .echart-area svg { max-height: 90px; max-width: 100%; }
 .pp-chart .ebar { flex: 1; background: var(--pp-blue); border-radius: 2px 2px 0 0; transition: background .15s, height .25s ease; min-height: 8px; }
 .pp-chart .etext { padding-top: 6px; text-align: center; font-size: 12px; color: var(--pp-ink-soft); }
 
@@ -361,4 +365,89 @@
 /* 小さい画面で右パネルを下に逃がす（最後の砦） */
 @media (max-width: 360px) {
   .pp-rightpanel { width: 110px; }
+}
+
+/* 激怒警戒用ヴィネットフラッシュ */
+.pp-workspace.rage-pulse {
+  position: relative;
+}
+.pp-workspace.rage-pulse::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border: 4px solid var(--danger);
+  background: radial-gradient(circle, transparent 55%, rgba(210, 72, 63, 0.25) 100%);
+  animation: rage-alert 1.2s infinite ease-in-out;
+  z-index: 100;
+  box-shadow: inset 0 0 20px rgba(210, 72, 63, 0.5);
+}
+@keyframes rage-alert {
+  0%, 100% { opacity: 0.15; }
+  50%      { opacity: 0.85; }
+}
+
+/* +/- ボタン用にサイズ調整 */
+.pp-szbtn.step {
+  font-size: 16px;
+  font-weight: 800;
+  min-width: 44px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* スライド切り替え時のフラッシュエフェクト */
+.pp-slide.slide-flash {
+  animation: slide-transition-flash 0.4s ease-out forwards;
+}
+@keyframes slide-transition-flash {
+  0% { filter: brightness(2.5); transform: scale(0.97); }
+  50% { filter: brightness(1.5); }
+  100% { filter: brightness(1); transform: scale(1); }
+}
+
+/* 佐藤部長 アバター画像（PNG）および感情エフェクト */
+.boss-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  image-rendering: pixelated;
+  transition: filter 0.25s ease, transform 0.15s ease;
+}
+
+/* 満足: 軽く上下にバウンド */
+.boss-img.boss-mood-happy {
+  filter: brightness(1.05) drop-shadow(0 2px 4px rgba(31,156,107,0.35));
+  animation: boss-happy-bounce 0.8s ease infinite;
+}
+@keyframes boss-happy-bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+
+/* イライラ: 少し赤みがかって小刻みに震える */
+.boss-img.boss-mood-irritated {
+  filter: sepia(0.3) saturate(1.5) hue-rotate(-20deg) brightness(0.95);
+  animation: boss-irritated-shiver 0.15s linear infinite;
+}
+@keyframes boss-irritated-shiver {
+  0%, 100% { transform: translate(0, 0); }
+  25% { transform: translate(-1px, 0.5px); }
+  50% { transform: translate(1px, -0.5px); }
+  75% { transform: translate(-0.5px, -1px); }
+}
+
+/* 激怒: 真っ赤になって激しく揺れる */
+.boss-img.boss-mood-rage {
+  filter: sepia(1) saturate(5) hue-rotate(-50deg) brightness(0.9);
+  animation: boss-rage-shake 0.08s linear infinite;
+}
+@keyframes boss-rage-shake {
+  0%, 100% { transform: translate(0, 0); }
+  20% { transform: translate(-3px, 2px) scale(1.05); }
+  40% { transform: translate(3px, -1px) scale(1.05); }
+  60% { transform: translate(-2px, -3px) scale(1.05); }
+  80% { transform: translate(2px, 2px) scale(1.05); }
 }

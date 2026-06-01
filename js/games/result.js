@@ -7,26 +7,85 @@ import { Store } from "../state.js";
 import { Router } from "../app.js";
 import { GAMES } from "../data.js";
 
-export function finishGame(gameId, score, coins, message) {
+export function finishGame(gameId, score, coins, message, details = {}) {
   Store.addCoins(coins);
   const g = GAMES[gameId];
+
+  const allowances = details.allowances || [];
+  const deductions = details.deductions || [];
+  const bossComment = details.bossComment || message;
+
+  // Calculate total allowances and deductions
+  const totalAllowances = allowances.reduce((sum, item) => sum + item.value, 0);
+  const totalDeductions = deductions.reduce((sum, item) => sum + item.value, 0);
+  const netPay = Math.max(0, totalAllowances - totalDeductions);
+
+  // Build table rows
+  const tableRows = [
+    el("tr", {}, [
+      el("th", { text: "項目" }),
+      el("th", { text: "金額" })
+    ])
+  ];
+
+  allowances.forEach(a => {
+    tableRows.push(el("tr", {}, [
+      el("td", { text: a.name }),
+      el("td", { text: `＝ ${a.value}円` })
+    ]));
+  });
+
+  deductions.forEach(d => {
+    tableRows.push(el("tr", {}, [
+      el("td", { text: d.name }),
+      el("td", { text: `-${d.value}円` })
+    ]));
+  });
+
+  tableRows.push(el("tr.pay-total", {}, [
+    el("td", { text: "差引支給額" }),
+    el("td", { text: `${netPay}円` })
+  ]));
+
+  const slipTitle = "給与支払明細書";
+  const labelText = "MISSION COMPLETED";
+  const labelColor = "var(--r-yellow)";
+
+  const hankoClass = "pay-hanko";
+  const hankoText = "佐藤";
 
   const mask = el("div.retro-modal-mask", {}, [
     el("div", { style: { display: "flex", flexDirection: "column", alignItems: "stretch", gap: "12px", width: "100%", maxWidth: "340px" } }, [
       // ヘッダ
       el("div", { style: { textAlign: "center" } }, [
-        el("div", { style: { fontFamily: "var(--r-font-en)", fontSize: "11px", letterSpacing: ".18em", color: "var(--r-yellow)", marginBottom: "4px" }, text: "SHIFT REPORT" }),
+        el("div", { style: { fontFamily: "var(--r-font-en)", fontSize: "11px", letterSpacing: ".18em", color: labelColor, marginBottom: "4px" }, text: labelText }),
         el("div", { style: { fontSize: "24px", fontWeight: "700", color: "#fff", textShadow: "2px 2px 0 #1a1230, 0 0 12px rgba(194,103,255,.5)" }, text: "退勤しました" }),
       ]),
 
-      // 結果カード
-      el("div.retro-card", { style: { boxShadow: `inset 0 0 0 2px ${g.color}, 0 6px 0 rgba(0,0,0,.4)` } }, [
-        el("div.label", { style: { color: g.color }, text: g.jpTitle }),
-        el("div", { style: { display: "flex", gap: "20px", marginTop: "8px" } }, [
-          statBlock("SCORE", String(score), "#fff"),
-          statBlock("SALARY", "+" + coins, "var(--r-yellow)"),
+      // 給与明細カード
+      el("div.pay-slip", {}, [
+        el("div.pay-title", { text: slipTitle }),
+        
+        el("div.pay-meta", {}, [
+          el("span", { text: "支給日: 当月度末" }),
+          el("span", { text: `求人: ${g.jpTitle}` }),
         ]),
-        el("div.body", { style: { marginTop: "12px" }, text: message }),
+
+        el("table.pay-table", {}, tableRows),
+
+        el("div.pay-footer", {}, [
+          el("div", { style: { fontWeight: "700", marginBottom: "4px", color: "#1a1230" }, text: "■ 上司査定コメント" }),
+          el("div.pay-boss-comment", { text: bossComment })
+        ]),
+
+        // 佐藤部長のハンコ
+        el(`div.${hankoClass}`, { text: hankoText })
+      ]),
+
+      // 統計情報 (スコア表示)
+      el("div.retro-card", { style: { padding: "8px 12px", display: "flex", justifyContent: "space-between", alignItems: "center" } }, [
+        el("span", { style: { fontSize: "12px", color: "var(--r-sub)" }, text: "最終スコア" }),
+        el("span", { style: { fontFamily: "var(--r-font-en)", fontSize: "18px", color: "#fff" }, text: String(score) })
       ]),
 
       // アクション
