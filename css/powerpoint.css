@@ -1,0 +1,364 @@
+/* =========================================================================
+   powerpoint.css — PowerPotter（PowerPoint 忠実再現クローム）
+   商標回避: アクセント色とラベルは「ずらし」、レイアウトは忠実
+   ========================================================================= */
+
+.ppt {
+  --pp-accent: #c0432b;
+  --pp-accent-dark: #a5371f;
+  --pp-ribbon: #f3f2f1;
+  --pp-tab-active: #ffffff;
+  --pp-sep: #e1dfdd;
+  --pp-sep-dark: #d2d0ce;
+  --pp-workspace: #d6d5d4;
+  --pp-slide: #ffffff;
+  --pp-panel: #fbfbfa;
+  --pp-ink: #323130;
+  --pp-ink-soft: #605e5c;
+  --pp-ink-muted: #8a8886;
+  --pp-blue: #5b9bd5;
+  --pp-green: #70ad47;
+
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column;
+  background: var(--pp-workspace);
+  font-family: var(--font-jp);
+  user-select: none;
+  animation: screen-in .26s ease;
+}
+
+/* ---- タイトルバー ---- */
+.pp-titlebar {
+  display: flex; align-items: center; height: 34px; flex: none;
+  background: var(--pp-accent); color: #fff;
+  padding-top: var(--safe-top);
+  box-sizing: content-box;
+}
+.pp-qat { display: flex; align-items: center; gap: 2px; padding: 0 8px; }
+.pp-qat .qicon {
+  width: 24px; height: 24px; display: grid; place-items: center; border-radius: 3px;
+  font-size: 13px; color: #ffe6df; cursor: pointer;
+}
+.pp-qat .qicon:active { background: rgba(255,255,255,.18); }
+.pp-filename {
+  flex: 1; text-align: center; font-size: 12.5px; font-weight: 500;
+  color: #fff1ec; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: 0 6px;
+}
+.pp-winbtns { display: flex; }
+.pp-winbtns span { width: 38px; height: 34px; display: grid; place-items: center; font-size: 12px; color: #ffded5; }
+.pp-winbtns .close:active { background: #e81123; }
+
+/* ---- タブ列 ---- */
+.pp-tabs {
+  display: flex; align-items: flex-end; height: 30px; flex: none;
+  background: var(--pp-ribbon); padding: 0; overflow-x: auto; scrollbar-width: none;
+}
+.pp-tabs::-webkit-scrollbar { display: none; }
+.pp-tab {
+  padding: 6px 11px 7px; font-size: 12.5px; color: var(--pp-ink-soft); white-space: nowrap; cursor: pointer;
+}
+.pp-tab.file { background: var(--pp-accent); color: #fff; font-weight: 600; align-self: stretch; display: flex; align-items: center; }
+.pp-tab.active { background: var(--pp-tab-active); color: var(--pp-accent); font-weight: 600; border-radius: 4px 4px 0 0; }
+
+/* ---- リボン本体 ---- */
+.pp-ribbon {
+  display: flex; align-items: stretch; height: 88px; flex: none;
+  background: var(--pp-tab-active); border-bottom: 1px solid var(--pp-sep-dark);
+  overflow-x: auto; scrollbar-width: none;
+}
+.pp-ribbon::-webkit-scrollbar { display: none; }
+.pp-group { display: flex; flex-direction: column; padding: 4px 6px 2px; }
+.pp-group .cmds { display: flex; gap: 1px; flex: 1; align-items: stretch; }
+.pp-group .glabel { font-size: 9.5px; color: var(--pp-ink-muted); text-align: center; padding-top: 2px; }
+.pp-sep { width: 1px; background: var(--pp-sep); margin: 6px 0; flex: none; }
+
+.pp-cmd {
+  width: 52px; border: 0; background: transparent; cursor: default;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
+  border-radius: 3px; padding: 4px 2px; color: var(--pp-ink-muted);
+}
+.pp-cmd .glyph { width: 24px; height: 24px; }
+.pp-cmd .clabel { font-size: 10px; line-height: 1.1; text-align: center; color: var(--pp-ink-muted); }
+
+/* ---- 本体：左パネル＋作業領域 ---- */
+.pp-main { flex: 1; display: flex; min-height: 0; }
+
+/* 左サムネイルパネル */
+.pp-panel {
+  width: 92px; flex: none; background: var(--pp-panel);
+  border-right: 1px solid var(--pp-sep-dark); overflow-y: auto; scrollbar-width: thin;
+  padding: 6px 6px;
+}
+.pp-thumb-row { display: flex; gap: 5px; align-items: flex-start; margin-bottom: 6px; }
+.pp-thumb-row .num { font-size: 10px; color: var(--pp-ink-muted); width: 12px; text-align: right; padding-top: 14px; }
+.pp-thumb {
+  flex: 1; aspect-ratio: 16/9; background: var(--pp-slide);
+  border: 1px solid var(--pp-sep-dark); border-radius: 2px; position: relative; overflow: hidden;
+}
+.pp-thumb.sel { border: 2px solid var(--pp-accent); }
+.pp-thumb .tt { position: absolute; left: 4px; top: 3px; font-size: 6px; font-weight: 700; color: var(--pp-ink); }
+
+/* 作業領域 */
+.pp-workspace { flex: 1; position: relative; overflow: hidden; }
+.pp-slide {
+  position: absolute; background: var(--pp-slide);
+  box-shadow: 0 4px 16px rgba(0,0,0,.28);
+  display: flex; flex-direction: column; padding: 18px 20px;
+}
+.pp-slide .stitle { font-size: 21px; font-weight: 900; color: var(--pp-ink); }
+.pp-slide .sunder { height: 3px; background: var(--pp-accent); margin: 7px 0 10px; width: 100%; }
+.pp-chart { flex: 1; position: relative; }
+
+/* 締切バッジ */
+.pp-deadline {
+  position: absolute; right: 10px; top: 10px; z-index: 5;
+  background: var(--pp-accent); color: #fff; border-radius: 5px;
+  padding: 6px 11px; display: flex; align-items: center; gap: 8px;
+  box-shadow: 0 4px 12px rgba(192,67,43,.4);
+}
+.pp-deadline .dl { font-weight: 900; font-size: 13px; letter-spacing: .02em; }
+.pp-deadline .dt { font-size: 12px; font-variant-numeric: tabular-nums; opacity: .92; }
+
+/* スコア/コンボ レビューチップ */
+.pp-stats { position: absolute; left: 10px; top: 10px; z-index: 5; display: flex; flex-direction: column; gap: 5px; }
+.pp-stat {
+  background: rgba(255,255,255,.92); border: 1px solid var(--pp-sep-dark); border-radius: 4px;
+  padding: 3px 9px; font-size: 12px; font-weight: 700; color: var(--pp-ink);
+  font-variant-numeric: tabular-nums; box-shadow: 0 1px 3px rgba(0,0,0,.08);
+}
+
+/* ヒットライン＆レーン */
+.pp-hitline { position: absolute; left: 0; right: 0; height: 3px; background: rgba(192,67,43,.55); z-index: 4; }
+.pp-lane-sep { position: absolute; top: 0; bottom: 0; width: 1px; background: rgba(0,0,0,.05); }
+
+/* 落ちてくる付箋ノーツ（PowerPoint コメント風） */
+.pp-note {
+  position: absolute; width: 132px; background: #fff;
+  border: 1px solid var(--pp-sep-dark); border-radius: 5px; border-left: 4px solid #888;
+  box-shadow: 0 3px 8px rgba(0,0,0,.18); padding: 6px 9px; z-index: 3;
+  will-change: transform;
+}
+.pp-note .nh { display: flex; align-items: center; gap: 5px; font-size: 10px; color: var(--pp-ink-muted); }
+.pp-note .nh .av { width: 13px; height: 13px; border-radius: 999px; display: grid; place-items: center; }
+.pp-note .nb { font-size: 13px; font-weight: 700; color: var(--pp-ink); margin-top: 2px; }
+
+/* ヒット時のフィードバック */
+.pp-pop { position: absolute; font-weight: 900; font-size: 16px; z-index: 6; pointer-events: none; }
+.pp-stamp {
+  position: absolute; left: 50%; top: 45%; transform: translate(-50%,-50%) rotate(-12deg) scale(1.8);
+  font-family: var(--font-jp); font-weight: 900; font-size: 52px; color: rgba(192,67,43,.9);
+  text-shadow: 0 0 6px #fff, 2px 2px 0 #fff; z-index: 7; pointer-events: none;
+  animation: stamp-in .45s ease forwards;
+}
+@keyframes stamp-in {
+  0% { transform: translate(-50%,-50%) rotate(-12deg) scale(1.9); opacity: 0; }
+  18% { transform: translate(-50%,-50%) rotate(-12deg) scale(1); opacity: 1; }
+  70% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* ---- 下部コマンドバー（タップ操作） ---- */
+.pp-commandbar {
+  flex: none; display: flex; gap: 8px; padding: 8px 10px;
+  background: var(--pp-ribbon); border-top: 1px solid var(--pp-sep-dark);
+  padding-bottom: calc(8px + var(--safe-bottom));
+}
+.pp-action {
+  flex: 1; border: 1px solid var(--pp-sep-dark); border-bottom-width: 3px; border-radius: 5px;
+  background: #fff; display: flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 14px 8px; cursor: pointer; transition: transform .06s ease, background .1s ease;
+}
+.pp-action:active { transform: scale(.96); }
+.pp-action .glyph { width: 24px; height: 24px; }
+.pp-action .alabel { font-size: 16px; font-weight: 700; color: var(--pp-ink); }
+
+/* ---- ステータスバー ---- */
+.pp-statusbar {
+  flex: none; height: 24px; display: flex; align-items: center; gap: 14px;
+  background: var(--pp-ribbon); border-top: 1px solid var(--pp-sep-dark);
+  padding: 0 12px; font-size: 11px; color: var(--pp-ink-soft);
+}
+.pp-statusbar .sb-spacer { flex: 1; }
+.pp-statusbar .sb-zoom { width: 64px; height: 4px; background: var(--pp-sep-dark); border-radius: 2px; }
+.pp-statusbar .review { color: var(--pp-accent); font-weight: 700; }
+
+/* =========================================================================
+   PowerPotter 作業シミュレーター 拡張
+   ========================================================================= */
+
+/* サブバー（メニュー戻る・締切・上司機嫌・退勤） */
+.pp-subbar {
+  flex: none; display: flex; align-items: center; gap: 10px;
+  padding: 6px 10px; background: #fff;
+  border-bottom: 1px solid var(--pp-sep-dark);
+}
+.pp-back {
+  border: 1px solid var(--pp-sep-dark); background: #fff; color: var(--pp-ink-soft);
+  border-radius: 4px; padding: 5px 9px; font-size: 11px; cursor: pointer; font-weight: 600;
+}
+.pp-deadline-pill {
+  display: flex; align-items: center; gap: 6px;
+  background: var(--pp-accent); color: #fff; padding: 4px 10px; border-radius: 4px;
+  font-size: 11px; font-weight: 700;
+}
+.pp-deadline-pill .dt { font-variant-numeric: tabular-nums; opacity: .9; font-weight: 500; }
+.pp-mood-wrap { flex: 1; min-width: 0; }
+.pp-mood-label { display: flex; justify-content: space-between; font-size: 10px; color: var(--pp-ink-soft); margin-bottom: 2px; font-weight: 600; }
+.pp-mood-label .pp-done { font-variant-numeric: tabular-nums; }
+.pp-mood-track { height: 4px; background: var(--pp-sep-dark); border-radius: 2px; overflow: hidden; }
+.pp-mood-fill { height: 100%; background: var(--ok); transition: width .25s ease, background .25s ease; width: 75%; }
+.pp-quit {
+  border: 1px solid var(--pp-sep-dark); background: var(--pp-ribbon); color: var(--pp-ink);
+  border-radius: 4px; padding: 5px 11px; font-size: 11px; cursor: pointer; font-weight: 700;
+}
+.pp-quit:active { background: var(--pp-sep); }
+
+/* 本体3カラム（左サムネ／作業領域／プロパティ） */
+.pp-main { flex: 1; display: flex; min-height: 0; }
+.pp-rightpanel {
+  width: 132px; flex: none; background: #fff;
+  border-left: 1px solid var(--pp-sep-dark); display: flex; flex-direction: column;
+}
+.pp-rphead {
+  font-size: 11px; font-weight: 700; color: var(--pp-ink-soft);
+  padding: 8px 10px 6px; border-bottom: 1px solid var(--pp-sep);
+}
+.pp-props { padding: 8px; display: flex; flex-direction: column; gap: 10px; overflow-y: auto; }
+.pp-empty { color: var(--pp-ink-muted); font-size: 11px; text-align: center; padding-top: 18px; }
+.pp-empty .cap { margin-top: 4px; font-size: 10px; opacity: .8; }
+
+.pp-pheader { display: flex; align-items: center; gap: 6px; padding-bottom: 4px; border-bottom: 1px solid var(--pp-sep); }
+.pp-ptag { font-size: 10px; font-weight: 700; background: var(--pp-accent); color: #fff; padding: 2px 6px; border-radius: 3px; }
+.pp-pname { font-size: 11px; color: var(--pp-ink); font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.pp-prow { display: flex; flex-direction: column; gap: 4px; }
+.pp-plabel { font-size: 10px; color: var(--pp-ink-soft); font-weight: 600; }
+.pp-pswatches { display: grid; grid-template-columns: repeat(6, 1fr); gap: 3px; }
+.pp-swatch {
+  width: 100%; aspect-ratio: 1; border: 1px solid var(--pp-sep-dark); border-radius: 2px;
+  cursor: pointer; padding: 0;
+}
+.pp-swatch.sel { outline: 2px solid var(--pp-accent); outline-offset: 1px; }
+.pp-pbtns { display: flex; flex-wrap: wrap; gap: 3px; }
+.pp-szbtn {
+  border: 1px solid var(--pp-sep-dark); background: #fff; color: var(--pp-ink);
+  border-radius: 3px; padding: 5px 9px; font-size: 11px; cursor: pointer; font-weight: 600;
+  min-width: 32px;
+}
+.pp-szbtn.sel { background: var(--pp-accent); color: #fff; border-color: var(--pp-accent); }
+.pp-szbtn:active { transform: scale(.95); }
+
+/* 作業領域：縦長ポスター形式のスライド（スマホでタップしやすい） */
+.pp-workspace {
+  flex: 1; min-width: 0; padding: 10px; display: flex; align-items: center; justify-content: center;
+  overflow: hidden;
+}
+.pp-slide {
+  position: relative; background: var(--pp-slide);
+  height: 100%; aspect-ratio: 3/4; max-width: 100%;
+  box-shadow: 0 4px 16px rgba(0,0,0,.28);
+  display: flex; flex-direction: column; padding: 14px 14px;
+}
+
+/* スライド内の編集可能要素 */
+.pp-element { cursor: pointer; transition: outline .12s ease, background .12s ease; outline: 2px solid transparent; outline-offset: 2px; border-radius: 3px; }
+.pp-element:hover { background: rgba(91,155,213,.07); }
+.pp-element.sel { outline-color: var(--pp-blue); background: rgba(91,155,213,.08); }
+
+/* タイトル */
+.pp-slide .stitle { padding: 2px 4px; }
+.pp-slide .stitle .etext { font-weight: 900; line-height: 1.2; transition: color .15s, font-size .15s, font-weight .15s; }
+.pp-slide .sunder { height: 3px; background: var(--pp-accent); margin: 6px 4px 8px; }
+
+/* キャンバス（縦積み：ロゴ→グラフ） */
+.pp-canvas { flex: 1; display: flex; flex-direction: column; gap: 14px; align-items: center; padding: 8px 4px; min-height: 0; }
+.pp-logo { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 10px 14px; }
+.pp-logo .ering { width: 100px; height: 100px; border-radius: 999px; border: 4px solid var(--pp-accent); transition: all .2s ease; }
+.pp-logo .etext { font-weight: 800; transition: color .15s, font-size .15s; }
+.pp-chart { width: 100%; flex: 1; display: flex; flex-direction: column; padding: 6px 10px; min-height: 110px; }
+.pp-chart .echart-bars { flex: 1; display: flex; align-items: flex-end; gap: 6px; padding-bottom: 4px; border-bottom: 1.5px solid var(--pp-ink-muted); }
+.pp-chart .ebar { flex: 1; background: var(--pp-blue); border-radius: 2px 2px 0 0; transition: background .15s, height .25s ease; min-height: 8px; }
+.pp-chart .etext { padding-top: 6px; text-align: center; font-size: 12px; color: var(--pp-ink-soft); }
+
+/* =========================================================================
+   上司パネル（おじさんの顔＋吹き出し）— 下部に固定
+   ========================================================================= */
+.pp-bosspanel {
+  flex: none; display: flex; align-items: flex-end; gap: 12px;
+  padding: 12px 14px 14px;
+  background: linear-gradient(180deg, #ecebe8, #d8d6d2);
+  border-top: 1px solid var(--pp-sep-dark);
+  min-height: 130px;
+}
+
+/* おじさんの顔（ピクセルアートSVGを表示） */
+.pp-bossface {
+  flex: none; width: 92px; height: 92px;
+  display: grid; place-items: center;
+  image-rendering: pixelated;
+  filter: drop-shadow(0 4px 0 rgba(0,0,0,.35));
+}
+.pp-bossface svg { width: 100%; height: 100%; image-rendering: pixelated; }
+.pp-bossface[data-mood="rage"] { animation: boss-shake .25s ease-in-out infinite; }
+@keyframes boss-shake {
+  0%,100% { transform: translate(0,0); }
+  25% { transform: translate(-2px, 1px); }
+  50% { transform: translate(2px, -1px); }
+  75% { transform: translate(-1px, -2px); }
+}
+
+/* 吹き出し */
+.pp-bubble-wrap {
+  position: relative; flex: 1; min-width: 0; align-self: stretch;
+  background: #fff; border: 1.5px solid var(--pp-ink-soft); border-radius: 14px;
+  padding: 10px 14px; display: flex; flex-direction: column; justify-content: center; gap: 4px;
+  box-shadow: 0 3px 8px rgba(0,0,0,.12);
+  transform-origin: left center;
+}
+.pp-bubble-wrap.pop { animation: bubble-pop .35s cubic-bezier(.2,1.6,.4,1); }
+@keyframes bubble-pop {
+  0% { transform: scale(.7); opacity: 0; }
+  60% { transform: scale(1.05); opacity: 1; }
+  100% { transform: scale(1); }
+}
+.pp-bubble-wrap.shake { animation: bubble-shake .35s ease-in-out; }
+@keyframes bubble-shake {
+  0%,100% { transform: translateX(0); }
+  20% { transform: translateX(-6px); }
+  40% { transform: translateX(6px); }
+  60% { transform: translateX(-4px); }
+  80% { transform: translateX(4px); }
+}
+/* 吹き出しの尻尾（左側から出る） */
+.pp-bubble-wrap::before {
+  content: ""; position: absolute; left: -10px; top: 50%; transform: translateY(-50%);
+  width: 0; height: 0; border: 10px solid transparent;
+  border-right-color: var(--pp-ink-soft);
+}
+.pp-bubble-wrap::after {
+  content: ""; position: absolute; left: -8px; top: 50%; transform: translateY(-50%);
+  width: 0; height: 0; border: 9px solid transparent;
+  border-right-color: #fff;
+}
+
+.pp-bubble-name { font-size: 11px; font-weight: 800; color: var(--pp-accent); }
+.pp-bubble { font-size: 14px; font-weight: 700; color: var(--pp-ink); line-height: 1.45; }
+.pp-bubble-status { font-size: 11px; color: var(--pp-ink-muted); min-height: 14px; font-weight: 600; }
+.pp-bubble-status.ok { color: var(--ok); }
+.pp-bubble-status.ng { color: var(--pp-accent); }
+
+/* 指示の応答残り時間バー */
+.pp-urgency-track { height: 4px; background: var(--pp-sep); border-radius: 2px; overflow: hidden; margin-top: 4px; }
+.pp-urgency-fill { height: 100%; background: var(--info); width: 100%; transition: width .12s linear, background .12s linear; }
+
+/* 反映済みポップ */
+.pp-pop {
+  position: absolute; font-weight: 900; font-size: 18px; z-index: 8; pointer-events: none;
+  background: rgba(255,255,255,.95); padding: 6px 12px; border-radius: 999px;
+  border: 2px solid var(--ok); box-shadow: 0 4px 14px rgba(0,0,0,.18);
+}
+
+/* 小さい画面で右パネルを下に逃がす（最後の砦） */
+@media (max-width: 360px) {
+  .pp-rightpanel { width: 110px; }
+}
