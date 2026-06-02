@@ -2,11 +2,11 @@
 // jobs.js — 求人選択（労働選択）画面（コンパクト＋詳細モーダル）
 // =========================================================================
 
-import { el, clear } from "../dom.js?v=1.1.7";
-import { Store } from "../state.js?v=1.1.7";
-import { GAMES, GAME_ORDER } from "../data.js?v=1.1.7";
-import { Router } from "../app.js?v=1.1.7";
-import { AVATARS } from "../art.js?v=1.1.7";
+import { el, clear } from "../dom.js?v=1.1.8";
+import { Store } from "../state.js?v=1.1.8";
+import { GAMES, GAME_ORDER } from "../data.js?v=1.1.8";
+import { Router } from "../app.js?v=1.1.8";
+import { AVATARS } from "../art.js?v=1.1.8";
 
 export function renderJobs(mount) {
   function draw() {
@@ -63,8 +63,8 @@ export function renderJobs(mount) {
         badgeText = "在席手当";
       } else if (id === "exchange") {
         badgeText = "マナー手当";
-      } else if (id === "commute") {
-        badgeText = "交通費全額";
+      } else if (id === "toilet") {
+        badgeText = "1秒1円";
       }
     }
 
@@ -161,12 +161,12 @@ export function renderJobs(mount) {
         catchphrase = "相手より1ミリでも\n低く出せ！";
         rewardText = "マナー合格報酬";
         mediaNode = el("div", { style: { fontSize: "36px" }, text: "📄" });
-      } else if (id === "commute") {
-        headerText = "通勤ラッシュサバイバル";
-        descText = "【満員電車】3駅生き残れ。揺れ・急停車・酔っぱらいから身を守る！";
-        catchphrase = "つり革ホールド\n+5円/踏ん張り";
-        rewardText = "通勤手当 +5円/回";
-        mediaNode = el("div", { style: { fontSize: "36px" }, text: "🚆" });
+      } else if (id === "toilet") {
+        headerText = "トイレ逃避タイム";
+        descText = "【個室サバイバル】極限までサボれ。ノック・上司接近に正しく対応！";
+        catchphrase = "1秒1円の\nサボリ給";
+        rewardText = "個室潜伏 +1円/秒";
+        mediaNode = el("div", { style: { fontSize: "36px" }, text: "🚪" });
       }
 
       dialogNode = el("div.job-detail-dialog", { "data-job": id }, [

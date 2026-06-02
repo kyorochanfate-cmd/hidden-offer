@@ -2,9 +2,9 @@
 // settings.js — 設定（音量・リセット）
 // =========================================================================
 
-import { el } from "../dom.js?v=1.1.7";
-import { Store } from "../state.js?v=1.1.7";
-import { Router } from "../app.js?v=1.1.7";
+import { el } from "../dom.js?v=1.1.8";
+import { Store } from "../state.js?v=1.1.8";
+import { Router } from "../app.js?v=1.1.8";
 
 export function renderSettings(mount) {
   const screen = el("div.screen.retro", {}, [

@@ -4933,3 +4933,281 @@ img, svg { image-rendering: pixelated; image-rendering: crisp-edges; }
   padding: 14px 6px !important;
 }
 .commute-btn span { font-size: 13px !important; font-weight: 900; }
+
+/* =========================================================================
+   トイレ逃避タイム
+   ========================================================================= */
+.toilet-game {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(180deg, #1a1230 0%, #0a081a 100%);
+  font-family: var(--r-font-jp);
+  color: #fff;
+  overflow: hidden;
+}
+
+.toilet-titlebar {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: calc(6px + var(--safe-top)) 10px 6px;
+  background: #1a1230;
+  border-bottom: 2px solid #2d1e4d;
+}
+.toilet-room-name {
+  flex: 1;
+  text-align: center;
+  font-size: 11px;
+  color: #c8b8e8;
+  font-weight: 700;
+}
+.toilet-exit-btn { font-size: 11px !important; }
+
+.toilet-statusbar {
+  flex: none;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  padding: 6px 10px;
+  background: #1f1535;
+  border-bottom: 1px solid #2d1e4d;
+}
+.toilet-stat-block {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 60px;
+}
+.toilet-stat-label { font-size: 9px; color: #c8b8e8; font-weight: 700; letter-spacing: 0.04em; }
+.toilet-stat-val   { font-family: var(--r-font-en); font-size: 14px; color: #fff; font-weight: 900; }
+.toilet-stat-val.gold { color: var(--r-yellow); text-shadow: 0 0 6px rgba(255,210,74,0.6); }
+.toilet-alert-wrap { flex: 1; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.toilet-alert-track {
+  height: 10px;
+  background: #0a081a;
+  border: 1px solid #6264a7;
+  border-radius: 5px;
+  overflow: hidden;
+}
+.toilet-alert-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #6cf06e, #a6e3a1);
+  transition: width 0.25s, background 0.25s;
+  box-shadow: 0 0 6px rgba(108,240,110,0.5);
+}
+.toilet-alert-fill.warning  { background: linear-gradient(90deg, #f9e2af, #f3b500) !important; }
+.toilet-alert-fill.critical {
+  background: linear-gradient(90deg, #f38ba8, #d13438) !important;
+  animation: ex-mood-flash 0.5s ease-in-out infinite alternate;
+}
+
+/* ステージ：個室 */
+.toilet-stage {
+  flex: 1;
+  position: relative;
+  background:
+    repeating-linear-gradient(0deg, #f5f3ec 0 24px, #e8e5d8 24px 26px),
+    repeating-linear-gradient(90deg, #f5f3ec 0 24px, #e8e5d8 24px 26px);
+  overflow: hidden;
+  min-height: 260px;
+  transition: filter 0.2s;
+}
+.toilet-stage.alarmed {
+  filter: brightness(1.1) saturate(1.2);
+  animation: toilet-alarm 0.4s ease-in-out;
+}
+@keyframes toilet-alarm {
+  0%, 100% { filter: brightness(1); }
+  50% { filter: brightness(1.4) hue-rotate(-15deg); }
+}
+
+/* 壁（上半分） */
+.toilet-wall {
+  position: absolute;
+  inset: 0 0 50% 0;
+  background: linear-gradient(180deg, #c8c4b0 0%, #a8a490 100%);
+  border-bottom: 4px solid #8a8475;
+}
+
+/* ドア */
+.toilet-door {
+  position: absolute;
+  left: 50%;
+  top: 8%;
+  transform: translateX(-50%);
+  width: 60%;
+  height: 38%;
+  background: linear-gradient(180deg, #c89060, #a06840);
+  border: 3px solid #5a3a1a;
+  border-radius: 4px 4px 0 0;
+  box-shadow: inset 0 0 0 4px rgba(255,255,255,0.1);
+}
+.toilet-door-knob {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  width: 10px;
+  height: 10px;
+  background: #ffd24a;
+  border: 2px solid #5a3a1a;
+  border-radius: 50%;
+}
+.toilet-door-lock {
+  position: absolute;
+  right: 14px;
+  top: 30%;
+  font-size: 14px;
+}
+.toilet-door-sign {
+  position: absolute;
+  top: -22px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #d2483f;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 900;
+  padding: 3px 10px;
+  border-radius: 3px;
+  border: 2px solid #1a1230;
+  white-space: nowrap;
+  box-shadow: 0 0 8px rgba(210,72,63,0.6);
+}
+
+/* 床 */
+.toilet-floor {
+  position: absolute;
+  inset: 50% 0 0 0;
+  background:
+    repeating-linear-gradient(0deg, transparent 0 30px, rgba(0,0,0,0.05) 30px 31px),
+    repeating-linear-gradient(90deg, transparent 0 30px, rgba(0,0,0,0.05) 30px 31px),
+    linear-gradient(180deg, #d6d2bf, #b8b4a0);
+}
+
+/* 便器 */
+.toilet-bowl {
+  position: absolute;
+  bottom: 10px;
+  right: 18px;
+  width: 80px;
+  height: 110px;
+}
+.toilet-tank {
+  position: absolute;
+  top: 0;
+  left: 8px;
+  width: 64px;
+  height: 40px;
+  background: #ffffff;
+  border: 3px solid #888;
+  border-radius: 4px 4px 0 0;
+}
+.toilet-seat {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 80px;
+  height: 56px;
+  background: #ffffff;
+  border: 3px solid #888;
+  border-radius: 50% 50% 35% 35%;
+  box-shadow: inset 0 8px 0 #e6e4d8;
+}
+
+/* プレイヤー（座ってる） */
+.toilet-player {
+  position: absolute;
+  bottom: 26px;
+  right: 32px;
+  z-index: 5;
+  transform: scale(0.85);
+  transition: transform 0.2s, filter 0.2s;
+}
+.toilet-character {
+  width: 64px;
+  height: 80px;
+  image-rendering: pixelated;
+  filter: drop-shadow(0 4px 0 rgba(0,0,0,.4));
+}
+.toilet-character svg { width: 100%; height: 100%; image-rendering: pixelated; }
+.toilet-player.relieved { transform: scale(0.95) translateY(-3px); }
+.toilet-player.panicked {
+  transform: scale(0.85);
+  animation: toilet-panic 0.3s ease-in-out 2;
+}
+@keyframes toilet-panic {
+  0%, 100% { transform: scale(0.85) translate(0, 0); }
+  25% { transform: scale(0.85) translate(-4px, -2px); }
+  75% { transform: scale(0.85) translate(4px, -2px); }
+}
+
+/* 侵入アラート */
+.toilet-intrusion {
+  position: absolute;
+  top: 20%;
+  left: 50%;
+  transform: translateX(-50%) scale(0.4);
+  background: rgba(26, 18, 48, 0.92);
+  color: #fff;
+  font-family: var(--r-font-jp);
+  font-size: 14px;
+  font-weight: 900;
+  padding: 8px 14px;
+  border: 3px solid currentColor;
+  border-radius: 8px;
+  box-shadow: 0 0 16px currentColor;
+  opacity: 0;
+  z-index: 20;
+  pointer-events: none;
+  max-width: 80%;
+  text-align: center;
+  white-space: nowrap;
+}
+.toilet-intrusion.show {
+  animation: toilet-intrusion-burst 0.4s cubic-bezier(0.2, 1.4, 0.3, 1) forwards;
+}
+@keyframes toilet-intrusion-burst {
+  0%   { opacity: 0; transform: translateX(-50%) scale(0.4); }
+  50%  { opacity: 1; transform: translateX(-50%) scale(1.15); }
+  100% { opacity: 1; transform: translateX(-50%) scale(1); }
+}
+
+/* フィードバックポップ */
+.toilet-pop {
+  position: absolute;
+  left: 50%;
+  top: 40%;
+  transform: translate(-50%, 0);
+  font-family: var(--r-font-jp);
+  font-size: 18px;
+  font-weight: 900;
+  text-shadow: 2px 2px 0 #1a1230;
+  pointer-events: none;
+  z-index: 50;
+  animation: ex-pop-rise 0.9s cubic-bezier(0.2, 0.9, 0.3, 1) forwards;
+}
+.toilet-pop.ok { color: var(--r-yellow); text-shadow: 0 0 10px rgba(255,210,74,.9), 2px 2px 0 #1a1230; }
+.toilet-pop.ng { color: var(--r-red);    text-shadow: 0 0 10px rgba(255,91,110,.85), 2px 2px 0 #1a1230; }
+
+/* 4ボタン */
+.toilet-controls {
+  flex: none;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  padding: 10px 10px calc(10px + var(--safe-bottom));
+  background: #1a1230;
+  border-top: 2px solid #2d1e4d;
+}
+.toilet-btn {
+  padding: 12px 6px !important;
+  background: linear-gradient(180deg, #c79bff, #7a39d1) !important;
+}
+.toilet-btn[data-action="quiet"] { background: linear-gradient(180deg, #7ec9ff, #2e7ad6) !important; }
+.toilet-btn[data-action="hide"]  { background: linear-gradient(180deg, #ffa1d3, #d23b8a) !important; }
+.toilet-btn[data-action="reply"] { background: linear-gradient(180deg, #ffe366, #ffae2b) !important; color: #2a1900 !important; text-shadow: 1px 1px 0 #ffffff60 !important; }
+.toilet-btn[data-action="hold"]  { background: linear-gradient(180deg, #ff8a8a, #c63238) !important; }
+.toilet-btn span { font-size: 14px !important; font-weight: 900; }

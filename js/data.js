@@ -51,20 +51,20 @@ export const GAMES = {
     color: "#b8860b",
     app: "対面マナーバトル",
   },
-  commute: {
-    id: "commute",
-    title: "Rush Hour Survivor",
-    subtitle: "通勤ラッシュサバイバル",
-    jpTitle: "通勤ラッシュサバイバル",
-    theme: "満員電車を生き抜く体重移動",
-    posting: "毎朝の満員電車を3駅生き残れる方（つり革優先席）",
-    salary: "交通費全額支給 / 疲労は自費",
-    color: "#5b9bd5",
-    app: "通勤体力勝負",
+  toilet: {
+    id: "toilet",
+    title: "Stall Survivor",
+    subtitle: "トイレ逃避タイム",
+    jpTitle: "トイレ逃避タイム",
+    theme: "個室にこもって極限までサボる",
+    posting: "個室で限界までサボれる方（ノック・上司接近対応必須）",
+    salary: "サボった秒数 = 給料 / 1秒1円",
+    color: "#9bb8d9",
+    app: "個室サバイバル",
   },
 };
 
-export const GAME_ORDER = ["powerpotter", "chatrally", "jiggler", "exchange", "commute"];
+export const GAME_ORDER = ["powerpotter", "chatrally", "jiggler", "exchange", "toilet"];
 
 // --- お祈りメール（ハズレ） ---
 export const REJECTION_MAILS = [
