@@ -5,12 +5,13 @@
 // ストレス0で発狂退社、30秒生き延びると会社到着。
 // =========================================================================
 
-import { el, clear, loop, clamp, pick, rand } from "../dom.js?v=1.1.6";
-import { Router } from "../app.js?v=1.1.6";
-import { finishGame } from "./result.js?v=1.1.6";
-import { SVG_WORKER, SVG_BOSS, SVG_AGENT, SVG_SALESMAN } from "../art.js?v=1.1.6";
+import { el, clear, loop, clamp, pick, rand } from "../dom.js?v=1.1.7";
+import { Router } from "../app.js?v=1.1.7";
+import { finishGame } from "./result.js?v=1.1.7";
+import { SVG_WORKER, SVG_BOSS, SVG_AGENT, SVG_SALESMAN, SVG_OL, SVG_FEMALE_EXEC } from "../art.js?v=1.1.7";
 
-const NPC_SVGS = [SVG_BOSS, SVG_AGENT, SVG_SALESMAN, SVG_WORKER];
+// 満員電車の他の乗客（男女ミックス）
+const NPC_SVGS = [SVG_BOSS, SVG_OL, SVG_AGENT, SVG_FEMALE_EXEC];
 
 // シグナル種別
 const SIGNALS = [

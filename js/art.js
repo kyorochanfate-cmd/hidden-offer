@@ -235,6 +235,81 @@ export const SVG_SALESMAN = buildPixel([
 });
 
 // =========================================================================
+// 若手OL（茶髪ロング・ベージュブラウス・ピンクリップ）— 取引先・同僚など
+// =========================================================================
+export const SVG_OL = buildPixel([
+  "................",
+  "....HHHHHHHH....",
+  "...HhhhhhhhhH...",
+  "..HhhhhhhhhhhH..",
+  "..HhhhhhhhhhhH..",   // 髪：茶色のロング
+  "..HsssssssssH...",
+  "..sseessoeesss..",   // 目
+  "..ssssssnnssss..",   // 鼻
+  "..ssssmmmmssss..",   // ピンクリップ
+  "..ssssssssss....",
+  "..HHHnnnNNnnnH..",   // 髪が肩にかかる
+  ".HHHwBBBBBBwHHH.",   // ベージュブラウス
+  ".HHHwBBBBBBwHHH.",
+  ".HHHwwwwwwwwHHH.",
+  "FFFFFFFFFFFFFFF.",   // 紺スカート
+  "FFFFFFFFFFFFFFF.",
+  "FFFFFFFFFFFFFFF.",
+  "FFF..FF..FF.FFF.",
+  "................",
+  "................",
+], {
+  H: "#6b4423",   // 茶髪輪郭
+  h: "#4a2f18",   // 茶髪
+  s: "#f5d4a8",   // 肌
+  e: "#1a1a1a",   // 目
+  n: "#d8a878",   // 鼻ベース
+  N: "#c89364",   // 鼻影
+  m: "#d23b8a",   // ピンクリップ
+  w: "#ffffff",   // ブラウスのインナー
+  B: "#e8c89a",   // ベージュブラウス
+  F: "#1f3a5f",   // 紺スカート
+});
+
+// =========================================================================
+// 女性管理職（黒髪ボブ・紺スーツ・赤スカーフ）— 部長クラス
+// =========================================================================
+export const SVG_FEMALE_EXEC = buildPixel([
+  "................",
+  "....HHHHHHHH....",
+  "...HhhhhhhhhH...",
+  "..HhhhhhhhhhhH..",   // 黒髪ボブ
+  "..HhhhhhhhhhhH..",
+  "..HsssssssssHP..",   // P=ピアス
+  "..ssBeessoeBss..",   // 鋭い眉
+  "..sseessoeesss..",   // 目
+  "..sssssnnsssss..",
+  "..ssssMMMMssss..",   // 赤リップ
+  "..ssssssssss....",
+  "...nnnNNNnnn....",
+  "..NNwRRRRRRwNN..",   // 赤スカーフ
+  ".NNNwRRRRRRwNNN.",
+  ".NNNwwwwwwwwNNN.",
+  "NNNNNNNNNNNNNNN.",
+  "NNNNNNNNNNNNNNN.",
+  "NNN..NN..NN.NN..",
+  "................",
+  "................",
+], {
+  H: "#1a0e08",   // 黒髪輪郭
+  h: "#2a1a10",   // 黒髪
+  s: "#f0c89a",   // 肌
+  e: "#1a1a1a",   // 目
+  B: "#1a1a1a",   // 眉（鋭い）
+  P: "#ffd24a",   // ピアス
+  n: "#f0c89a",
+  N: "#1f3a5f",   // 紺スーツ
+  w: "#ffffff",   // インナー
+  R: "#c0392b",   // 赤スカーフ
+  M: "#c0392b",   // 赤リップ
+});
+
+// =========================================================================
 // 求人リスト用の小さなアイコン（44x44想定。再利用）
 // =========================================================================
 export const SVG_AVATAR_SLIDE = buildPixel([

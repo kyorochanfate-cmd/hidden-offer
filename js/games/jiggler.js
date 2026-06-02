@@ -4,10 +4,10 @@
 //      【新UI】上半分：PC画面、下半分左：マウスパッド、下半分右：さぼり(ドット絵＆工作演出)
 // =========================================================================
 
-import { el, clear, loop, clamp, pick } from "../dom.js?v=1.1.6";
-import { Router } from "../app.js?v=1.1.6";
-import { finishGame } from "./result.js?v=1.1.6";
-import { SVG_WORKER } from "../art.js?v=1.1.6";
+import { el, clear, loop, clamp, pick } from "../dom.js?v=1.1.7";
+import { Router } from "../app.js?v=1.1.7";
+import { finishGame } from "./result.js?v=1.1.7";
+import { SVG_WORKER } from "../art.js?v=1.1.7";
 
 // プラモデルお題
 const SABORI_MODELS = [
@@ -30,14 +30,14 @@ const CHAT_QUESTIONS = [
   { sender: "佐藤部長", text: "Teamsのステータス、さっきからずっと黄色（離席）だよ？" },
   { sender: "佐藤部長", text: "〇〇くん、今電話してもいいかね？" },
   // 田中さん（25秒以降）
-  { sender: "同僚 田中", text: "急報！佐藤部長がさっき君の席を探してたぞ！" },
-  { sender: "同僚 田中", text: "あの件、今日中にレビューしてもらえる？" },
-  { sender: "同僚 田中", text: "ランチどうする？社食でいい？" },
-  { sender: "同僚 田中", text: "資料の3ページ目、誤字あるかも。確認してー。" },
+  { sender: "同僚 田中ゆかり", text: "急報！佐藤部長がさっき君の席を探してたぞ！" },
+  { sender: "同僚 田中ゆかり", text: "あの件、今日中にレビューしてもらえる？" },
+  { sender: "同僚 田中ゆかり", text: "ランチどうする？社食でいい？" },
+  { sender: "同僚 田中ゆかり", text: "資料の3ページ目、誤字あるかも。確認してー。" },
   // 人事部（55秒以降）
-  { sender: "人事部 鈴木", text: "出勤打刻が今朝ありません。至急ご対応ください。" },
-  { sender: "人事部 鈴木", text: "コンプライアンス研修の受講期限が本日です。" },
-  { sender: "人事部 鈴木", text: "ストレスチェック未回答です。本日中にご対応を。" },
+  { sender: "人事部 山下", text: "出勤打刻が今朝ありません。至急ご対応ください。" },
+  { sender: "人事部 山下", text: "コンプライアンス研修の受講期限が本日です。" },
+  { sender: "人事部 山下", text: "ストレスチェック未回答です。本日中にご対応を。" },
 ];
 
 const CHAT_REPLIES = [
@@ -52,9 +52,9 @@ const WORK_EFFECT_ICONS = ["🔧", "🔨", "🎨", "✏️", "🪛", "⚙️", "
 
 // チャンネル定義（複数の人からの Teams DM をシミュレート）
 const CHANNELS = {
-  sato:   { name: "佐藤部長",     icon: "佐", color: "#ec6a3c", unlockAt: 0   },
-  tanaka: { name: "田中さん",     icon: "田", color: "#6264a7", unlockAt: 25  },
-  hr:     { name: "人事部 鈴木",  icon: "人", color: "#107c41", unlockAt: 55  },
+  sato:   { name: "佐藤部長",       icon: "佐", color: "#ec6a3c", unlockAt: 0   },
+  tanaka: { name: "田中ゆかりさん", icon: "田", color: "#d23b8a", unlockAt: 25  },
+  hr:     { name: "人事部 山下",    icon: "人", color: "#107c41", unlockAt: 55  },
 };
 function senderToChannelId(sender) {
   if (sender.includes("佐藤"))  return "sato";

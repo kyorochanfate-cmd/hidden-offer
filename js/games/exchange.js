@@ -9,18 +9,20 @@
 // マナー値0で出禁。
 // =========================================================================
 
-import { el, clear, loop, clamp, pick, rand } from "../dom.js?v=1.1.6";
-import { Router } from "../app.js?v=1.1.6";
-import { finishGame } from "./result.js?v=1.1.6";
-import { SVG_WORKER, SVG_BOSS, SVG_AGENT, SVG_DOG, SVG_CAT, SVG_SALESMAN } from "../art.js?v=1.1.6";
+import { el, clear, loop, clamp, pick, rand } from "../dom.js?v=1.1.7";
+import { Router } from "../app.js?v=1.1.7";
+import { finishGame } from "./result.js?v=1.1.7";
+import { SVG_WORKER, SVG_BOSS, SVG_AGENT, SVG_DOG, SVG_CAT, SVG_SALESMAN, SVG_OL, SVG_FEMALE_EXEC } from "../art.js?v=1.1.7";
 
-// 取引先プリセット（人間）
+// 取引先プリセット（人間）— 男女ミックス
 const HUMANS = [
-  { name: "山田部長",   company: "テクノA社",        svg: SVG_BOSS,   color: "#ec6a3c" },
-  { name: "田中様",     company: "Bシステムズ",       svg: SVG_AGENT,  color: "#6264a7" },
-  { name: "鈴木課長",   company: "C商事HD",           svg: SVG_WORKER, color: "#2fae8f" },
-  { name: "佐々木さん", company: "D製作所",          svg: SVG_AGENT,  color: "#d23b8a" },
-  { name: "高橋様",     company: "Eインダストリー",   svg: SVG_BOSS,   color: "#b8860b" },
+  { name: "山田部長",       company: "テクノA社",       svg: SVG_BOSS,        color: "#ec6a3c" },
+  { name: "田中ゆかり様",   company: "Bシステムズ",      svg: SVG_OL,          color: "#d23b8a" },
+  { name: "鈴木みどり課長", company: "C商事HD",          svg: SVG_FEMALE_EXEC, color: "#2fae8f" },
+  { name: "佐々木さん",     company: "D製作所",          svg: SVG_AGENT,       color: "#6264a7" },
+  { name: "高橋様",         company: "Eインダストリー",  svg: SVG_BOSS,        color: "#b8860b" },
+  { name: "中村理沙様",     company: "Fクリエイティブ",  svg: SVG_OL,          color: "#ff8ade" },
+  { name: "井上女史",       company: "G法律事務所",      svg: SVG_FEMALE_EXEC, color: "#5b9bd5" },
 ];
 
 // 動物（紛れ込み）
@@ -29,11 +31,13 @@ const ANIMALS = [
   { name: "クロ",  company: "社猫",   svg: SVG_CAT, color: "#1f1f1f", kind: "cat" },
 ];
 
-// 怪しいキャッチセールス（無視するのが正解）
+// 怪しいキャッチセールス（無視するのが正解）— 男女ミックス
 const SALESMEN = [
-  { name: "営業のキム", company: "?副業セミナー",     svg: SVG_SALESMAN, color: "#ffd24a", kind: "salesman" },
-  { name: "コンサル黒田", company: "?マーケ研究所",   svg: SVG_SALESMAN, color: "#ff5cb4", kind: "salesman" },
-  { name: "山田Pro",     company: "?投資ファミリー",   svg: SVG_SALESMAN, color: "#8a4dff", kind: "salesman" },
+  { name: "営業のキム",         company: "?副業セミナー",   svg: SVG_SALESMAN,    color: "#ffd24a", kind: "salesman" },
+  { name: "コンサル黒田",       company: "?マーケ研究所",   svg: SVG_SALESMAN,    color: "#ff5cb4", kind: "salesman" },
+  { name: "山田Pro",            company: "?投資ファミリー", svg: SVG_SALESMAN,    color: "#8a4dff", kind: "salesman" },
+  { name: "ライフコーチ高橋",   company: "?自己啓発協会",   svg: SVG_FEMALE_EXEC, color: "#ff5cb4", kind: "salesman" },
+  { name: "プロデューサー北野", company: "?キラキラスクール",svg: SVG_OL,          color: "#ffd24a", kind: "salesman" },
 ];
 
 const PHRASES_HUMAN = [
