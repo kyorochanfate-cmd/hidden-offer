@@ -484,11 +484,36 @@ export function generateBossSVG(mood) {
   return buildPixel(BOSS_NORMAL, BOSS_PAL, 6);
 }
 
+// 通勤ラッシュ用アイコン（電車）
+export const SVG_AVATAR_TRAIN = buildPixel([
+  "................",
+  "................",
+  "..tttttttttt....",
+  "..twwwwwwwwt....",  // 窓
+  "..twYwYwYwwt....",
+  "..twwwwwwwwt....",
+  "..ttttttttttt...",  // 車体
+  "..tdddddddddt...",  // ドア
+  "..tdddddddddt...",
+  "..tttttttttttt..",
+  "..tttooooooottt.",  // タイヤ
+  "...t.oo..oo.t...",
+  "...t..o..o..t...",
+  "................",
+  "................",
+  "................",
+  "................",
+  "................",
+  "................",
+  "................",
+], { t: "#5b9bd5", w: "#e8edf5", Y: "#ffd24a", d: "#1f3a5f", o: "#1a1a1a" }, 3);
+
 export const AVATARS = {
   powerpotter: SVG_AVATAR_SLIDE,
   chatrally:   SVG_AVATAR_CHAT,
   jiggler:     SVG_AVATAR_JIGGLER,
   exchange:    SVG_AVATAR_CARD,
+  commute:     SVG_AVATAR_TRAIN,
 };
 
 // 散らし装飾アイコン（emoji の代替 — SVGでドット絵風コイン・書類・マウス・コーヒー）

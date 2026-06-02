@@ -4,10 +4,10 @@
 //      【新UI】上半分：PC画面、下半分左：マウスパッド、下半分右：さぼり(ドット絵＆工作演出)
 // =========================================================================
 
-import { el, clear, loop, clamp, pick } from "../dom.js?v=1.1.5";
-import { Router } from "../app.js?v=1.1.5";
-import { finishGame } from "./result.js?v=1.1.5";
-import { SVG_WORKER } from "../art.js?v=1.1.5";
+import { el, clear, loop, clamp, pick } from "../dom.js?v=1.1.6";
+import { Router } from "../app.js?v=1.1.6";
+import { finishGame } from "./result.js?v=1.1.6";
+import { SVG_WORKER } from "../art.js?v=1.1.6";
 
 // プラモデルお題
 const SABORI_MODELS = [
