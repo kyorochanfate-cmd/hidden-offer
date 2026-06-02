@@ -6,11 +6,11 @@
 //      上司は満足しても次の指示を出す。耐えた件数で給料が決まる。
 // =========================================================================
 
-import { el, clear, loop, clamp, pick, rand, toast } from "../dom.js";
-import { Router } from "../app.js";
-import { ICONS } from "./icons.js";
-import { generateBossSVG } from "../art.js";
-import { finishGame } from "./result.js";
+import { el, clear, loop, clamp, pick, rand, toast } from "../dom.js?v=1.0.6";
+import { Router } from "../app.js?v=1.0.6";
+import { ICONS } from "./icons.js?v=1.0.6";
+import { generateBossSVG } from "../art.js?v=1.0.6";
+import { finishGame } from "./result.js?v=1.0.6";
 
 // --- 編集対象要素の初期状態 ------------------------------------------------
 const INITIAL = {

@@ -3,10 +3,10 @@
 // 構成：ロゴ／キャラ3体／3ボタン／設定／TAP TO START／背景散らしアイコン
 // =========================================================================
 
-import { el } from "../dom.js";
-import { Store } from "../state.js";
-import { GAMES, GAME_ORDER } from "../data.js";
-import { Router } from "../app.js";
+import { el } from "../dom.js?v=1.0.6";
+import { Store } from "../state.js?v=1.0.6";
+import { GAMES, GAME_ORDER } from "../data.js?v=1.0.6";
+import { Router } from "../app.js?v=1.0.6";
 
 export function renderMenu(mount) {
   const screen = el("div.screen.retro", {}, [

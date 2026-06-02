@@ -2,8 +2,8 @@
 // exchange.js — 実装予定プレースホルダー（レトロ版）
 // =========================================================================
 
-import { el } from "../dom.js";
-import { Router } from "../app.js";
+import { el } from "../dom.js?v=1.0.6";
+import { Router } from "../app.js?v=1.0.6";
 
 export function startExchange(mount, gameId) {
   mount(el("div.screen.retro", {}, [

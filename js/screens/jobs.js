@@ -2,11 +2,11 @@
 // jobs.js — 求人選択（労働選択）画面（コンパクト＋詳細モーダル）
 // =========================================================================
 
-import { el, clear } from "../dom.js";
-import { Store } from "../state.js";
-import { GAMES, GAME_ORDER } from "../data.js";
-import { Router } from "../app.js";
-import { AVATARS } from "../art.js";
+import { el, clear } from "../dom.js?v=1.0.6";
+import { Store } from "../state.js?v=1.0.6";
+import { GAMES, GAME_ORDER } from "../data.js?v=1.0.6";
+import { Router } from "../app.js?v=1.0.6";
+import { AVATARS } from "../art.js?v=1.0.6";
 
 export function renderJobs(mount) {
   function draw() {
@@ -28,9 +28,6 @@ export function renderJobs(mount) {
           el("div", { style: { display: "flex", flexDirection: "column", gap: "10px" } },
             GAME_ORDER.map(buildCompactRow)),
         ]),
-
-        // 下部ヒント
-        el("div.job-hint-text", { text: "… タップして業務の詳細を表示 …" }),
 
         // 下部ボタン
         el("div.job-controls", {}, [
