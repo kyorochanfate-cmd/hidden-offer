@@ -8,10 +8,10 @@
 // マナー値0で出禁。
 // =========================================================================
 
-import { el, clear, loop, clamp, pick, rand } from "../dom.js?v=1.1.0";
-import { Router } from "../app.js?v=1.1.0";
-import { finishGame } from "./result.js?v=1.1.0";
-import { SVG_WORKER, SVG_BOSS, SVG_AGENT } from "../art.js?v=1.1.0";
+import { el, clear, loop, clamp, pick, rand } from "../dom.js?v=1.1.1";
+import { Router } from "../app.js?v=1.1.1";
+import { finishGame } from "./result.js?v=1.1.1";
+import { SVG_WORKER, SVG_BOSS, SVG_AGENT } from "../art.js?v=1.1.1";
 
 // 取引先プリセット（次々来る人）
 const VISITORS = [
@@ -46,7 +46,7 @@ export function startExchange(mount, gameId) {
     combo: 0,
     maxCombo: 0,
     visitor: null,
-    nextSpawnDelay: 1.2,
+    nextSpawnDelay: 0.4,   // 初回スポーンまでの待機
     busy: false,
   };
 
@@ -119,8 +119,9 @@ export function startExchange(mount, gameId) {
 
   function spawnVisitor() {
     const def = pick(VISITORS);
-    const baseSpeed = 70;
-    const speed = baseSpeed * (1 + state.elapsed * 0.005);
+    // 初速を大幅アップ、加速カーブも急に
+    const baseSpeed = 140;
+    const speed = baseSpeed * (1 + state.elapsed * 0.015);
     const stageWidth = refs.stage.clientWidth || 380;
     const startX = stageWidth + 40;
 
@@ -182,7 +183,7 @@ export function startExchange(mount, gameId) {
       v.speed = 200; // 会釈してすぐ去る
       setTimeout(() => {
         despawnVisitor();
-        state.nextSpawnDelay = rand(1.0, 1.8);
+        state.nextSpawnDelay = rand(0.4, 0.9);
         state.busy = false;
       }, 700);
     } else if (result === "early") {
@@ -200,7 +201,7 @@ export function startExchange(mount, gameId) {
       state.busy = true;
       setTimeout(() => {
         despawnVisitor();
-        state.nextSpawnDelay = rand(1.0, 1.8);
+        state.nextSpawnDelay = rand(0.4, 0.9);
         state.busy = false;
       }, 600);
     }
@@ -270,7 +271,7 @@ export function startExchange(mount, gameId) {
         state.combo = 0;
         state.failCount++;
         despawnVisitor();
-        state.nextSpawnDelay = rand(0.8, 1.5);
+        state.nextSpawnDelay = rand(0.3, 0.7);
       }
     }
 
