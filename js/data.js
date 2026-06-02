@@ -53,14 +53,14 @@ export const GAMES = {
   },
   toilet: {
     id: "toilet",
-    title: "Stall Survivor",
-    subtitle: "トイレ逃避タイム",
-    jpTitle: "トイレ逃避タイム",
-    theme: "個室にこもって極限までサボる",
-    posting: "個室で限界までサボれる方（ノック・上司接近対応必須）",
-    salary: "サボった秒数 = 給料 / 1秒1円",
+    title: "Stall Hunt",
+    subtitle: "個室争奪戦",
+    jpTitle: "個室争奪戦",
+    theme: "昼食後フロア、空き個室を探し当てろ",
+    posting: "限界の腹痛を抱え空き個室を秒速で見つけられる方",
+    salary: "成功フロアごとに歩合 / 漏らしたら無給",
     color: "#9bb8d9",
-    app: "個室サバイバル",
+    app: "空き個室サーチ",
   },
 };
 

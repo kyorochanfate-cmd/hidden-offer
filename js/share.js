@@ -3,8 +3,8 @@
 // 仕様書 2: シュールな1枚絵を自動生成し撮れ高を自動化
 // =========================================================================
 
-import { el } from "./dom.js?v=1.1.8";
-import { GAMES } from "./data.js?v=1.1.8";
+import { el } from "./dom.js?v=1.1.9";
+import { GAMES } from "./data.js?v=1.1.9";
 
 function paper(brand, children) {
   return el("div.paper", {}, children);
