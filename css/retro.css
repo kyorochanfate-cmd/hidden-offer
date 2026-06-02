@@ -3913,3 +3913,27 @@ img, svg { image-rendering: pixelated; image-rendering: crisp-edges; }
   font-weight: 700;
   white-space: nowrap;
 }
+
+/* =========================================================================
+   求人一覧の微調整
+   ・サブテキスト（説明）を必ず1行に省略（タップで詳細モーダル表示が前提）
+   ・下部「オフィスに戻る」を中央配置
+   ========================================================================= */
+.job-compact-row .info .sub {
+  font-size: 12px;
+  color: var(--r-sub);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+.job-compact-row.locked .info .sub {
+  color: var(--r-mute);
+}
+.job-controls {
+  justify-content: center !important;
+}
+.job-back-btn-center {
+  flex: 0 0 auto !important;
+  min-width: 180px;
+}
