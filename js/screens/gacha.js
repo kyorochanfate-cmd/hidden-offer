@@ -3,10 +3,10 @@
 // 怪しい転職エージェント（ピクセルアート）が封筒を差し出す演出。
 // =========================================================================
 
-import { el, clear, toast } from "../dom.js?v=1.1.4";
-import { Store } from "../state.js?v=1.1.4";
-import { GACHA_COST, rollGacha, GAMES } from "../data.js?v=1.1.4";
-import { Router } from "../app.js?v=1.1.4";
+import { el, clear, toast } from "../dom.js?v=1.1.5";
+import { Store } from "../state.js?v=1.1.5";
+import { GACHA_COST, rollGacha, GAMES } from "../data.js?v=1.1.5";
+import { Router } from "../app.js?v=1.1.5";
 
 export function renderGacha(mount) {
   // body を retro-scroll の外に置き、自身を flex container 化することで
@@ -113,31 +113,18 @@ async function draw(body, count) {
   refreshCoinChip();
   clear(body);
 
-  const envelopeText = count === 10 ? "✉×10" : "✉";
-  const envelopeContainer = el("div", { style: { position: "relative", display: "inline-block", width: "100%", height: "240px", margin: "20px 0" } }, [
-    el("div.gacha-burst"),
+  // 開封演出：放射光線＋封筒＋×N表示
+  const envelopeStage = el("div.gacha-stage", {}, [
     el("div.gacha-rays"),
-    el("div", {
-      style: {
-        fontSize: count === 10 ? "100px" : "140px",
-        filter: "drop-shadow(0 0 24px rgba(255,210,74,.95))",
-        animation: "wiggle .18s ease-in-out infinite",
-        position: "absolute",
-        left: "50%",
-        top: "40%",
-        transform: "translate(-50%, -50%)",
-        zIndex: 10,
-        cursor: "default",
-        userSelect: "none"
-      },
-      text: envelopeText,
-    })
+    el("div.gacha-burst"),
+    el("div.gacha-envelope", { text: "✉" }),
+    count > 1 ? el("div.gacha-count-badge", { text: `× ${count}` }) : null,
   ]);
 
   body.append(
-    el("div", { style: { textAlign: "center", padding: "10px 0", position: "relative", overflow: "hidden" } }, [
-      envelopeContainer,
-      el("div", { style: { marginTop: "10px", fontFamily: "var(--r-font-en)", fontSize: "14px", color: "var(--r-yellow)", letterSpacing: ".15em" }, text: "OPENING…" }),
+    el("div", { style: { flex: "1", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", position: "relative" } }, [
+      envelopeStage,
+      el("div.gacha-opening-label", { text: "OPENING…" }),
     ]),
   );
 
@@ -166,10 +153,15 @@ function reveal(body, results) {
   const hasUnlock = list.some(r => r.type === "unlock");
   const appRoot = document.getElementById("app") || body;
 
-  // unlock 含むなら派手なレアフラッシュ＋強化紙吹雪
+  // unlock 含むなら派手なレアフラッシュ＋強化紙吹雪＋画面シェイク
   if (hasUnlock) {
     spawnRareFlash(appRoot);
     spawnConfetti(appRoot, true);
+    const screen = document.querySelector(".screen.retro");
+    if (screen) {
+      screen.classList.add("gacha-shake");
+      setTimeout(() => screen.classList.remove("gacha-shake"), 600);
+    }
   } else {
     spawnConfetti(appRoot, false);
   }

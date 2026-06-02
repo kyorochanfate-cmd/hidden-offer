@@ -4535,3 +4535,159 @@ img, svg { image-rendering: pixelated; image-rendering: crisp-edges; }
   80%  { opacity: 1; transform: translate(-50%, -50%) scale(1.0) rotate(0); }
   100% { opacity: 0; transform: translate(-50%, -80%) scale(1.2) rotate(0); }
 }
+
+/* =========================================================================
+   ガチャ：開封演出を強化（光線・バースト・封筒揺れ）
+   ========================================================================= */
+.gacha-stage {
+  position: relative;
+  width: 240px;
+  height: 240px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 放射する光線（円錐状のグラデが回転） */
+.gacha-rays {
+  position: absolute;
+  inset: -40px;
+  background:
+    conic-gradient(from 0deg,
+      rgba(255, 210, 74, 0.55) 0deg,
+      transparent 22deg,
+      rgba(255, 210, 74, 0.55) 45deg,
+      transparent 67deg,
+      rgba(255, 138, 222, 0.45) 90deg,
+      transparent 112deg,
+      rgba(255, 210, 74, 0.55) 135deg,
+      transparent 157deg,
+      rgba(194, 103, 255, 0.45) 180deg,
+      transparent 202deg,
+      rgba(255, 210, 74, 0.55) 225deg,
+      transparent 247deg,
+      rgba(255, 138, 222, 0.45) 270deg,
+      transparent 292deg,
+      rgba(255, 210, 74, 0.55) 315deg,
+      transparent 337deg
+    );
+  border-radius: 50%;
+  filter: blur(2px);
+  animation: gacha-rays-spin 3s linear infinite;
+  mask: radial-gradient(circle, transparent 28%, black 32%, black 95%, transparent 100%);
+  -webkit-mask: radial-gradient(circle, transparent 28%, black 32%, black 95%, transparent 100%);
+  z-index: 1;
+}
+@keyframes gacha-rays-spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+/* 中心バースト（黄金の輝き） */
+.gacha-burst {
+  position: absolute;
+  width: 160px;
+  height: 160px;
+  background: radial-gradient(circle, rgba(255, 210, 74, 0.85) 0%, rgba(255, 210, 74, 0.3) 35%, transparent 70%);
+  border-radius: 50%;
+  filter: blur(8px);
+  animation: gacha-burst-pulse 1.2s ease-in-out infinite alternate;
+  z-index: 2;
+}
+@keyframes gacha-burst-pulse {
+  from { transform: scale(0.85); opacity: 0.7; }
+  to   { transform: scale(1.15); opacity: 1; }
+}
+
+/* 封筒：振動＋大きさ */
+.gacha-envelope {
+  position: relative;
+  z-index: 5;
+  font-size: 120px;
+  line-height: 1;
+  filter: drop-shadow(0 0 18px rgba(255, 210, 74, 0.95))
+          drop-shadow(0 4px 6px rgba(0, 0, 0, 0.6));
+  animation: gacha-envelope-shake 0.16s ease-in-out infinite alternate;
+}
+@keyframes gacha-envelope-shake {
+  0%   { transform: translate(-2px, -1px) rotate(-3deg) scale(1.0); }
+  50%  { transform: translate(0, 0) rotate(0) scale(1.05); }
+  100% { transform: translate(2px, 1px) rotate(3deg) scale(1.0); }
+}
+
+/* ×N バッジ（10連時に封筒の右下に表示） */
+.gacha-count-badge {
+  position: absolute;
+  right: 8px;
+  bottom: 24px;
+  z-index: 6;
+  background: linear-gradient(180deg, #ffd24a, #ffae2b);
+  color: #1a1230;
+  font-family: var(--r-font-en);
+  font-weight: 900;
+  font-size: 22px;
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 3px solid #1a1230;
+  box-shadow:
+    0 0 14px rgba(255, 210, 74, 0.9),
+    0 4px 0 rgba(0, 0, 0, 0.5);
+  letter-spacing: 0.05em;
+  animation: gacha-count-bounce 0.7s ease-in-out infinite alternate;
+}
+@keyframes gacha-count-bounce {
+  from { transform: scale(1) rotate(-6deg); }
+  to   { transform: scale(1.12) rotate(6deg); }
+}
+
+.gacha-opening-label {
+  margin-top: 24px;
+  font-family: var(--r-font-en);
+  font-size: 18px;
+  letter-spacing: 0.2em;
+  color: var(--r-yellow);
+  text-shadow:
+    0 0 10px rgba(255, 210, 74, 0.9),
+    2px 2px 0 #1a1230;
+  animation: gacha-opening-blink 0.6s steps(2) infinite;
+}
+@keyframes gacha-opening-blink {
+  0%, 49%   { opacity: 1; }
+  50%, 100% { opacity: 0.5; }
+}
+
+/* =========================================================================
+   結果カード出現：カスケードフェード & 拡大バウンス
+   ========================================================================= */
+.retro-card.unlock-card,
+.retro-card:not(.unlock-card) {
+  animation: gacha-card-in 0.5s cubic-bezier(0.2, 1.4, 0.3, 1) backwards;
+}
+.retro-card:nth-of-type(1) { animation-delay: 0.05s; }
+.retro-card:nth-of-type(2) { animation-delay: 0.12s; }
+.retro-card:nth-of-type(3) { animation-delay: 0.19s; }
+.retro-card:nth-of-type(4) { animation-delay: 0.26s; }
+.retro-card:nth-of-type(5) { animation-delay: 0.33s; }
+.retro-card:nth-of-type(6) { animation-delay: 0.40s; }
+.retro-card:nth-of-type(7) { animation-delay: 0.47s; }
+.retro-card:nth-of-type(8) { animation-delay: 0.54s; }
+.retro-card:nth-of-type(9) { animation-delay: 0.61s; }
+.retro-card:nth-of-type(10) { animation-delay: 0.68s; }
+@keyframes gacha-card-in {
+  0%   { opacity: 0; transform: translateY(40px) scale(0.6) rotate(-3deg); }
+  60%  { opacity: 1; transform: translateY(-6px) scale(1.06) rotate(1deg); }
+  100% { opacity: 1; transform: translateY(0) scale(1) rotate(0); }
+}
+
+/* unlock 出現時の画面シェイク */
+.screen.gacha-shake {
+  animation: gacha-screen-shake 0.5s ease-in-out;
+}
+@keyframes gacha-screen-shake {
+  0%, 100% { transform: translate(0, 0); }
+  15% { transform: translate(-3px, 2px); }
+  30% { transform: translate(4px, -3px); }
+  45% { transform: translate(-4px, -2px); }
+  60% { transform: translate(3px, 3px); }
+  75% { transform: translate(-2px, 2px); }
+}
