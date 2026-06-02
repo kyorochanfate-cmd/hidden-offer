@@ -4,7 +4,7 @@
 // Sell and Forget: サーバー不要、端末ローカルで完結
 // =========================================================================
 
-import { GAME_ORDER, STARTER_GAME_ID } from "./data.js?v=1.0.8";
+import { GAME_ORDER, STARTER_GAME_ID } from "./data.js?v=1.0.9";
 
 // ★ 開発モード：true で起動時に全求人アンロック＋コイン9999
 const DEV_UNLOCK_ALL = true;

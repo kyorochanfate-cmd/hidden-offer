@@ -2,10 +2,10 @@
 // result.js — 全ミニゲーム共通の終了処理＆結果オーバーレイ（レトロ版）
 // =========================================================================
 
-import { el } from "../dom.js?v=1.0.8";
-import { Store } from "../state.js?v=1.0.8";
-import { Router } from "../app.js?v=1.0.8";
-import { GAMES } from "../data.js?v=1.0.8";
+import { el } from "../dom.js?v=1.0.9";
+import { Store } from "../state.js?v=1.0.9";
+import { Router } from "../app.js?v=1.0.9";
+import { GAMES } from "../data.js?v=1.0.9";
 
 export function finishGame(gameId, score, coins, message, details = {}) {
   Store.addCoins(coins);
@@ -31,7 +31,7 @@ export function finishGame(gameId, score, coins, message, details = {}) {
   allowances.forEach(a => {
     tableRows.push(el("tr", {}, [
       el("td", { text: a.name }),
-      el("td", { text: `＝ ${a.value}円` })
+      el("td", { text: `+${a.value}円` })
     ]));
   });
 
