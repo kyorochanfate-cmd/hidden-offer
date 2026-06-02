@@ -1,39 +1,47 @@
 // =========================================================================
 // exchange.js — 名刺交換タクティカル（タイミングゲーム）
 // プレイヤーは画面左、右向き固定。
-// 取引先が画面右から歩いてやってくる。
-// 距離がスイートスポット（プレイヤーから80〜140px）内に来た瞬間に
-// 「名刺を出す」ボタンを押すと成功＝+10円。
-// 早すぎ・遅すぎ・通り過ぎはマナー違反でマナー値減少。
+// 取引先(人間)＋たまに犬・猫が画面右から歩いてくる。
+// スイートスポット（プレイヤーから80〜140px）内で正しいアクションを実行：
+//   人間 → 「名刺を出す」
+//   犬 / 猫 → 「なでなで」
+// 早すぎ/遅すぎ/間違いアクション/無視はマナー値減少。
 // マナー値0で出禁。
 // =========================================================================
 
-import { el, clear, loop, clamp, pick, rand } from "../dom.js?v=1.1.1";
-import { Router } from "../app.js?v=1.1.1";
-import { finishGame } from "./result.js?v=1.1.1";
-import { SVG_WORKER, SVG_BOSS, SVG_AGENT } from "../art.js?v=1.1.1";
+import { el, clear, loop, clamp, pick, rand } from "../dom.js?v=1.1.2";
+import { Router } from "../app.js?v=1.1.2";
+import { finishGame } from "./result.js?v=1.1.2";
+import { SVG_WORKER, SVG_BOSS, SVG_AGENT, SVG_DOG, SVG_CAT } from "../art.js?v=1.1.2";
 
-// 取引先プリセット（次々来る人）
-const VISITORS = [
-  { name: "山田部長",   company: "テクノA社",         svg: SVG_BOSS,   color: "#ec6a3c" },
-  { name: "田中様",     company: "Bシステムズ",        svg: SVG_AGENT,  color: "#6264a7" },
-  { name: "鈴木課長",   company: "C商事HD",            svg: SVG_WORKER, color: "#2fae8f" },
-  { name: "佐々木さん", company: "D製作所",           svg: SVG_AGENT,  color: "#d23b8a" },
-  { name: "高橋様",     company: "Eインダストリー",    svg: SVG_BOSS,   color: "#b8860b" },
+// 取引先プリセット（人間）
+const HUMANS = [
+  { name: "山田部長",   company: "テクノA社",        svg: SVG_BOSS,   color: "#ec6a3c" },
+  { name: "田中様",     company: "Bシステムズ",       svg: SVG_AGENT,  color: "#6264a7" },
+  { name: "鈴木課長",   company: "C商事HD",           svg: SVG_WORKER, color: "#2fae8f" },
+  { name: "佐々木さん", company: "D製作所",          svg: SVG_AGENT,  color: "#d23b8a" },
+  { name: "高橋様",     company: "Eインダストリー",   svg: SVG_BOSS,   color: "#b8860b" },
 ];
 
-const PHRASES = [
+// 動物（紛れ込み）
+const ANIMALS = [
+  { name: "ポチ",  company: "迷い犬", svg: SVG_DOG, color: "#c89060", kind: "dog" },
+  { name: "クロ",  company: "社猫",   svg: SVG_CAT, color: "#1f1f1f", kind: "cat" },
+];
+
+const PHRASES_HUMAN = [
   "お世話になっております！",
   "本日はお時間頂きありがとうございます",
   "弊社の◯◯と申します",
   "どうぞよろしくお願いいたします",
   "貴重なお時間を頂きまして",
 ];
+const PHRASES_DOG = ["わんっ！", "ハッハッハッ……", "シッポふりふり", "クンクン……"];
+const PHRASES_CAT = ["……ニャア", "（しっぽぴん）", "なで待ち", "ゴロゴロ"];
 
-// プレイヤー中心のX位置（px）。スイートスポットの基準。
 const PLAYER_CENTER = 70;
-const SWEET_MIN_DIST = 80;    // 早すぎ判定の境界
-const SWEET_MAX_DIST = 140;   // 遅すぎ判定の境界
+const SWEET_MIN_DIST = 80;
+const SWEET_MAX_DIST = 140;
 const VISITOR_WIDTH = 64;
 
 export function startExchange(mount, gameId) {
@@ -45,9 +53,9 @@ export function startExchange(mount, gameId) {
     failCount: 0,
     combo: 0,
     maxCombo: 0,
-    visitor: null,
-    nextSpawnDelay: 0.4,   // 初回スポーンまでの待機
-    busy: false,
+    visitors: [],        // 同時に複数いる
+    nextSpawnDelay: 0.3,
+    spawnId: 0,
   };
 
   const screen = el("div.ex-game", {}, [
@@ -93,11 +101,16 @@ export function startExchange(mount, gameId) {
       ]),
     ]),
 
+    // 2 ボタン：名刺を出す（人間用）／なでなで（動物用）
     el("div.ex-action-bar", {}, [
-      el("button.pbtn.green.ex-submit-btn#ex-submit", {
-        onclick: (e) => { e.preventDefault(); submitCard(); },
-        ontouchstart: (e) => { e.preventDefault(); submitCard(); },
-      }, [el("span", { text: "名刺を出す！" })]),
+      el("button.pbtn.green.ex-action-btn#ex-card-btn", {
+        onclick: (e) => { e.preventDefault(); doAction("card"); },
+        ontouchstart: (e) => { e.preventDefault(); doAction("card"); },
+      }, [el("span", { text: "名刺を出す" })]),
+      el("button.pbtn.yellow.ex-action-btn#ex-pet-btn", {
+        onclick: (e) => { e.preventDefault(); doAction("pet"); },
+        ontouchstart: (e) => { e.preventDefault(); doAction("pet"); },
+      }, [el("span", { text: "なでなで" })]),
     ]),
   ]);
 
@@ -112,98 +125,139 @@ export function startExchange(mount, gameId) {
     stage: screen.querySelector("#ex-stage"),
     dialog: screen.querySelector("#ex-dialog"),
     player: screen.querySelector("#ex-player"),
-    submit: screen.querySelector("#ex-submit"),
   };
 
   // --- visitor 管理 ---------------------------------------------------------
 
   function spawnVisitor() {
-    const def = pick(VISITORS);
-    // 初速を大幅アップ、加速カーブも急に
-    const baseSpeed = 140;
-    const speed = baseSpeed * (1 + state.elapsed * 0.015);
+    // 動物の混入率（経過時間と共に少し上がる）
+    const animalChance = 0.18 + state.elapsed * 0.002;
+    const isAnimal = Math.random() < animalChance;
+    const def = isAnimal ? pick(ANIMALS) : pick(HUMANS);
+    const kind = isAnimal ? def.kind : "human";
+
+    // 速度：基本さらに速く、徐々に加速。動物は少し速め。
+    const baseSpeed = 165;
+    const speedMul = 1 + state.elapsed * 0.020;
+    const animalBoost = isAnimal ? 1.15 : 1.0;
+    const speed = baseSpeed * speedMul * animalBoost;
+
     const stageWidth = refs.stage.clientWidth || 380;
     const startX = stageWidth + 40;
+    const id = ++state.spawnId;
 
-    const dom = el("div.ex-visitor", { style: { left: (startX - VISITOR_WIDTH/2) + "px" } }, [
+    const dom = el("div", {
+      class: "ex-visitor" + (isAnimal ? " is-animal" : ""),
+      style: { left: (startX - VISITOR_WIDTH/2) + "px" }
+    }, [
       el("div.ex-character", { style: { transform: "scaleX(-1)" }, html: def.svg }),
       el("div.ex-name-tag", { style: { background: def.color }, text: def.name }),
     ]);
     refs.stage.appendChild(dom);
-    state.visitor = { def, x: startX, speed, dom };
 
+    const visitor = { id, def, kind, x: startX, speed, dom, action: isAnimal ? "pet" : "card" };
+    state.visitors.push(visitor);
+
+    // セリフは最も手前の visitor のものを表示
     setTimeout(() => {
-      if (!state.visitor || state.visitor.dom !== dom) return;
-      refs.dialog.textContent = `${def.company} ${def.name}：${pick(PHRASES)}`;
+      const front = getFrontVisitor();
+      if (!front) return;
+      const phr = front.kind === "human" ? PHRASES_HUMAN
+                : front.kind === "dog"   ? PHRASES_DOG
+                :                          PHRASES_CAT;
+      refs.dialog.textContent = front.kind === "human"
+        ? `${front.def.company} ${front.def.name}：${pick(phr)}`
+        : `${front.def.name}「${pick(phr)}」`;
       refs.dialog.classList.add("visible");
-    }, 350);
+    }, 220);
   }
 
-  function despawnVisitor() {
-    if (!state.visitor) return;
-    const v = state.visitor;
-    state.visitor = null;
-    refs.dialog.classList.remove("visible");
+  function getFrontVisitor() {
+    // 最も x の小さい（プレイヤーに近い）visitor
+    if (state.visitors.length === 0) return null;
+    return state.visitors.reduce((a, b) => a.x < b.x ? a : b);
+  }
+
+  function removeVisitor(v) {
+    const idx = state.visitors.indexOf(v);
+    if (idx >= 0) state.visitors.splice(idx, 1);
     if (v.dom && v.dom.parentNode) {
-      v.dom.style.transition = "opacity 0.3s";
+      v.dom.style.transition = "opacity 0.25s";
       v.dom.style.opacity = "0";
-      setTimeout(() => v.dom.remove(), 300);
+      setTimeout(() => v.dom.remove(), 250);
+    }
+    // 次のセリフ更新
+    const next = getFrontVisitor();
+    if (next) {
+      const phr = next.kind === "human" ? PHRASES_HUMAN
+                : next.kind === "dog"   ? PHRASES_DOG
+                :                          PHRASES_CAT;
+      refs.dialog.textContent = next.kind === "human"
+        ? `${next.def.company} ${next.def.name}：${pick(phr)}`
+        : `${next.def.name}「${pick(phr)}」`;
+      refs.dialog.classList.add("visible");
+    } else {
+      refs.dialog.classList.remove("visible");
     }
   }
 
   // --- 判定 ----------------------------------------------------------------
 
-  function submitCard() {
-    if (!state.active || state.busy) return;
-    if (!state.visitor) {
+  function doAction(action) {
+    if (!state.active) return;
+    const v = getFrontVisitor();
+    if (!v) {
       spawnPop("誰もいません…", "ng");
-      state.mood = clamp(state.mood - 3, 0, 100);
+      state.mood = clamp(state.mood - 2, 0, 100);
       state.combo = 0;
       updateStatus();
       return;
     }
-    const v = state.visitor;
     const dist = v.x - PLAYER_CENTER;
-    let result;
-    if (dist > SWEET_MAX_DIST)      result = "early";
-    else if (dist < SWEET_MIN_DIST) result = "late";
-    else                             result = "perfect";
-    applyResult(result, v);
-  }
 
-  function applyResult(result, v) {
-    if (result === "perfect") {
+    // タイミング判定
+    let timing;
+    if (dist > SWEET_MAX_DIST)      timing = "early";
+    else if (dist < SWEET_MIN_DIST) timing = "late";
+    else                             timing = "perfect";
+
+    // アクション判定
+    const correctAction = v.action === action;
+
+    if (timing === "perfect" && correctAction) {
+      // 成功
       state.successCount++;
       state.combo++;
       state.maxCombo = Math.max(state.maxCombo, state.combo);
       state.mood = clamp(state.mood + 4, 0, 100);
-      spawnPop("成功！ +10円", "ok");
-      bowAnimation(v);
-      state.busy = true;
-      v.speed = 200; // 会釈してすぐ去る
-      setTimeout(() => {
-        despawnVisitor();
-        state.nextSpawnDelay = rand(0.4, 0.9);
-        state.busy = false;
-      }, 700);
-    } else if (result === "early") {
+      const animalBonus = v.kind !== "human" ? "（社内マスコット +10円）" : "";
+      spawnPop(`成功！ +10円${animalBonus}`, "ok");
+      if (action === "card") bowAnimation(v);
+      else                   petAnimation(v);
+      v.speed = 240;
+      setTimeout(() => removeVisitor(v), 500);
+    } else if (timing === "perfect" && !correctAction) {
+      // 距離はOK、アクション間違い
       state.failCount++;
       state.combo = 0;
-      state.mood = clamp(state.mood - 8, 0, 100);
-      spawnPop("早すぎ！マナー違反", "ng");
+      state.mood = clamp(state.mood - 10, 0, 100);
+      const msg = v.kind === "human" ? "犬じゃないよ！名刺！" : "名刺じゃない！なでて！";
+      spawnPop(msg, "ng");
       shakeVisitor(v);
-    } else if (result === "late") {
+    } else if (timing === "early") {
       state.failCount++;
       state.combo = 0;
-      state.mood = clamp(state.mood - 12, 0, 100);
+      state.mood = clamp(state.mood - 6, 0, 100);
+      spawnPop("早すぎ！", "ng");
+      shakeVisitor(v);
+    } else {
+      // late
+      state.failCount++;
+      state.combo = 0;
+      state.mood = clamp(state.mood - 10, 0, 100);
       spawnPop("遅い！失礼です", "ng");
       shakeVisitor(v);
-      state.busy = true;
-      setTimeout(() => {
-        despawnVisitor();
-        state.nextSpawnDelay = rand(0.4, 0.9);
-        state.busy = false;
-      }, 600);
+      setTimeout(() => removeVisitor(v), 400);
     }
     updateStatus();
   }
@@ -213,7 +267,7 @@ export function startExchange(mount, gameId) {
   function spawnPop(text, type) {
     const p = el("div", { class: "ex-pop " + type, text });
     refs.stage.appendChild(p);
-    setTimeout(() => p.remove(), 1100);
+    setTimeout(() => p.remove(), 1000);
   }
 
   function bowAnimation(v) {
@@ -222,12 +276,21 @@ export function startExchange(mount, gameId) {
     setTimeout(() => {
       refs.player.classList.remove("bowing");
       v.dom?.classList.remove("bowing");
-    }, 600);
+    }, 500);
+  }
+
+  function petAnimation(v) {
+    refs.player.classList.add("petting");
+    v.dom.classList.add("petted");
+    setTimeout(() => {
+      refs.player.classList.remove("petting");
+      v.dom?.classList.remove("petted");
+    }, 500);
   }
 
   function shakeVisitor(v) {
     v.dom.classList.add("shake");
-    setTimeout(() => v.dom?.classList.remove("shake"), 400);
+    setTimeout(() => v.dom?.classList.remove("shake"), 350);
   }
 
   function updateStatus() {
@@ -235,7 +298,6 @@ export function startExchange(mount, gameId) {
     refs.moodVal.textContent = Math.floor(state.mood) + "%";
     refs.count.textContent = String(state.successCount);
     refs.combo.textContent = String(state.combo);
-
     refs.moodFill.classList.remove("warning", "critical");
     if (state.mood < 30)      refs.moodFill.classList.add("critical");
     else if (state.mood < 60) refs.moodFill.classList.add("warning");
@@ -251,27 +313,32 @@ export function startExchange(mount, gameId) {
     const s = Math.floor(state.elapsed % 60);
     refs.clock.textContent = `${m}:${String(s).padStart(2, "0")}`;
 
-    // マナー値の自然減衰（ゆるやか）
     state.mood = clamp(state.mood - 0.4 * dt, 0, 100);
-
     if (state.mood <= 0) { quit(true, "fired"); return; }
 
-    if (!state.visitor && !state.busy) {
-      state.nextSpawnDelay -= dt;
-      if (state.nextSpawnDelay <= 0) spawnVisitor();
-    } else if (state.visitor) {
-      const v = state.visitor;
+    // 複数 visitor の同時管理 — 既に1人いても次々追加
+    state.nextSpawnDelay -= dt;
+    if (state.nextSpawnDelay <= 0) {
+      // 同時に画面上にいてもOK、ただし最大3体まで
+      if (state.visitors.length < 3) {
+        spawnVisitor();
+      }
+      // 次のスポーンまでの間隔（時間経過で更に短く）
+      const base = Math.max(0.4, 1.0 - state.elapsed * 0.015);
+      state.nextSpawnDelay = base + rand(0, 0.4);
+    }
+
+    // 各 visitor を移動
+    for (const v of state.visitors.slice()) {
       v.x -= v.speed * dt;
       v.dom.style.left = (v.x - VISITOR_WIDTH/2) + "px";
-
-      // 通り過ぎたら自動失敗
-      if (v.x < PLAYER_CENTER - 30 && !state.busy) {
-        spawnPop("無視した！失礼", "ng");
-        state.mood = clamp(state.mood - 15, 0, 100);
+      // 通り過ぎ
+      if (v.x < PLAYER_CENTER - 30) {
+        spawnPop("無視した！", "ng");
+        state.mood = clamp(state.mood - 12, 0, 100);
         state.combo = 0;
         state.failCount++;
-        despawnVisitor();
-        state.nextSpawnDelay = rand(0.3, 0.7);
+        removeVisitor(v);
       }
     }
 
@@ -290,17 +357,17 @@ export function startExchange(mount, gameId) {
 
     let comment, msg;
     if (reason === "fired") {
-      msg = `マナー値0で取引先全社から出禁（${state.successCount}件成功）。`;
-      comment = "取引先一同「失礼な方ですね…二度とお会いしないでしょう。」";
+      msg = `マナー値0で出禁（${state.successCount}件成功）。`;
+      comment = "取引先一同「失礼な方ですね…」 / 犬「ワン……」";
     } else if (state.successCount === 0) {
       msg = "1件も成立せず帰社。";
       comment = "佐藤部長「君、本当に営業マンなのかね？マナー研修からやり直しだ。」";
-    } else if (state.successCount >= 15) {
-      msg = `${state.successCount}件の名刺交換に成功！最大コンボ ${state.maxCombo}。`;
-      comment = "佐藤部長「素晴らしい！名刺交換の達人だな。」";
-    } else if (state.successCount >= 8) {
-      msg = `${state.successCount}件の名刺交換に成功。`;
-      comment = "佐藤部長「まあまあだな。次は10件超を目指してほしい。」";
+    } else if (state.successCount >= 20) {
+      msg = `${state.successCount}件成功！最大コンボ ${state.maxCombo}。社内マスコットも安心。`;
+      comment = "佐藤部長「素晴らしい！君は名刺交換の達人、しかも動物にも好かれるとは。」";
+    } else if (state.successCount >= 10) {
+      msg = `${state.successCount}件の応対に成功。`;
+      comment = "佐藤部長「まあまあだな。次は20件超を狙いたまえ。」";
     } else {
       msg = `${state.successCount}件のみ成立。`;
       comment = "佐藤部長「もう少し気合いを入れて取引先と向き合いたまえ。」";
@@ -308,7 +375,7 @@ export function startExchange(mount, gameId) {
 
     finishGame(gameId, score, coins, msg, {
       isWin: true,
-      allowances: [{ name: `名刺交換成功 × ${state.successCount}`, value: earned }],
+      allowances: [{ name: `応対成功 × ${state.successCount}`, value: earned }],
       deductions: deductionVal > 0 ? [{ name: "名刺印刷代", value: deductionVal }] : [],
       bossComment: comment,
     });

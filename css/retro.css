@@ -4388,3 +4388,28 @@ img, svg { image-rendering: pixelated; image-rendering: crisp-edges; }
   font-size: 18px !important;
 }
 .ex-submit-btn span { font-size: 18px !important; font-weight: 900; }
+
+/* 名刺交換タクティカル：複数visitor＋2ボタン拡張 */
+.ex-action-bar {
+  display: flex;
+  gap: 10px;
+}
+.ex-action-btn {
+  flex: 1;
+  padding: 14px 8px !important;
+}
+.ex-action-btn span { font-size: 16px !important; font-weight: 900; }
+
+/* 動物 visitor は地面に少し低く（しゃがんでる感） */
+.ex-visitor.is-animal {
+  bottom: 84px !important;
+}
+.ex-visitor.is-animal .ex-character { height: 70px; }
+
+/* なでなで演出 */
+.ex-player.petting { transform: rotate(-6deg) translateY(2px); }
+.ex-visitor.petted { animation: ex-petted 0.5s ease-in-out 2; }
+@keyframes ex-petted {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-4px) rotate(-3deg); }
+}
