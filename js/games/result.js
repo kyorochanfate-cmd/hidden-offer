@@ -2,10 +2,10 @@
 // result.js — 全ミニゲーム共通の終了処理＆結果オーバーレイ（レトロ版）
 // =========================================================================
 
-import { el } from "../dom.js?v=1.1.9";
-import { Store } from "../state.js?v=1.1.9";
-import { Router } from "../app.js?v=1.1.9";
-import { GAMES } from "../data.js?v=1.1.9";
+import { el } from "../dom.js?v=1.2.0";
+import { Store } from "../state.js?v=1.2.0";
+import { Router } from "../app.js?v=1.2.0";
+import { GAMES } from "../data.js?v=1.2.0";
 
 export function finishGame(gameId, score, coins, message, details = {}) {
   Store.addCoins(coins);

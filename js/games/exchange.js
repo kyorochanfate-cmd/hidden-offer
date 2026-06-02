@@ -9,10 +9,10 @@
 // マナー値0で出禁。
 // =========================================================================
 
-import { el, clear, loop, clamp, pick, rand } from "../dom.js?v=1.1.9";
-import { Router } from "../app.js?v=1.1.9";
-import { finishGame } from "./result.js?v=1.1.9";
-import { SVG_WORKER, SVG_BOSS, SVG_AGENT, SVG_DOG, SVG_CAT, SVG_SALESMAN, SVG_OL, SVG_FEMALE_EXEC } from "../art.js?v=1.1.9";
+import { el, clear, loop, clamp, pick, rand } from "../dom.js?v=1.2.0";
+import { Router } from "../app.js?v=1.2.0";
+import { finishGame } from "./result.js?v=1.2.0";
+import { SVG_WORKER, SVG_BOSS, SVG_AGENT, SVG_DOG, SVG_CAT, SVG_SALESMAN, SVG_OL, SVG_FEMALE_EXEC } from "../art.js?v=1.2.0";
 
 // 取引先プリセット（人間）— 男女ミックス
 const HUMANS = [

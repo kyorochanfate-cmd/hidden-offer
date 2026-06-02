@@ -5507,3 +5507,199 @@ img, svg { image-rendering: pixelated; image-rendering: crisp-edges; }
   80%  { opacity: 1; transform: translateX(-50%) scale(1); }
   100% { opacity: 0; transform: translateX(-50%) translateY(-12px) scale(0.95); }
 }
+
+/* =========================================================================
+   個室争奪戦：俯瞰ビュー（top-view）の上書き
+   ========================================================================= */
+.stall-stage.top-view {
+  background:
+    repeating-linear-gradient(0deg, transparent 0 32px, rgba(0,0,0,0.05) 32px 33px),
+    repeating-linear-gradient(90deg, transparent 0 32px, rgba(0,0,0,0.05) 32px 33px),
+    linear-gradient(180deg, #d2cdb2 0%, #bfba9f 100%);
+}
+.stall-stage.top-view .stall-wall,
+.stall-stage.top-view .stall-floor-deck {
+  display: none;
+}
+
+/* 通路（俯瞰の中央の床ハイライト） */
+.stall-corridor {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 38%;
+  height: 30%;
+  background:
+    repeating-linear-gradient(90deg, transparent 0 40px, rgba(255,255,255,0.06) 40px 42px),
+    linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.08));
+  border-top: 2px dashed rgba(0,0,0,0.18);
+  border-bottom: 2px dashed rgba(0,0,0,0.18);
+}
+
+/* 俯瞰ドア：上から見たトイレ個室 */
+.stall-door.top-view {
+  position: absolute;
+  top: 6%;
+  width: 14%;
+  height: 30%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.stall-door.top-view .stall-door-frame {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, #d6d2bf 0%, #d6d2bf 65%, #c89060 67%, #a06840 100%);
+  border: 3px solid #5a564a;
+  border-radius: 6px;
+  box-shadow: inset 0 -10px 8px rgba(0,0,0,0.2);
+}
+.stall-door.top-view .stall-door-num {
+  position: absolute;
+  top: 6px;
+  font-family: var(--r-font-en);
+  font-size: 14px;
+  font-weight: 900;
+  color: #444;
+  z-index: 2;
+}
+/* 個室の中の便器（俯瞰の丸） */
+.stall-door.top-view .stall-door-frame::after {
+  content: "";
+  position: absolute;
+  top: 35%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 50%;
+  height: 25%;
+  background: #fff;
+  border: 2px solid #888;
+  border-radius: 50% 50% 40% 40%;
+  box-shadow: inset 0 4px 0 #e6e4d8;
+}
+
+/* 音／予兆インジケーター */
+.stall-sound-indicator {
+  position: absolute;
+  bottom: -22px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  z-index: 4;
+  pointer-events: none;
+}
+.stall-sound-icon {
+  font-size: 18px;
+  filter: drop-shadow(0 0 4px rgba(0,0,0,0.4));
+  transition: all 0.3s ease;
+}
+.stall-sound-label {
+  font-family: var(--r-font-jp);
+  font-size: 9px;
+  font-weight: 900;
+  padding: 1px 6px;
+  border-radius: 3px;
+  color: #fff;
+  background: rgba(26, 18, 48, 0.9);
+  text-shadow: 1px 1px 0 #000;
+  white-space: nowrap;
+  border: 1px solid currentColor;
+}
+.stall-door.top-view .stall-door-sign {
+  bottom: -50px;
+}
+
+/* 段階別の見た目 */
+.stall-door.top-view.stage-silent .stall-sound-indicator { opacity: 0.3; }
+.stall-door.top-view.stage-paper .stall-sound-icon {
+  color: #ffd24a;
+  animation: stall-icon-shake 0.7s ease-in-out infinite;
+}
+.stall-door.top-view.stage-flush  .stall-sound-icon {
+  color: #5be8ff;
+  font-size: 22px;
+  animation: stall-icon-shake 0.3s ease-in-out infinite;
+}
+.stall-door.top-view.stage-exit {
+  animation: stall-door-shake 0.2s ease-in-out infinite;
+}
+.stall-door.top-view.stage-exit .stall-sound-icon {
+  color: #6cf06e;
+  font-size: 22px;
+  animation: stall-icon-bounce 0.4s ease-in-out infinite;
+}
+.stall-door.top-view.stage-exit .stall-sound-label {
+  background: #6cf06e;
+  color: #1a1230;
+  animation: stall-icon-bounce 0.4s ease-in-out infinite;
+}
+.stall-door.top-view.stage-empty .stall-door-frame {
+  background: linear-gradient(180deg, #c2f5c2 0%, #6cf06e 100%);
+  border-color: #34a341;
+  box-shadow: 0 0 22px rgba(108,240,110,0.9), inset 0 0 12px rgba(255,255,255,0.5);
+}
+.stall-door.top-view.stage-empty .stall-sound-icon {
+  font-size: 26px;
+  animation: stall-icon-bounce 0.5s ease-in-out infinite;
+}
+.stall-door.top-view.stage-broken .stall-door-frame {
+  background: linear-gradient(180deg, #444 0%, #2a2a2a 100%);
+  border-color: #1a1a1a;
+  opacity: 0.7;
+}
+.stall-door.top-view.npc-took .stall-door-frame {
+  filter: brightness(0.5) saturate(0.4);
+}
+
+@keyframes stall-icon-shake {
+  0%, 100% { transform: translateY(0) rotate(-3deg); }
+  50% { transform: translateY(-2px) rotate(3deg); }
+}
+@keyframes stall-icon-bounce {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-6px) scale(1.2); }
+}
+@keyframes stall-door-shake {
+  0%, 100% { transform: translateX(-50%); }
+  50% { transform: translateX(-50%) translate(2px, -1px); }
+}
+
+/* 俯瞰のプレイヤー */
+.stall-stage.top-view .stall-player {
+  bottom: 6%;
+  width: 60px;
+}
+.stall-stage.top-view .stall-character {
+  width: 60px;
+  height: 60px;
+  image-rendering: pixelated;
+}
+.stall-stage.top-view .stall-emote {
+  top: -16px;
+  right: -10px;
+  font-size: 20px;
+}
+.stall-stage.top-view .stall-player.entering {
+  animation: stall-top-entering 0.85s ease-in forwards;
+}
+@keyframes stall-top-entering {
+  0%   { transform: translateX(-50%) scale(1); opacity: 1; }
+  60%  { transform: translateX(-50%) translateY(-80px) scale(0.7); opacity: 1; }
+  100% { transform: translateX(-50%) translateY(-140px) scale(0.4); opacity: 0; }
+}
+
+/* 俯瞰NPC */
+.stall-stage.top-view .stall-npc {
+  bottom: 12%;
+  width: 54px;
+}
+.stall-stage.top-view .stall-npc .stall-character {
+  width: 54px;
+  height: 54px;
+  filter: grayscale(0.3) brightness(0.9) drop-shadow(0 4px 0 rgba(0,0,0,.4));
+}

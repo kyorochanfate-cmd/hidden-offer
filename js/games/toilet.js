@@ -1,25 +1,32 @@
 // =========================================================================
-// toilet.js — 個室争奪戦
-// 操作：自分のキャラをドラッグ／スワイプで左右移動。ドアの真下に立つと
-// 自動ノック。空きなら入室＝フロアクリア。使用中なら弾かれる。
-// 腹痛ゲージが時間経過で上昇。他のサラリーマンNPCも空きを狙ってくる。
-// 100%で大惨事ゲームオーバー。
+// toilet.js — 個室争奪戦（俯瞰ビュー版）
+// 上から見下ろしたトイレフロア。プレイヤーは小さなキャラ。
+// 各占有ドアには中の人の進行段階（silent → paper → flush → exit）が
+// アイコンで予兆表示される。流したドアの前で待てば空きを取れる。
 // =========================================================================
 
-import { el, clear, loop, clamp, pick, rand } from "../dom.js?v=1.1.9";
-import { Router } from "../app.js?v=1.1.9";
-import { finishGame } from "./result.js?v=1.1.9";
-import { SVG_WORKER, SVG_BOSS, SVG_AGENT, SVG_OL, SVG_FEMALE_EXEC } from "../art.js?v=1.1.9";
+import { el, clear, loop, clamp, pick, rand } from "../dom.js?v=1.2.0";
+import { Router } from "../app.js?v=1.2.0";
+import { finishGame } from "./result.js?v=1.2.0";
+import { SVG_TOP_PLAYER, SVG_TOP_NPC_BOSS, SVG_TOP_NPC_OL } from "../art.js?v=1.2.0";
 
-const NPC_SVGS = [SVG_BOSS, SVG_AGENT, SVG_OL, SVG_FEMALE_EXEC];
-const OCCUPIED_VOICES = [
-  "入ってます！", "ちょっと待って…", "（ゴホン）", "使用中ですよ",
-  "あ、すいません！", "……（無言）",
-];
+const NPC_SVGS = [SVG_TOP_NPC_BOSS, SVG_TOP_NPC_OL];
 
-// ステージ寸法（プレイヤー X 座標は 0〜100 の正規化）
+// 中の人の進行段階。各 stage は「中の人がこの状態である残り時間」を持つ
+// silent: しーん…（まだまだ。残り長い）
+// paper:  🧻 紙を使い始めた（あと少しで出る）
+// flush:  🚽 流した！（数秒で空く）
+// exit:   🚪 出てきた！（即取らないと他人に取られる）
+// empty:  完全に空き
+const STAGE_INFO = {
+  silent: { icon: "",         label: "",          hint: "" },
+  paper:  { icon: "🧻",       label: "ペーパー",  hint: "そろそろかも" },
+  flush:  { icon: "🚽",       label: "流した！",  hint: "もうすぐ空く！" },
+  exit:   { icon: "🚪",       label: "出てくる！", hint: "今だ！" },
+  empty:  { icon: "✨",       label: "空き！",    hint: "" },
+};
+
 const DOOR_SLOTS = 5;
-const PLAYER_SPEED = 0.55;    // ドラッグ追従ではなく、絞り込み速度
 
 export function startToilet(mount, gameId) {
   const state = {
@@ -28,15 +35,12 @@ export function startToilet(mount, gameId) {
     painRate: 4.5,
     floor: 1,
     cleared: 0,
-    knocks: 0,
     locked: false,
-
-    playerX: 50,             // 0〜100
-    targetX: 50,             // ドラッグ目標位置
-    doors: [],               // {slotX, truth, dom}
-    npcs: [],                // {x, vx, dom, targetSlot}
-    npcSpawnTimer: rand(1.5, 3.0),
-    bumpCooldown: 0,         // 同じドアに連続でぶつからないように
+    playerX: 50,
+    targetX: 50,
+    doors: [],
+    npcs: [],
+    npcSpawnTimer: rand(2.5, 4.5),
   };
 
   const screen = el("div.stall-game", {}, [
@@ -52,7 +56,6 @@ export function startToilet(mount, gameId) {
       el("div.stall-cleared#stall-cleared", { text: "踏破 0" }),
     ]),
 
-    // 腹痛ゲージ
     el("div.stall-pain-bar", {}, [
       el("div.stall-pain-label", { text: "腹痛" }),
       el("div.stall-pain-track", {}, [
@@ -61,25 +64,17 @@ export function startToilet(mount, gameId) {
       el("div.stall-pain-val#stall-pain-val", { text: "22%" }),
     ]),
 
-    // ヒント
-    el("div.stall-hint#stall-hint", { text: "左右にドラッグして空き個室の前へ" }),
+    el("div.stall-hint#stall-hint", { text: "🧻流した個室の前で待て！" }),
 
-    // ステージ
-    el("div.stall-stage#stall-stage", {}, [
-      // 壁
-      el("div.stall-wall"),
-      // ドア列（JSで動的に追加）
+    // 俯瞰ステージ
+    el("div.stall-stage.top-view#stall-stage", {}, [
+      el("div.stall-corridor"),
       el("div.stall-door-row#stall-door-row"),
-      // 床
-      el("div.stall-floor-deck"),
-      // プレイヤー
       el("div.stall-player#stall-player", {}, [
-        el("div.stall-character", { html: SVG_WORKER }),
+        el("div.stall-character", { html: SVG_TOP_PLAYER }),
         el("div.stall-emote#stall-emote", { text: "💦" }),
       ]),
-      // NPC レイヤー
       el("div.stall-npc-layer#stall-npc-layer"),
-      // フィードバック
       el("div.stall-toast#stall-toast"),
     ]),
   ]);
@@ -100,13 +95,12 @@ export function startToilet(mount, gameId) {
     toast: screen.querySelector("#stall-toast"),
   };
 
-  // --- ドラッグ／タップ操作 ----------------------------------------------
+  // --- ドラッグ操作 -------------------------------------------------------
 
   let dragging = false;
   function getStageX(clientX) {
     const r = refs.stage.getBoundingClientRect();
-    const pct = ((clientX - r.left) / r.width) * 100;
-    return clamp(pct, 5, 95);
+    return clamp(((clientX - r.left) / r.width) * 100, 6, 94);
   }
   function startDrag(e) {
     if (!state.active || state.locked) return;
@@ -129,18 +123,12 @@ export function startToilet(mount, gameId) {
 
   // --- フロア生成 ---------------------------------------------------------
 
-  function slotX(slot) {
-    // 5スロット、左から右に等間隔 (10%, 30%, 50%, 70%, 90%)
-    return 10 + slot * (80 / (DOOR_SLOTS - 1));
-  }
+  function slotX(slot) { return 10 + slot * (80 / (DOOR_SLOTS - 1)); }
 
   function buildFloor() {
     const floor = state.floor;
-    const emptyCount = floor <= 2 ? 2 : 1;
     const brokenCount = floor >= 3 && Math.random() < 0.6 ? 1 : 0;
-
     const truths = [];
-    for (let i = 0; i < emptyCount; i++) truths.push("empty");
     for (let i = 0; i < brokenCount; i++) truths.push("broken");
     while (truths.length < DOOR_SLOTS) truths.push("occupied");
     shuffle(truths);
@@ -148,98 +136,105 @@ export function startToilet(mount, gameId) {
     clear(refs.doorRow);
     state.doors = truths.map((t, i) => {
       const x = slotX(i);
-      const dom = el("div.stall-door", {
+      const dom = el("div.stall-door.top-view", {
         style: { left: x + "%" },
         "data-slot": i,
       }, [
         el("div.stall-door-frame"),
         el("div.stall-door-num", { text: String(i + 1) }),
-        el("div.stall-door-knob"),
-        el("div.stall-door-sign", { text: "？" }),
+        el("div.stall-sound-indicator", {}, [
+          el("div.stall-sound-icon", { text: "" }),
+          el("div.stall-sound-label", { text: "" }),
+        ]),
+        el("div.stall-door-sign", { text: "" }),
       ]);
       refs.doorRow.appendChild(dom);
-      return { slot: i, x, truth: t, knocked: false, dom };
+
+      // 各 occupied ドアに進行段階＆残り時間を割り当てる
+      let stage, stageTime;
+      if (t === "broken") {
+        stage = "broken";
+        stageTime = 9999;
+      } else {
+        // 初期段階：silent / paper / flush をランダム配分
+        const r = Math.random();
+        if      (r < 0.5)  { stage = "silent"; stageTime = rand(4, 10); }
+        else if (r < 0.85) { stage = "paper";  stageTime = rand(3, 6);  }
+        else               { stage = "flush";  stageTime = rand(1.5, 3.5); }
+      }
+      return { slot: i, x, truth: t, stage, stageTime, dom, knockedDead: false };
     });
 
     refs.floor.textContent = `${floor + 2}F トイレ`;
-    refs.hint.textContent = emptyCount >= 2
-      ? "左右ドラッグで空き個室の前へ！"
-      : "空き個室は1つだけ。早く！";
+    refs.hint.textContent = "🧻使用中→🚽流した→🚪空く の流れを観察";
+
     state.npcs.forEach(n => n.dom.remove());
     state.npcs = [];
-    state.npcSpawnTimer = rand(1.5, 3.0);
-    state.bumpCooldown = 0;
+    state.npcSpawnTimer = rand(2.0, 4.0);
+
+    // 全ドアの予兆表示初期化
+    state.doors.forEach((d) => paintDoor(d));
   }
 
-  // --- NPC 管理 -----------------------------------------------------------
+  function paintDoor(door) {
+    const sign = door.dom.querySelector(".stall-door-sign");
+    const iconEl = door.dom.querySelector(".stall-sound-icon");
+    const labelEl = door.dom.querySelector(".stall-sound-label");
+    const info = STAGE_INFO[door.stage] || STAGE_INFO.silent;
 
-  function spawnNpc() {
-    const fromLeft = Math.random() < 0.5;
-    const x = fromLeft ? -8 : 108;
-    const targetSlot = (Math.random() * DOOR_SLOTS) | 0;
-    const dom = el("div.stall-npc", {
-      style: { left: x + "%", transform: fromLeft ? "scaleX(1)" : "scaleX(-1)" },
-    }, [
-      el("div.stall-character", { html: pick(NPC_SVGS) }),
-    ]);
-    refs.npcLayer.appendChild(dom);
-    state.npcs.push({
-      x, vx: fromLeft ? 8 : -8, targetSlot, dom,
-      tried: false,
-      cooldown: 0,
-    });
-  }
+    iconEl.textContent = info.icon;
+    labelEl.textContent = info.label;
 
-  function updateNpcs(dt) {
-    for (const n of state.npcs.slice()) {
-      // 目標スロットの X 座標へ向けて移動
-      const tx = slotX(n.targetSlot);
-      const dx = tx - n.x;
-      const speed = 14 + state.floor * 0.6;
-      if (Math.abs(dx) > 1) {
-        n.x += Math.sign(dx) * Math.min(Math.abs(dx), speed * dt);
-        n.vx = Math.sign(dx) * speed;
-        n.dom.style.transform = `scaleX(${n.vx >= 0 ? 1 : -1})`;
-      } else if (!n.tried) {
-        // 到着、ノック
-        n.tried = true;
-        n.cooldown = 0.6;
-        const door = state.doors[n.targetSlot];
-        if (door && door.truth === "empty" && !door.knocked) {
-          // 取られた！プレイヤーの目の前で奪われる演出
-          door.knocked = true;
-          markDoor(door, "occupied", "取られた");
-          showToast("先に取られた…！", "ng");
-          state.pain = clamp(state.pain + 4, 0, 100);
-        }
-      }
-      n.cooldown -= dt;
-      if (n.tried && n.cooldown <= 0) {
-        // 退場：来た方向と逆へ歩き去る
-        n.targetSlot = -1;
-        n.x += (n.vx < 0 ? -1 : 1) * speed * dt;
-        n.dom.style.left = n.x + "%";
-        if (n.x < -10 || n.x > 110) {
-          n.dom.remove();
-          state.npcs.splice(state.npcs.indexOf(n), 1);
-          continue;
-        }
-      } else {
-        n.dom.style.left = n.x + "%";
-      }
+    // ドアの見た目
+    door.dom.classList.remove("stage-silent", "stage-paper", "stage-flush", "stage-exit", "stage-empty", "stage-broken");
+    door.dom.classList.add("stage-" + door.stage);
+
+    if (door.stage === "broken") {
+      sign.textContent = "故障";
+    } else if (door.stage === "empty") {
+      sign.textContent = "空き！";
+    } else {
+      sign.textContent = "";
     }
   }
 
-  // --- プレイヤー移動 & ドア判定 -----------------------------------------
+  // --- ドアの段階遷移 -----------------------------------------------------
+
+  function tickDoor(door, dt) {
+    if (door.truth === "broken") return;
+    if (door.stage === "empty") return;
+
+    door.stageTime -= dt;
+    if (door.stageTime > 0) return;
+
+    // 段階遷移
+    if (door.stage === "silent") {
+      door.stage = "paper";
+      door.stageTime = rand(2.5, 5.0);
+      paintDoor(door);
+    } else if (door.stage === "paper") {
+      door.stage = "flush";
+      door.stageTime = rand(1.5, 3.0);
+      paintDoor(door);
+    } else if (door.stage === "flush") {
+      door.stage = "exit";
+      door.stageTime = rand(1.8, 2.8);  // 「出てくる」が表示される時間
+      paintDoor(door);
+    } else if (door.stage === "exit") {
+      door.stage = "empty";
+      door.stageTime = 9999;
+      paintDoor(door);
+    }
+  }
+
+  // --- プレイヤー判定 -----------------------------------------------------
 
   function updatePlayer(dt) {
-    // targetX に向かって滑らかに移動
     const dx = state.targetX - state.playerX;
-    state.playerX += dx * PLAYER_SPEED * Math.min(1, dt * 8);
+    state.playerX += dx * 0.55 * Math.min(1, dt * 8);
     refs.player.style.left = state.playerX + "%";
 
-    state.bumpCooldown = Math.max(0, state.bumpCooldown - dt);
-    if (state.locked || state.bumpCooldown > 0) return;
+    if (state.locked) return;
 
     // 一番近いドアを判定
     let nearest = null;
@@ -248,64 +243,28 @@ export function startToilet(mount, gameId) {
       const dist = Math.abs(d.x - state.playerX);
       if (dist < bestDist) { bestDist = dist; nearest = d; }
     }
-    if (!nearest) return;
-    // しきい値 5%以内ならノック
-    if (bestDist < 4 && !nearest.knocked) {
-      attemptDoor(nearest);
+    if (!nearest || bestDist > 4.5) return;
+    // 触れた = empty なら入室
+    if (nearest.stage === "empty") {
+      enterStall(nearest);
     }
   }
 
-  function attemptDoor(door) {
-    state.knocks++;
-    state.bumpCooldown = 0.7;
-
-    if (door.truth === "empty") {
-      door.knocked = true;
-      state.locked = true;
-      state.cleared++;
-      state.floor++;
-      state.pain = clamp(state.pain - 22, 0, 100);
-      refs.cleared.textContent = `踏破 ${state.cleared}`;
-      markDoor(door, "empty", "空き！");
-      door.dom.classList.add("entering");
-      refs.player.classList.add("entering");
-      showToast("入れた…！ +" + floorReward(state.cleared) + "円", "ok");
-      updatePain();
-      setTimeout(() => {
-        refs.player.classList.remove("entering");
-        state.locked = false;
-        buildFloor();
-      }, 900);
-    } else if (door.truth === "occupied") {
-      door.knocked = true;
-      state.pain = clamp(state.pain + 5, 0, 100);
-      markDoor(door, "occupied", "使用中");
-      showToast(pick(OCCUPIED_VOICES), "ng");
-      bumpPlayer();
-      updatePain();
-    } else {
-      // broken
-      door.knocked = true;
-      state.pain = clamp(state.pain + 2, 0, 100);
-      markDoor(door, "broken", "故障");
-      showToast("故障中…", "ng");
-      bumpPlayer();
-      updatePain();
-    }
-  }
-
-  function bumpPlayer() {
-    refs.player.classList.add("bumped");
-    setTimeout(() => refs.player.classList.remove("bumped"), 300);
-    // 少し弾く
-    const direction = state.playerX < 50 ? -1 : 1;
-    state.targetX = clamp(state.playerX + direction * 8, 5, 95);
-  }
-
-  function markDoor(door, truth, label) {
-    door.dom.classList.add("knocked", truth);
-    const sign = door.dom.querySelector(".stall-door-sign");
-    if (sign) sign.textContent = label;
+  function enterStall(door) {
+    state.locked = true;
+    state.cleared++;
+    state.floor++;
+    state.pain = clamp(state.pain - 22, 0, 100);
+    refs.cleared.textContent = `踏破 ${state.cleared}`;
+    door.dom.classList.add("entering");
+    refs.player.classList.add("entering");
+    showToast("入れた…！ +" + floorReward(state.cleared) + "円", "ok");
+    updatePain();
+    setTimeout(() => {
+      refs.player.classList.remove("entering");
+      state.locked = false;
+      buildFloor();
+    }, 850);
   }
 
   function floorReward(n) { return 10 + n * 2; }
@@ -325,10 +284,74 @@ export function startToilet(mount, gameId) {
     refs.painFill.classList.remove("warning", "critical");
     if (state.pain > 80)      refs.painFill.classList.add("critical");
     else if (state.pain > 55) refs.painFill.classList.add("warning");
+    refs.emote.textContent = state.pain > 80 ? "😱" : state.pain > 55 ? "😖" : "💦";
+  }
 
-    refs.emote.textContent = state.pain > 80 ? "😱"
-                           : state.pain > 55 ? "😖"
-                           : "💦";
+  // --- NPC 管理 -----------------------------------------------------------
+
+  function spawnNpc() {
+    const fromLeft = Math.random() < 0.5;
+    const x = fromLeft ? -8 : 108;
+    // NPC は「今 flush している、または exit しているドア」を優先的に狙う
+    let targetSlot = -1;
+    const candidates = state.doors
+      .map((d, i) => ({ d, i }))
+      .filter(({ d }) => d.stage === "flush" || d.stage === "exit" || d.stage === "empty");
+    if (candidates.length > 0) {
+      targetSlot = pick(candidates).i;
+    } else {
+      targetSlot = (Math.random() * DOOR_SLOTS) | 0;
+    }
+    const dom = el("div.stall-npc.top-view", {
+      style: { left: x + "%" },
+    }, [
+      el("div.stall-character", { html: pick(NPC_SVGS) }),
+    ]);
+    refs.npcLayer.appendChild(dom);
+    state.npcs.push({
+      x, vx: fromLeft ? 8 : -8, targetSlot, dom,
+      tried: false, cooldown: 0, exiting: false,
+    });
+  }
+
+  function updateNpcs(dt) {
+    for (const n of state.npcs.slice()) {
+      if (n.exiting) {
+        n.x += (n.vx < 0 ? -1 : 1) * 22 * dt;
+        n.dom.style.left = n.x + "%";
+        if (n.x < -12 || n.x > 112) {
+          n.dom.remove();
+          state.npcs.splice(state.npcs.indexOf(n), 1);
+        }
+        continue;
+      }
+
+      const tx = slotX(n.targetSlot);
+      const dx = tx - n.x;
+      const speed = 16 + state.floor * 0.6;
+      if (Math.abs(dx) > 1.5) {
+        n.x += Math.sign(dx) * Math.min(Math.abs(dx), speed * dt);
+        n.dom.style.left = n.x + "%";
+      } else if (!n.tried) {
+        n.tried = true;
+        const door = state.doors[n.targetSlot];
+        if (door && door.stage === "empty") {
+          // 取られた！
+          door.stage = "occupied-by-npc";
+          paintDoor(door);
+          door.dom.classList.add("npc-took");
+          showToast("先に取られた…！", "ng");
+          state.pain = clamp(state.pain + 5, 0, 100);
+          updatePain();
+        } else {
+          showToast("（NPCも待ち中）", "ng");
+        }
+        n.cooldown = 0.8;
+      } else {
+        n.cooldown -= dt;
+        if (n.cooldown <= 0) n.exiting = true;
+      }
+    }
   }
 
   // --- メインループ -------------------------------------------------------
@@ -337,18 +360,19 @@ export function startToilet(mount, gameId) {
     if (!state.active) return;
     updatePlayer(dt);
 
-    // 腹痛は時間で上昇
     if (!state.locked) {
-      const rate = state.painRate + state.floor * 0.6;
+      const rate = state.painRate + state.floor * 0.55;
       state.pain = clamp(state.pain + rate * dt, 0, 100);
       updatePain();
+
+      // 全ドアの進行
+      for (const d of state.doors) tickDoor(d, dt);
     }
 
-    // NPC スポーン＆移動
     state.npcSpawnTimer -= dt;
-    if (state.npcSpawnTimer <= 0 && state.npcs.length < 3 && !state.locked) {
+    if (state.npcSpawnTimer <= 0 && state.npcs.length < 2 && !state.locked) {
       spawnNpc();
-      state.npcSpawnTimer = Math.max(1.0, rand(1.4, 3.0) - state.floor * 0.15);
+      state.npcSpawnTimer = Math.max(1.5, rand(2.5, 4.5) - state.floor * 0.18);
     }
     updateNpcs(dt);
 
@@ -361,7 +385,6 @@ export function startToilet(mount, gameId) {
   function quit(forced, reason) {
     state.active = false;
     game.stop();
-
     let earned = 0;
     for (let i = 1; i <= state.cleared; i++) earned += floorReward(i);
     let coins = earned;
@@ -386,7 +409,6 @@ export function startToilet(mount, gameId) {
       msg = `${state.cleared}フロア踏破で自主撤退。`;
       comment = "佐藤部長「無事で何より。戻ったら例の件、頼むよ。」";
     }
-
     finishGame(gameId, score, coins, msg, {
       isWin: true,
       allowances: [{ name: `空き個室発見 × ${state.cleared}`, value: earned }],

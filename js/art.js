@@ -560,6 +560,78 @@ export function generateBossSVG(mood) {
 }
 
 // トイレ逃避タイム用アイコン（個室ドア＋使用中）
+// =========================================================================
+// 俯瞰用キャラクター（頭＋肩を真上から見た絵）— 個室争奪戦の俯瞰ビュー
+// =========================================================================
+export const SVG_TOP_PLAYER = buildPixel([
+  "................",
+  "................",
+  ".....HHHHHH.....",
+  "....HhhhhhhH....",
+  "...HhhhhhhhhH...",  // 黒髪頭頂部
+  "...HhhhhhhhhH...",
+  "...HhhhhhhhhH...",
+  "....HsssssssH...",  // 額が少し見える
+  ".NNNNNNNNNNNNNN.",  // スーツの肩
+  "NNNNwwwwwwwwNNNN",
+  "NNNwRRRRRRRRwNNN",  // ネクタイ
+  "NNNwRRRRRRRRwNNN",
+  ".NNNNNNNNNNNNNN.",
+  "................",
+  "................",
+  "................",
+  "................",
+  "................",
+  "................",
+  "................",
+], { H: "#1a0e08", h: "#2a1a10", s: "#f0c89a", N: "#1f3a5f", w: "#ffffff", R: "#c0392b" }, 3);
+
+export const SVG_TOP_NPC_BOSS = buildPixel([
+  "................",
+  "................",
+  "....bbbbbbbb....",
+  "...bgbgbgbgbg...",  // バーコードヘア
+  "...bsssssssssb..",
+  "...bsssssssssb..",
+  "....bsssssssb...",
+  "................",
+  "..NNNNNNNNNNNN..",
+  ".NNNwwwwwwwwwNN.",
+  ".NNwRRRRRRRRwNN.",
+  ".NNwRRRRRRRRwNN.",
+  "..NNNNNNNNNNNN..",
+  "................",
+  "................",
+  "................",
+  "................",
+  "................",
+  "................",
+  "................",
+], { b: "#1a0e08", g: "#cccccc", s: "#e8a872", N: "#1f3a5f", w: "#ffffff", R: "#c0392b" }, 3);
+
+export const SVG_TOP_NPC_OL = buildPixel([
+  "................",
+  "................",
+  "...HHHHHHHHHH...",
+  "..HhhhhhhhhhhhH.",
+  "..HhhhhhhhhhhhH.",  // ロングヘア
+  "..HhhhsssshhhhH.",
+  "..HhhsssssshhhH.",  // 顔
+  "..HhhssssssshhH.",
+  ".BBBBBBBBBBBBBB.",  // ブラウス
+  "BBBBwwwwwwwwBBBB",
+  "BBBwwwwwwwwwwBBB",
+  "BBBwwwwwwwwwwBBB",
+  ".BBBBBBBBBBBBBB.",
+  "................",
+  "................",
+  "................",
+  "................",
+  "................",
+  "................",
+  "................",
+], { H: "#6b4423", h: "#4a2f18", s: "#f5d4a8", B: "#e8c89a", w: "#ffffff" }, 3);
+
 export const SVG_AVATAR_TOILET = buildPixel([
   "................",
   "................",
