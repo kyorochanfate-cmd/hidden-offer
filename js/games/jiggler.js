@@ -4,10 +4,10 @@
 //      【新UI】上半分：PC画面、下半分左：マウスパッド、下半分右：さぼり(ドット絵＆工作演出)
 // =========================================================================
 
-import { el, clear, loop, clamp, pick } from "../dom.js?v=1.0.6";
-import { Router } from "../app.js?v=1.0.6";
-import { finishGame } from "./result.js?v=1.0.6";
-import { SVG_WORKER } from "../art.js?v=1.0.6";
+import { el, clear, loop, clamp, pick } from "../dom.js?v=1.0.7";
+import { Router } from "../app.js?v=1.0.7";
+import { finishGame } from "./result.js?v=1.0.7";
+import { SVG_WORKER } from "../art.js?v=1.0.7";
 
 // プラモデルお題
 const SABORI_MODELS = [
@@ -161,27 +161,15 @@ export function startJiggler(mount, gameId) {
       ])
     ]),
 
-    // 下半分：物理デスク（スプリット）
+    // 下半分：物理デスク（スプリット）— 左:サボリ、右:仮想マウス
     el("div.jig-desk-split", {}, [
-      // 下左：仮想マウス操作スペース
-      el("div.jig-mouse-area#jig-desktop", {}, [
-        el("div.jig-desktop-label", { text: "■ 仮想マウスパッド (スワイプして動かせ！)" }),
-        
-        // 仮想マウス
-        el("div.jig-virtual-mouse#jig-mouse", {
-          style: { left: "50px", top: "50px" }
-        }, [
-          el("div.jig-mouse-wheel")
-        ]),
-      ]),
-
-      // 下右：サボり工作エリア
+      // 下左：サボり工作エリア
       el("div.jig-sabori-area#jig-sabori-area", {}, [
         // 工作進捗表示
         el("div.jig-sabori-header", {}, [
           el("div.jig-sabori-title#jig-model-title", { text: state.currentModel }),
           el("div.jig-sabori-val-row", {}, [
-            el("span", { text: "工作進捗" }),
+            el("span", { text: "サボり度" }),
             el("span#jig-sabori-val", { text: "0%" })
           ]),
           el("div.jig-track", { style: { height: "6px" } }, [
@@ -198,9 +186,21 @@ export function startJiggler(mount, gameId) {
 
         // さぼりボタン
         el("button.pbtn.purple.jig-sabori-btn#jig-sabori-btn", {}, [
-          el("span", { text: "プラモを作る" })
+          el("span", { text: "サボる" })
         ])
-      ])
+      ]),
+
+      // 下右：仮想マウス操作スペース
+      el("div.jig-mouse-area#jig-desktop", {}, [
+        el("div.jig-desktop-label", { text: "■ マウスパッド" }),
+
+        // 仮想マウス
+        el("div.jig-virtual-mouse#jig-mouse", {
+          style: { left: "50px", top: "50px" }
+        }, [
+          el("div.jig-mouse-wheel")
+        ]),
+      ]),
     ])
   ]);
 
@@ -411,15 +411,22 @@ export function startJiggler(mount, gameId) {
   function spawnWorkEffect() {
     const icon = pick(WORK_EFFECT_ICONS);
     const fx = el("div.jig-work-effect", { text: icon });
-    
+
     // キャラクターの周りにランダム配置
     const offsetX = (Math.random() - 0.5) * 60;
     const offsetY = (Math.random() - 0.5) * 40;
     fx.style.left = (40 + offsetX) + "px";
     fx.style.top = (40 + offsetY) + "px";
-    
+
     refs.showcase.appendChild(fx);
     setTimeout(() => fx.remove(), 800);
+  }
+
+  // ゲージ満タン時の「+10円」フローティング
+  function spawnCoinPop() {
+    const pop = el("div.jig-coin-pop", { text: "+10円" });
+    refs.saboriArea.appendChild(pop);
+    setTimeout(() => pop.remove(), 1200);
   }
 
   // --- メインゲームループ ---
@@ -464,15 +471,15 @@ export function startJiggler(mount, gameId) {
       if (state.saboriProgress >= 100) {
         state.completed += 1;
         state.saboriProgress = 0;
-        refs.count.textContent = `プラモ完成: ${state.completed}`;
-        
+
         // 次のモデル
         state.currentModel = pick(SABORI_MODELS);
         refs.modelTitle.textContent = state.currentModel;
-        
-        // 進捗フラッシュ
+
+        // 進捗フラッシュ＋「+10円」フローティング演出
         refs.saboriFill.classList.add("flash");
         setTimeout(() => refs.saboriFill.classList.remove("flash"), 300);
+        spawnCoinPop();
       }
     }
 
@@ -561,7 +568,7 @@ export function startJiggler(mount, gameId) {
     window.removeEventListener("touchmove", doDrag);
     window.removeEventListener("touchend", stopDrag);
 
-    const unitPrice = 5;
+    const unitPrice = 10;
     const saboriPay = state.completed * unitPrice;
     const deductionVal = state.completed > 0 ? 5 : 0;
     const coins = Math.max(0, saboriPay - deductionVal);

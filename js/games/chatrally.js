@@ -3,10 +3,10 @@
 // 上司のメッセージに空気を読んだ（忖度した）スタンプを爆速で返すゲーム。
 // =========================================================================
 
-import { el, clear, loop, clamp } from "../dom.js?v=1.0.6";
-import { Store } from "../state.js?v=1.0.6";
-import { Router } from "../app.js?v=1.0.6";
-import { finishGame } from "./result.js?v=1.0.6";
+import { el, clear, loop, clamp } from "../dom.js?v=1.0.7";
+import { Store } from "../state.js?v=1.0.7";
+import { Router } from "../app.js?v=1.0.7";
+import { finishGame } from "./result.js?v=1.0.7";
 
 // メッセージとお題データ
 const PROBLEMS = [

@@ -3,10 +3,10 @@
 // 怪しい転職エージェント（ピクセルアート）が封筒を差し出す演出。
 // =========================================================================
 
-import { el, clear, toast } from "../dom.js?v=1.0.6";
-import { Store } from "../state.js?v=1.0.6";
-import { GACHA_COST, rollGacha, GAMES } from "../data.js?v=1.0.6";
-import { Router } from "../app.js?v=1.0.6";
+import { el, clear, toast } from "../dom.js?v=1.0.7";
+import { Store } from "../state.js?v=1.0.7";
+import { GACHA_COST, rollGacha, GAMES } from "../data.js?v=1.0.7";
+import { Router } from "../app.js?v=1.0.7";
 
 export function renderGacha(mount) {
   const screen = el("div.screen.retro", {}, [
