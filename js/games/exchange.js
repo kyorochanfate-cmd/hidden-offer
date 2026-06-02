@@ -9,10 +9,10 @@
 // マナー値0で出禁。
 // =========================================================================
 
-import { el, clear, loop, clamp, pick, rand } from "../dom.js?v=1.1.2";
-import { Router } from "../app.js?v=1.1.2";
-import { finishGame } from "./result.js?v=1.1.2";
-import { SVG_WORKER, SVG_BOSS, SVG_AGENT, SVG_DOG, SVG_CAT } from "../art.js?v=1.1.2";
+import { el, clear, loop, clamp, pick, rand } from "../dom.js?v=1.1.3";
+import { Router } from "../app.js?v=1.1.3";
+import { finishGame } from "./result.js?v=1.1.3";
+import { SVG_WORKER, SVG_BOSS, SVG_AGENT, SVG_DOG, SVG_CAT, SVG_SALESMAN } from "../art.js?v=1.1.3";
 
 // 取引先プリセット（人間）
 const HUMANS = [
@@ -29,6 +29,13 @@ const ANIMALS = [
   { name: "クロ",  company: "社猫",   svg: SVG_CAT, color: "#1f1f1f", kind: "cat" },
 ];
 
+// 怪しいキャッチセールス（無視するのが正解）
+const SALESMEN = [
+  { name: "営業のキム", company: "?副業セミナー",     svg: SVG_SALESMAN, color: "#ffd24a", kind: "salesman" },
+  { name: "コンサル黒田", company: "?マーケ研究所",   svg: SVG_SALESMAN, color: "#ff5cb4", kind: "salesman" },
+  { name: "山田Pro",     company: "?投資ファミリー",   svg: SVG_SALESMAN, color: "#8a4dff", kind: "salesman" },
+];
+
 const PHRASES_HUMAN = [
   "お世話になっております！",
   "本日はお時間頂きありがとうございます",
@@ -38,6 +45,13 @@ const PHRASES_HUMAN = [
 ];
 const PHRASES_DOG = ["わんっ！", "ハッハッハッ……", "シッポふりふり", "クンクン……"];
 const PHRASES_CAT = ["……ニャア", "（しっぽぴん）", "なで待ち", "ゴロゴロ"];
+const PHRASES_SALESMAN = [
+  "あ、社長！ちょっとお時間よろしいですか？",
+  "弊社、業界最大手の◯◯協会の…",
+  "御社の利益、3倍に伸ばす手法を…",
+  "今だけ無料の特別セミナーが…",
+  "資料だけでも受け取って頂けませんか？",
+];
 
 const PLAYER_CENTER = 70;
 const SWEET_MIN_DIST = 80;
@@ -101,7 +115,7 @@ export function startExchange(mount, gameId) {
       ]),
     ]),
 
-    // 2 ボタン：名刺を出す（人間用）／なでなで（動物用）
+    // 3 ボタン：名刺を出す（人間用）／なでなで（動物用）／シカト（キャッチセールス用）
     el("div.ex-action-bar", {}, [
       el("button.pbtn.green.ex-action-btn#ex-card-btn", {
         onclick: (e) => { e.preventDefault(); doAction("card"); },
@@ -111,6 +125,10 @@ export function startExchange(mount, gameId) {
         onclick: (e) => { e.preventDefault(); doAction("pet"); },
         ontouchstart: (e) => { e.preventDefault(); doAction("pet"); },
       }, [el("span", { text: "なでなで" })]),
+      el("button.pbtn.purple.ex-action-btn#ex-ignore-btn", {
+        onclick: (e) => { e.preventDefault(); doAction("ignore"); },
+        ontouchstart: (e) => { e.preventDefault(); doAction("ignore"); },
+      }, [el("span", { text: "シカト" })]),
     ]),
   ]);
 
@@ -130,24 +148,39 @@ export function startExchange(mount, gameId) {
   // --- visitor 管理 ---------------------------------------------------------
 
   function spawnVisitor() {
-    // 動物の混入率（経過時間と共に少し上がる）
-    const animalChance = 0.18 + state.elapsed * 0.002;
-    const isAnimal = Math.random() < animalChance;
-    const def = isAnimal ? pick(ANIMALS) : pick(HUMANS);
-    const kind = isAnimal ? def.kind : "human";
+    // 抽選：人間 / 動物 / キャッチセールス
+    const r = Math.random();
+    const animalChance   = 0.18 + state.elapsed * 0.002;       // 動物
+    const salesmanChance = 0.10 + state.elapsed * 0.0025;       // セールス（経過で上昇）
+    let def, kind;
+    if (r < salesmanChance) {
+      def = pick(SALESMEN);
+      kind = "salesman";
+    } else if (r < salesmanChance + animalChance) {
+      def = pick(ANIMALS);
+      kind = def.kind;
+    } else {
+      def = pick(HUMANS);
+      kind = "human";
+    }
+    const isAnimal = (kind === "dog" || kind === "cat");
+    const isSalesman = (kind === "salesman");
 
-    // 速度：基本さらに速く、徐々に加速。動物は少し速め。
+    // 速度：基本さらに速く、徐々に加速。動物は少し速め、セールスはやや遅い（しつこく）。
     const baseSpeed = 165;
     const speedMul = 1 + state.elapsed * 0.020;
-    const animalBoost = isAnimal ? 1.15 : 1.0;
-    const speed = baseSpeed * speedMul * animalBoost;
+    const typeBoost = isAnimal ? 1.15 : (isSalesman ? 0.85 : 1.0);
+    const speed = baseSpeed * speedMul * typeBoost;
 
     const stageWidth = refs.stage.clientWidth || 380;
     const startX = stageWidth + 40;
     const id = ++state.spawnId;
 
+    const cls = "ex-visitor"
+      + (isAnimal ? " is-animal" : "")
+      + (isSalesman ? " is-salesman" : "");
     const dom = el("div", {
-      class: "ex-visitor" + (isAnimal ? " is-animal" : ""),
+      class: cls,
       style: { left: (startX - VISITOR_WIDTH/2) + "px" }
     }, [
       el("div.ex-character", { style: { transform: "scaleX(-1)" }, html: def.svg }),
@@ -155,17 +188,19 @@ export function startExchange(mount, gameId) {
     ]);
     refs.stage.appendChild(dom);
 
-    const visitor = { id, def, kind, x: startX, speed, dom, action: isAnimal ? "pet" : "card" };
+    const correctAction = isAnimal ? "pet" : (isSalesman ? "ignore" : "card");
+    const visitor = { id, def, kind, x: startX, speed, dom, action: correctAction };
     state.visitors.push(visitor);
 
     // セリフは最も手前の visitor のものを表示
     setTimeout(() => {
       const front = getFrontVisitor();
       if (!front) return;
-      const phr = front.kind === "human" ? PHRASES_HUMAN
-                : front.kind === "dog"   ? PHRASES_DOG
-                :                          PHRASES_CAT;
-      refs.dialog.textContent = front.kind === "human"
+      const phr = front.kind === "human"    ? PHRASES_HUMAN
+                : front.kind === "salesman" ? PHRASES_SALESMAN
+                : front.kind === "dog"      ? PHRASES_DOG
+                :                              PHRASES_CAT;
+      refs.dialog.textContent = front.kind === "human" || front.kind === "salesman"
         ? `${front.def.company} ${front.def.name}：${pick(phr)}`
         : `${front.def.name}「${pick(phr)}」`;
       refs.dialog.classList.add("visible");
@@ -189,10 +224,11 @@ export function startExchange(mount, gameId) {
     // 次のセリフ更新
     const next = getFrontVisitor();
     if (next) {
-      const phr = next.kind === "human" ? PHRASES_HUMAN
-                : next.kind === "dog"   ? PHRASES_DOG
-                :                          PHRASES_CAT;
-      refs.dialog.textContent = next.kind === "human"
+      const phr = next.kind === "human"    ? PHRASES_HUMAN
+                : next.kind === "salesman" ? PHRASES_SALESMAN
+                : next.kind === "dog"      ? PHRASES_DOG
+                :                             PHRASES_CAT;
+      refs.dialog.textContent = next.kind === "human" || next.kind === "salesman"
         ? `${next.def.company} ${next.def.name}：${pick(phr)}`
         : `${next.def.name}「${pick(phr)}」`;
       refs.dialog.classList.add("visible");
@@ -230,10 +266,12 @@ export function startExchange(mount, gameId) {
       state.combo++;
       state.maxCombo = Math.max(state.maxCombo, state.combo);
       state.mood = clamp(state.mood + 4, 0, 100);
-      const animalBonus = v.kind !== "human" ? "（社内マスコット +10円）" : "";
-      spawnPop(`成功！ +10円${animalBonus}`, "ok");
-      if (action === "card") bowAnimation(v);
-      else                   petAnimation(v);
+      const bonusText = v.kind === "salesman" ? "（撃退ボーナス +10円）"
+                       : (v.kind !== "human" ? "（社内マスコット +10円）" : "");
+      spawnPop(`成功！ +10円${bonusText}`, "ok");
+      if (action === "card")        bowAnimation(v);
+      else if (action === "pet")    petAnimation(v);
+      else                          ignoreAnimation(v);  // シカト＝そのまま通す
       v.speed = 240;
       setTimeout(() => removeVisitor(v), 500);
     } else if (timing === "perfect" && !correctAction) {
@@ -241,7 +279,10 @@ export function startExchange(mount, gameId) {
       state.failCount++;
       state.combo = 0;
       state.mood = clamp(state.mood - 10, 0, 100);
-      const msg = v.kind === "human" ? "犬じゃないよ！名刺！" : "名刺じゃない！なでて！";
+      let msg;
+      if (v.kind === "human")          msg = action === "pet" ? "なでないで！名刺！" : "シカトはダメ！";
+      else if (v.kind === "salesman")  msg = "罠だ！名刺渡しちゃダメ！";
+      else                              msg = "犬猫だよ！なでて！";
       spawnPop(msg, "ng");
       shakeVisitor(v);
     } else if (timing === "early") {
@@ -285,6 +326,16 @@ export function startExchange(mount, gameId) {
     setTimeout(() => {
       refs.player.classList.remove("petting");
       v.dom?.classList.remove("petted");
+    }, 500);
+  }
+
+  function ignoreAnimation(v) {
+    // プレイヤーは「目をそらす」演出。セールスは去っていく。
+    refs.player.classList.add("ignoring");
+    v.dom.classList.add("ignored");
+    setTimeout(() => {
+      refs.player.classList.remove("ignoring");
+      v.dom?.classList.remove("ignored");
     }, 500);
   }
 
@@ -334,10 +385,19 @@ export function startExchange(mount, gameId) {
       v.dom.style.left = (v.x - VISITOR_WIDTH/2) + "px";
       // 通り過ぎ
       if (v.x < PLAYER_CENTER - 30) {
-        spawnPop("無視した！", "ng");
-        state.mood = clamp(state.mood - 12, 0, 100);
-        state.combo = 0;
-        state.failCount++;
+        if (v.kind === "salesman") {
+          // セールスは通り過ぎてくれてラッキー（小ボーナス）
+          state.successCount++;
+          state.combo++;
+          state.maxCombo = Math.max(state.maxCombo, state.combo);
+          state.mood = clamp(state.mood + 2, 0, 100);
+          spawnPop("撃退！ +10円", "ok");
+        } else {
+          spawnPop("無視した！", "ng");
+          state.mood = clamp(state.mood - 12, 0, 100);
+          state.combo = 0;
+          state.failCount++;
+        }
         removeVisitor(v);
       }
     }

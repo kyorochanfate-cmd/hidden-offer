@@ -197,6 +197,44 @@ export const SVG_CAT = buildPixel([
 }, 4);
 
 // =========================================================================
+// 怪しいキャッチセールス（黒スーツ＋サングラス＋ニカッ笑顔）
+// プレイヤーに名刺を押し付けようとしてくる → シカトが正解
+// =========================================================================
+export const SVG_SALESMAN = buildPixel([
+  "................",
+  "...HHHHHHHHHH...",
+  "..HhhhhhhhhhhH..",   // 黒髪
+  "..HhhhhhhhhhhH..",
+  "..HsssssssssH...",   // 顔
+  "..sGGGGsGGGGss..",   // サングラス
+  "..sGGGGsGGGGss..",
+  "..ssssssssssss..",
+  "..sssWWWWWWsss..",   // ニカッと白い歯
+  "..ssssCCCCssss..",   // 紙(名刺)を顎の下
+  "..ssssssssssss..",
+  "...nnnBBBnnn....",   // 首
+  "..BBwBBBBwBB....",   // 黒スーツ襟
+  ".BBBwYYYYwBBB...",   // 金ピカネクタイ
+  ".BBBwYYYYwBBB...",
+  "BBBBwwwwwwBBBB..",
+  "BBBBBBBBBBBBBB..",
+  "BBBBBBBBBBBBBB..",
+  "BBB..BB..BB.BB..",
+  "................",
+], {
+  H: "#1a1a1a",     // 髪輪郭
+  h: "#2a1a10",     // 髪
+  s: "#f0c89a",     // 肌
+  G: "#000000",     // サングラス
+  W: "#ffffff",     // 白い歯
+  C: "#ffffff",     // 名刺
+  n: "#f0c89a",
+  B: "#0a0a0a",     // 黒スーツ
+  w: "#ffffff",
+  Y: "#ffd24a",     // 金ピカネクタイ
+});
+
+// =========================================================================
 // 求人リスト用の小さなアイコン（44x44想定。再利用）
 // =========================================================================
 export const SVG_AVATAR_SLIDE = buildPixel([

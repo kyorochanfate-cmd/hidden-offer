@@ -2,11 +2,11 @@
 // jobs.js — 求人選択（労働選択）画面（コンパクト＋詳細モーダル）
 // =========================================================================
 
-import { el, clear } from "../dom.js?v=1.1.2";
-import { Store } from "../state.js?v=1.1.2";
-import { GAMES, GAME_ORDER } from "../data.js?v=1.1.2";
-import { Router } from "../app.js?v=1.1.2";
-import { AVATARS } from "../art.js?v=1.1.2";
+import { el, clear } from "../dom.js?v=1.1.3";
+import { Store } from "../state.js?v=1.1.3";
+import { GAMES, GAME_ORDER } from "../data.js?v=1.1.3";
+import { Router } from "../app.js?v=1.1.3";
+import { AVATARS } from "../art.js?v=1.1.3";
 
 export function renderJobs(mount) {
   function draw() {

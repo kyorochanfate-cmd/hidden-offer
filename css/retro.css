@@ -4413,3 +4413,19 @@ img, svg { image-rendering: pixelated; image-rendering: crisp-edges; }
   0%, 100% { transform: translateY(0); }
   50%      { transform: translateY(-4px) rotate(-3deg); }
 }
+
+/* 名刺交換タクティカル：キャッチセールス・3ボタン対応 */
+.ex-action-bar { gap: 6px; }
+.ex-action-btn span { font-size: 14px !important; }
+
+/* セールスマン visitor は他より目立つように外周グロー */
+.ex-visitor.is-salesman .ex-character {
+  filter: drop-shadow(0 0 6px rgba(255, 210, 74, 0.6)) drop-shadow(0 4px 0 rgba(0,0,0,.4));
+}
+
+/* シカト演出：プレイヤーが少し顔をそむける、セールスはフェードアウトしながら背を向ける */
+.ex-player.ignoring { transform: scaleX(-1) rotate(0); /* 一瞬左を向く */ }
+.ex-visitor.ignored {
+  opacity: 0.55;
+  filter: grayscale(0.6);
+}
