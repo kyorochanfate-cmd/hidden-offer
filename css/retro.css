@@ -4429,3 +4429,109 @@ img, svg { image-rendering: pixelated; image-rendering: crisp-edges; }
   opacity: 0.55;
   filter: grayscale(0.6);
 }
+
+/* =========================================================================
+   ガチャ：レア演出（unlock 出現時）
+   ========================================================================= */
+/* unlock カード：呼吸するネオングロー */
+.unlock-card {
+  position: relative;
+  background: linear-gradient(135deg, rgba(255,210,74,0.08), rgba(194,103,255,0.10)) !important;
+  border: 3px solid var(--glow-color, #ffd24a) !important;
+  animation: unlock-glow 1.4s ease-in-out infinite alternate;
+  overflow: visible !important;
+}
+@keyframes unlock-glow {
+  from {
+    box-shadow:
+      inset 0 0 0 2px var(--glow-color, #ffd24a),
+      0 4px 0 rgba(0,0,0,.4),
+      0 0 16px var(--glow-color, #ffd24a);
+  }
+  to {
+    box-shadow:
+      inset 0 0 0 2px var(--glow-color, #ffd24a),
+      0 4px 0 rgba(0,0,0,.4),
+      0 0 36px var(--glow-color, #ffd24a),
+      0 0 60px rgba(255, 210, 74, 0.4);
+  }
+}
+
+/* NEW POSITION バッジ */
+.unlock-badge {
+  position: absolute;
+  top: -10px;
+  right: -6px;
+  background: linear-gradient(45deg, #ffd24a, #ff8ade, #c267ff);
+  background-size: 200% 200%;
+  color: #1a1230;
+  font-family: var(--r-font-en);
+  font-weight: 900;
+  font-size: 10px;
+  letter-spacing: 0.05em;
+  padding: 5px 10px;
+  border-radius: 4px;
+  box-shadow:
+    0 0 12px rgba(255, 210, 74, 0.9),
+    0 2px 4px rgba(0,0,0,0.4);
+  animation: badge-rainbow 2.5s linear infinite, badge-pop 0.7s ease-in-out infinite alternate;
+  z-index: 5;
+  white-space: nowrap;
+  text-shadow: none;
+  border: 2px solid #1a1230;
+}
+@keyframes badge-rainbow {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+@keyframes badge-pop {
+  from { transform: scale(1) rotate(-4deg); }
+  to   { transform: scale(1.12) rotate(4deg); }
+}
+
+/* 全画面レアフラッシュ */
+.rare-flash {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 50% 45%, rgba(255,210,74,0.55) 0%, rgba(255,210,74,0.1) 30%, transparent 65%);
+  pointer-events: none;
+  z-index: 90;
+  animation: rare-flash-fade 1.6s ease-out forwards;
+  mix-blend-mode: screen;
+}
+@keyframes rare-flash-fade {
+  0%   { opacity: 0; transform: scale(0.4); }
+  15%  { opacity: 1; transform: scale(1.0); }
+  100% { opacity: 0; transform: scale(2.2); }
+}
+
+/* RARE! テキストポップ */
+.rare-text {
+  position: absolute;
+  left: 50%;
+  top: 38%;
+  transform: translate(-50%, -50%);
+  font-family: var(--r-font-en);
+  font-size: 36px;
+  font-weight: 900;
+  color: #ffd24a;
+  text-shadow:
+    0 0 12px rgba(255, 210, 74, 1),
+    0 0 24px rgba(255, 138, 222, 0.8),
+    4px 4px 0 #1a1230,
+    -2px -2px 0 #1a1230;
+  pointer-events: none;
+  z-index: 130;
+  letter-spacing: 0.1em;
+  animation: rare-text-burst 1.8s cubic-bezier(0.2, 0.9, 0.3, 1) forwards;
+}
+@keyframes rare-text-burst {
+  0%   { opacity: 0; transform: translate(-50%, -50%) scale(0.3) rotate(-15deg); }
+  20%  { opacity: 1; transform: translate(-50%, -50%) scale(1.4) rotate(5deg); }
+  35%  { transform: translate(-50%, -50%) scale(1.0) rotate(-3deg); }
+  50%  { transform: translate(-50%, -50%) scale(1.15) rotate(3deg); }
+  80%  { opacity: 1; transform: translate(-50%, -50%) scale(1.0) rotate(0); }
+  100% { opacity: 0; transform: translate(-50%, -80%) scale(1.2) rotate(0); }
+}

@@ -3,24 +3,31 @@
 // 怪しい転職エージェント（ピクセルアート）が封筒を差し出す演出。
 // =========================================================================
 
-import { el, clear, toast } from "../dom.js?v=1.1.3";
-import { Store } from "../state.js?v=1.1.3";
-import { GACHA_COST, rollGacha, GAMES } from "../data.js?v=1.1.3";
-import { Router } from "../app.js?v=1.1.3";
+import { el, clear, toast } from "../dom.js?v=1.1.4";
+import { Store } from "../state.js?v=1.1.4";
+import { GACHA_COST, rollGacha, GAMES } from "../data.js?v=1.1.4";
+import { Router } from "../app.js?v=1.1.4";
 
 export function renderGacha(mount) {
+  // body を retro-scroll の外に置き、自身を flex container 化することで
+  // reveal 時にリスト=flex1+scroll／ボタン=固定 のレイアウトを実現する。
   const screen = el("div.screen.retro", {}, [
     bgFx(),
-    el("div.retro-body", {}, [
-      el("div.retro-appbar", {}, [
+    el("div.retro-body", { style: { display: "flex", flexDirection: "column", height: "100%" } }, [
+      el("div.retro-appbar", { style: { flex: "none" } }, [
         el("button.retro-back", { text: "←", onclick: () => Router.menu() }),
         el("div.retro-page-title", { text: "キャリアコンサル" }),
         el("div.spacer"),
         el("div.retro-chip#g-coins", {}, [el("span.coin", { text: "¥" }), el("span", { text: String(Store.coins) + " 円" })]),
       ]),
-      el("div.retro-scroll", {}, [
-        el("div#g-body", { style: { padding: "0 16px 16px" } }),
-      ]),
+      el("div#g-body", { style: {
+        flex: "1",
+        display: "flex",
+        flexDirection: "column",
+        padding: "0 16px 16px",
+        minHeight: 0,
+        overflowY: "auto",
+      } }),
     ]),
   ]);
   mount(screen);
@@ -150,16 +157,36 @@ async function draw(body, count) {
 }
 
 function reveal(body, results) {
+  // body は flex column コンテナ。reveal 時は overflow を切って、
+  // 内部に「ヘッダ(固定) / リスト(flex1+scroll) / ボタン(固定)」を組む。
   clear(body);
-  spawnConfetti(document.getElementById("app") || body);
+  body.style.overflowY = "hidden";
 
   const list = Array.isArray(results) ? results : [results];
+  const hasUnlock = list.some(r => r.type === "unlock");
+  const appRoot = document.getElementById("app") || body;
+
+  // unlock 含むなら派手なレアフラッシュ＋強化紙吹雪
+  if (hasUnlock) {
+    spawnRareFlash(appRoot);
+    spawnConfetti(appRoot, true);
+  } else {
+    spawnConfetti(appRoot, false);
+  }
 
   const cards = list.map((result) => {
     if (result.type === "unlock") {
       Store.unlockGame(result.gameId);
       const g = GAMES[result.gameId];
-      return el("div.retro-card", { style: { borderColor: g.color, boxShadow: `inset 0 0 0 2px ${g.color}, 0 4px 0 rgba(0,0,0,.4)`, margin: "6px 0", padding: "10px 12px" } }, [
+      return el("div.retro-card.unlock-card", {
+        style: {
+          borderColor: g.color,
+          margin: "6px 0",
+          padding: "12px 14px",
+          "--glow-color": g.color,
+        },
+      }, [
+        el("div.unlock-badge", { text: "★ NEW POSITION ★" }),
         el("div.label", { text: "POSITION", style: { color: g.color } }),
         el("div.h", { text: "【急募】" + g.posting, style: { fontSize: "16px", lineHeight: "1.3" } }),
         el("div.body", { text: `${g.jpTitle} / 待遇: ${g.salary}`, style: { fontSize: "12px", marginTop: "2px" } }),
@@ -187,16 +214,46 @@ function reveal(body, results) {
   const headerText = isMulti ? "キャリアコンサル結果（10連）" : "キャリアコンサル結果";
 
   body.append(
-    el("div", { style: { paddingTop: "8px" } }, [
+    // ヘッダ（固定）
+    el("div", { style: { flex: "none", paddingTop: "8px" } }, [
       el("div", { style: { fontFamily: "var(--r-font-en)", fontSize: "11px", letterSpacing: ".15em", color: "var(--r-yellow)" }, text: "CONSULTING RESULT" }),
-      el("div", { style: { fontSize: "20px", fontWeight: "700", margin: "6px 0 14px", textShadow: "2px 2px 0 #1a1230" }, text: headerText }),
+      el("div", { style: { fontSize: "20px", fontWeight: "700", margin: "6px 0 10px", textShadow: "2px 2px 0 #1a1230" }, text: headerText }),
     ]),
-    el("div", { style: isMulti ? { maxHeight: "280px", overflowY: "auto", display: "flex", flexDirection: "column", gap: "8px", paddingRight: "4px" } : {} }, cards),
-    el("div", { style: { display: "flex", gap: "10px", marginTop: "16px" } }, [
-      el("button.pbtn.outline", { style: { flex: "1" }, onclick: () => intro(body), disabled: Store.coins < GACHA_COST }, [el("span", { text: "戻る" })]),
+    // 結果リスト（flex1 + 縦スクロール）
+    el("div", { style: {
+      flex: "1",
+      minHeight: 0,
+      overflowY: "auto",
+      display: "flex",
+      flexDirection: "column",
+      gap: "8px",
+      paddingRight: "4px",
+    } }, cards),
+    // ボタン（固定・下部）
+    el("div", { style: {
+      flex: "none",
+      display: "flex",
+      gap: "10px",
+      marginTop: "10px",
+      paddingTop: "10px",
+      borderTop: "1px solid rgba(255,255,255,0.12)",
+    } }, [
+      el("button.pbtn.outline", { style: { flex: "1" }, onclick: () => { body.style.overflowY = "auto"; intro(body); }, disabled: Store.coins < GACHA_COST }, [el("span", { text: "戻る" })]),
       el("button.pbtn.purple", { style: { flex: "1" }, onclick: () => Router.menu() }, [el("span", { text: "メニュー" })]),
     ]),
   );
+}
+
+// レアフラッシュ：unlock出現時の派手な全画面エフェクト
+function spawnRareFlash(parent) {
+  const flash = el("div.rare-flash");
+  parent.appendChild(flash);
+  setTimeout(() => flash.remove(), 1600);
+
+  // 中央に「★ RARE! ★」テキスト
+  const rareText = el("div.rare-text", { text: "★ RARE! ★" });
+  parent.appendChild(rareText);
+  setTimeout(() => rareText.remove(), 1800);
 }
 
 function entryTitleText(e) { return e.name; }
@@ -216,9 +273,12 @@ function bgFx() {
   );
 }
 
-function spawnConfetti(parent) {
-  const colors = ["#ff5cb4", "#c267ff", "#5be8ff", "#6cf06e", "#ffd24a", "#ff5b6e"];
-  const count = 45;
+function spawnConfetti(parent, rare = false) {
+  // rare の時は金色多めで量も増やす
+  const colors = rare
+    ? ["#ffd24a", "#ffae2b", "#ff8ade", "#ff5cb4", "#c267ff", "#5be8ff", "#ffd24a", "#fffacd"]
+    : ["#ff5cb4", "#c267ff", "#5be8ff", "#6cf06e", "#ffd24a", "#ff5b6e"];
+  const count = rare ? 100 : 45;
   const container = el("div", { style: { position: "absolute", inset: 0, pointerEvents: "none", zIndex: 120 } });
   parent.appendChild(container);
 
