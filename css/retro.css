@@ -3995,3 +3995,157 @@ img, svg { image-rendering: pixelated; image-rendering: crisp-edges; }
   70%  { transform: translate(-50%, -30px) scale(1); opacity: 1; }
   100% { transform: translate(-50%, -60px) scale(0.9); opacity: 0; }
 }
+
+/* =========================================================================
+   ジグラー追加：サボリ画像の重なり修正 / 在席維持を大きく / チャンネルUI
+   ========================================================================= */
+.jig-sabori-area {
+  display: flex !important;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px !important;
+  overflow: hidden;
+  position: relative;
+}
+.jig-sabori-header { flex: none; }
+.jig-sabori-title  { font-size: 11px !important; }
+.jig-worker-showcase {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  margin: 2px 0;
+}
+.jig-worker-image {
+  max-width: 100%;
+  max-height: 100%;
+  width: auto !important;
+  height: auto !important;
+  object-fit: contain;
+}
+.jig-sabori-btn {
+  flex: none;
+  padding: 8px !important;
+}
+.jig-sabori-btn span { font-size: 14px !important; }
+
+/* 在席維持バナーを大型化 */
+.teams-monitor-banner {
+  display: flex !important;
+  align-items: center;
+  gap: 8px !important;
+  padding: 6px 12px !important;
+  background: linear-gradient(180deg, rgba(108,99,255,0.18), rgba(0,0,0,0.25)) !important;
+  border: 2px solid #6264a7 !important;
+  border-radius: 8px;
+  min-width: 220px !important;
+}
+.teams-monitor-label {
+  font-size: 13px !important;
+  font-weight: 800 !important;
+  color: #fff !important;
+}
+.teams-monitor-val {
+  font-family: var(--r-font-en) !important;
+  font-size: 18px !important;
+  color: var(--r-yellow) !important;
+  font-weight: 900 !important;
+  text-shadow: 0 0 8px rgba(255,210,74,0.85) !important;
+  min-width: 56px;
+  text-align: center;
+}
+.teams-monitor-track {
+  flex: 1;
+  height: 12px !important;
+  min-width: 80px !important;
+  background: #1a1230 !important;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.12);
+}
+.teams-monitor-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #a6e3a1, #6cf06e) !important;
+  box-shadow: 0 0 8px rgba(108, 240, 110, 0.7);
+  transition: width 0.3s ease, background 0.3s ease;
+}
+.teams-monitor-fill.warning {
+  background: linear-gradient(90deg, #f9e2af, #f3b500) !important;
+  box-shadow: 0 0 8px rgba(243, 181, 0, 0.7);
+}
+.teams-monitor-fill.critical {
+  background: linear-gradient(90deg, #f38ba8, #d13438) !important;
+  box-shadow: 0 0 10px rgba(209, 52, 56, 0.85);
+  animation: jig-mood-flash 0.6s ease-in-out infinite alternate;
+}
+@keyframes jig-mood-flash {
+  from { filter: brightness(1); }
+  to   { filter: brightness(1.35); }
+}
+
+/* チャットリスト：クリック可能＆未読バッジ */
+.chat-list-item {
+  cursor: pointer;
+  transition: background 0.15s;
+  position: relative;
+}
+.chat-list-item:hover { background: rgba(255,255,255,0.04); }
+.chat-list-item.active { background: rgba(98,100,167,0.18); }
+.chat-list-item.has-unread { animation: jig-blink-row 0.7s ease-in-out infinite alternate; }
+@keyframes jig-blink-row {
+  from { background: rgba(255, 92, 180, 0.12); }
+  to   { background: rgba(255, 92, 180, 0.30); }
+}
+.chat-unread-badge {
+  position: absolute;
+  top: 50%;
+  right: 8px;
+  transform: translateY(-50%);
+  background: #ff5cb4;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 900;
+  min-width: 16px;
+  height: 16px;
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  padding: 0 4px;
+  box-shadow: 0 0 6px rgba(255, 92, 180, 0.6);
+}
+/* チャンネル切替を促すヒント */
+.teams-channel-hint {
+  margin: 12px 16px;
+  padding: 10px 14px;
+  background: rgba(255, 92, 180, 0.12);
+  border: 2px dashed #ff5cb4;
+  border-radius: 8px;
+  color: #ff8ade;
+  font-size: 12px;
+  font-weight: 700;
+  text-align: center;
+  animation: jig-pulse 0.8s ease-in-out infinite alternate;
+}
+@keyframes jig-pulse {
+  from { opacity: 0.8; }
+  to   { opacity: 1; }
+}
+
+/* room header を縦並びに：上＝部屋名、下＝在席維持バーフル幅 */
+.teams-room-header {
+  flex-direction: column !important;
+  align-items: stretch !important;
+  gap: 6px !important;
+  padding: 8px 12px !important;
+  height: auto !important;
+  min-height: 64px;
+}
+.room-title-wrap {
+  display: flex !important;
+  flex-direction: row !important;
+  gap: 8px;
+  align-items: baseline;
+}
+.teams-monitor-banner { min-width: 0 !important; width: 100%; }

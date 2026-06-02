@@ -4,10 +4,10 @@
 //      【新UI】上半分：PC画面、下半分左：マウスパッド、下半分右：さぼり(ドット絵＆工作演出)
 // =========================================================================
 
-import { el, clear, loop, clamp, pick } from "../dom.js?v=1.0.7";
-import { Router } from "../app.js?v=1.0.7";
-import { finishGame } from "./result.js?v=1.0.7";
-import { SVG_WORKER } from "../art.js?v=1.0.7";
+import { el, clear, loop, clamp, pick } from "../dom.js?v=1.0.8";
+import { Router } from "../app.js?v=1.0.8";
+import { finishGame } from "./result.js?v=1.0.8";
+import { SVG_WORKER } from "../art.js?v=1.0.8";
 
 // プラモデルお題
 const SABORI_MODELS = [
@@ -21,15 +21,23 @@ const SABORI_MODELS = [
   "ドット絵職人のキーボード",
 ];
 
-// 突発チャットお題
+// 突発チャットお題（sender ごとに振り分けてチャンネルに着信）
 const CHAT_QUESTIONS = [
   { sender: "佐藤部長", text: "〇〇さん、昨日頼んだスライドどうなった？" },
   { sender: "佐藤部長", text: "今日の進捗、今すぐチャットで教えて。" },
   { sender: "佐藤部長", text: "今週の週報がまだ未提出だが、忘れているかね？" },
   { sender: "佐藤部長", text: "今日の役員会議、Teamsの会議URLを送ってくれ。" },
   { sender: "佐藤部長", text: "Teamsのステータス、さっきからずっと黄色（離席）だよ？" },
-  { sender: "同僚 田中", text: "急報！佐藤部長がさっき君の席を探してたぞ！" },
   { sender: "佐藤部長", text: "〇〇くん、今電話してもいいかね？" },
+  // 田中さん（25秒以降）
+  { sender: "同僚 田中", text: "急報！佐藤部長がさっき君の席を探してたぞ！" },
+  { sender: "同僚 田中", text: "あの件、今日中にレビューしてもらえる？" },
+  { sender: "同僚 田中", text: "ランチどうする？社食でいい？" },
+  { sender: "同僚 田中", text: "資料の3ページ目、誤字あるかも。確認してー。" },
+  // 人事部（55秒以降）
+  { sender: "人事部 鈴木", text: "出勤打刻が今朝ありません。至急ご対応ください。" },
+  { sender: "人事部 鈴木", text: "コンプライアンス研修の受講期限が本日です。" },
+  { sender: "人事部 鈴木", text: "ストレスチェック未回答です。本日中にご対応を。" },
 ];
 
 const CHAT_REPLIES = [
@@ -41,6 +49,20 @@ const CHAT_REPLIES = [
 ];
 
 const WORK_EFFECT_ICONS = ["🔧", "🔨", "🎨", "✏️", "🪛", "⚙️", "✨"];
+
+// チャンネル定義（複数の人からの Teams DM をシミュレート）
+const CHANNELS = {
+  sato:   { name: "佐藤部長",     icon: "佐", color: "#ec6a3c", unlockAt: 0   },
+  tanaka: { name: "田中さん",     icon: "田", color: "#6264a7", unlockAt: 25  },
+  hr:     { name: "人事部 鈴木",  icon: "人", color: "#107c41", unlockAt: 55  },
+};
+function senderToChannelId(sender) {
+  if (sender.includes("佐藤"))  return "sato";
+  if (sender.includes("田中"))  return "tanaka";
+  if (sender.includes("人事"))  return "hr";
+  if (sender.includes("システム")) return "hr";
+  return "sato";
+}
 
 export function startJiggler(mount, gameId) {
   // ゲーム状態
@@ -65,6 +87,15 @@ export function startJiggler(mount, gameId) {
     chatLimit: 3.5,           // チャットの返信猶予秒（時間とともに短くする）
     chatReplyText: "",
     nextChatDelay: 6.0,       // 次のチャットまでの秒数
+
+    // 複数チャンネル
+    activeChannel: "sato",
+    pendingChannel: null,     // 現在の奇襲が起きてるチャンネル
+    channels: {
+      sato:   { unread: 0, preview: "（まだメッセージなし）" },
+      tanaka: { unread: 0, preview: "" },
+      hr:     { unread: 0, preview: "" },
+    },
     
     // マウスドラッグ用
     mouseX: 50,
@@ -112,32 +143,15 @@ export function startJiggler(mount, gameId) {
           el("div.rail-item", {}, [el("span", { text: "📅" })])
         ]),
         
-        // Chat List (チャット履歴一覧)
-        el("div.teams-chat-list", {}, [
-          el("div.chat-list-item.active", {}, [
-            el("div.chat-avatar", { text: "佐" }),
-            el("div.chat-info", {}, [
-              el("div.chat-name", { text: "佐藤部長" }),
-              el("div.chat-preview#teams-preview", { text: "昨日のスライドの件..." })
-            ]),
-            el("div.chat-status-dot.available")
-          ]),
-          el("div.chat-list-item", {}, [
-            el("div.chat-avatar", { text: "田" }),
-            el("div.chat-info", {}, [
-              el("div.chat-name", { text: "田中さん" }),
-              el("div.chat-preview", { text: "承知いたしました。" })
-            ]),
-            el("div.chat-status-dot.away")
-          ])
-        ]),
-        
-        // Chat Room (佐藤部長との会話画面)
+        // Chat List (チャット履歴一覧) — JSで動的レンダリング
+        el("div.teams-chat-list#jig-chat-list", {}),
+
+        // Chat Room
         el("div.teams-chat-room", {}, [
           // Room Header & Monitor Banner
           el("div.teams-room-header", {}, [
             el("div.room-title-wrap", {}, [
-              el("span.room-name", { text: "佐藤部長" }),
+              el("span.room-name#jig-room-name", { text: "佐藤部長" }),
               el("span.room-status#jig-lamp-text", { text: "連絡可能" })
             ]),
             // 在席維持レベル (PC監視システムバナー)
@@ -225,8 +239,9 @@ export function startJiggler(mount, gameId) {
     showcase: screen.querySelector("#jig-showcase"),
     // 新規 Teams UI 用
     messagesContainer: screen.querySelector("#teams-messages"),
+    chatList: screen.querySelector("#jig-chat-list"),
+    roomName: screen.querySelector("#jig-room-name"),
     teamsBadge: screen.querySelector("#teams-badge"),
-    teamsPreview: screen.querySelector("#teams-preview"),
     chatTimerFill: null
   };
 
@@ -275,6 +290,8 @@ export function startJiggler(mount, gameId) {
 
   // 初期メッセージ描画
   initialHistory.forEach(h => appendMessage(h.sender, h.text, h.time, h.isBoss));
+  state.channels.sato.preview = initialHistory[initialHistory.length - 1]?.text || "";
+  renderChannelList();
 
   // --- ドラッグ操作の実装 (仮想マウスパッド) ---
   const pad = refs.desktop;
@@ -360,23 +377,18 @@ export function startJiggler(mount, gameId) {
   // --- 爆速返信アクション ---
   function submitReply() {
     if (!state.active || !state.chatActive) return;
+    // 違うチャンネルを見ている時は返信不可（プレイヤーは正しいチャンネルに切り替える必要がある）
+    if (state.activeChannel !== state.pendingChannel) return;
     state.chatActive = false;
 
     // 返信エリアを消去
     const replyBox = refs.messagesContainer.querySelector("#teams-reply-box");
-    if (replyBox) {
-      replyBox.remove();
-    }
+    if (replyBox) replyBox.remove();
 
-    // Teams UIの通知やプレビューをリセット
-    if (refs.teamsBadge) {
-      refs.teamsBadge.style.display = "none";
-    }
-    if (refs.teamsPreview) {
-      refs.teamsPreview.textContent = state.chatReplyText;
-      refs.teamsPreview.style.fontWeight = "normal";
-      refs.teamsPreview.style.color = "#a19f9d";
-    }
+    // チャンネルプレビューを更新
+    state.channels[state.pendingChannel].preview = state.chatReplyText;
+    state.pendingChannel = null;
+    renderChannelList();
 
     // 自分の返答メッセージを追加
     appendMessage("自分", state.chatReplyText, "たった今", false);
@@ -394,13 +406,17 @@ export function startJiggler(mount, gameId) {
   function updateMoodUI() {
     if (refs.moodFill) refs.moodFill.style.width = state.mood + "%";
     if (refs.moodVal) refs.moodVal.textContent = Math.floor(state.mood) + "%";
-    
+
+    if (refs.moodFill) {
+      refs.moodFill.classList.remove("warning", "critical");
+      if (state.mood < 30)      refs.moodFill.classList.add("critical");
+      else if (state.mood < 60) refs.moodFill.classList.add("warning");
+    }
+
     if (state.mood < 30) {
-      if (refs.moodFill) refs.moodFill.style.background = "var(--danger)";
       if (refs.lamp) refs.lamp.className = "teams-profile-status warning";
       if (refs.lampText) refs.lampText.textContent = "警告 (離席寸前)";
     } else {
-      if (refs.moodFill) refs.moodFill.style.background = "var(--ok)";
       if (refs.lamp) refs.lamp.className = "teams-profile-status active";
       if (refs.lampText) refs.lampText.textContent = "連絡可能";
     }
@@ -429,16 +445,100 @@ export function startJiggler(mount, gameId) {
     setTimeout(() => pop.remove(), 1200);
   }
 
+  // --- 複数チャンネル管理 -------------------------------------------------
+
+  // 解放済み（経過時間 >= unlockAt）のチャンネルIDを列挙
+  function getUnlockedChannels() {
+    return Object.keys(CHANNELS).filter(id => state.elapsed >= CHANNELS[id].unlockAt);
+  }
+
+  function renderChannelList() {
+    clear(refs.chatList);
+    for (const id of getUnlockedChannels()) {
+      const ch = CHANNELS[id];
+      const data = state.channels[id];
+      const isActive = state.activeChannel === id;
+      const item = el("div.chat-list-item", {
+        class: (isActive ? "active" : "") + (data.unread > 0 ? " has-unread" : ""),
+        "data-channel": id,
+        onclick: () => switchChannel(id),
+      }, [
+        el("div.chat-avatar", { style: { background: ch.color }, text: ch.icon }),
+        el("div.chat-info", {}, [
+          el("div.chat-name", { text: ch.name }),
+          el("div.chat-preview", { text: data.preview }),
+        ]),
+        data.unread > 0
+          ? el("div.chat-unread-badge", { text: String(data.unread) })
+          : el("div.chat-status-dot.available"),
+      ]);
+      refs.chatList.appendChild(item);
+    }
+  }
+
+  function switchChannel(channelId) {
+    if (!state.channels[channelId]) return;
+    state.activeChannel = channelId;
+    state.channels[channelId].unread = 0;
+    refs.roomName.textContent = CHANNELS[channelId].name;
+
+    // 既存メッセージをクリアし、当該チャンネルの履歴に応じて再構築
+    clear(refs.messagesContainer);
+
+    // 奇襲中で当該チャンネル宛なら、待たせていたメッセージ＋返信ボックスを表示
+    if (state.chatActive && state.pendingChannel === channelId) {
+      showPendingChatMessage();
+    } else {
+      // それ以外は「未読なし」のヒントだけ
+      refs.messagesContainer.appendChild(
+        el("div.teams-msg.system", {}, [
+          el("div.teams-msg-content", {}, [
+            el("div.teams-bubble", { text: `${CHANNELS[channelId].name}とのチャットを表示しています。` })
+          ])
+        ])
+      );
+    }
+    renderChannelList();
+  }
+
+  function showPendingChatMessage() {
+    // pendingChannel の最新メッセージと返信ボックスを描画
+    const sender = state.chatSender;
+    const text = state.chatText;
+    appendMessage(sender, text, "たった今", true);
+
+    // 返信ボックス（既存 triggerChat と同じ DOM）を追加
+    const replyBox = el("div.teams-inline-reply-box#teams-reply-box", {}, [
+      el("div.teams-countdown-track", {}, [
+        el("div.teams-countdown-fill#jig-chat-timer-fill", { style: { width: "100%" } })
+      ]),
+      el("div.teams-reply-actions", {}, [
+        el("button.teams-reply-btn#jig-reply-btn", {
+          onclick: (e) => { e.preventDefault(); e.stopPropagation(); submitReply(); },
+          ontouchstart: (e) => { e.preventDefault(); e.stopPropagation(); submitReply(); },
+        }, [el("span", { text: `💬 返信: 「${state.chatReplyText}」` })])
+      ])
+    ]);
+    refs.messagesContainer.appendChild(replyBox);
+    refs.messagesContainer.scrollTop = refs.messagesContainer.scrollHeight;
+    refs.chatTimerFill = replyBox.querySelector("#jig-chat-timer-fill");
+  }
+
   // --- メインゲームループ ---
   const gameLoop = loop((dt) => {
     if (!state.active) return;
 
     state.elapsed += dt;
-    
+
     // 時計表示
     const m = Math.floor(state.elapsed / 60);
     const s = Math.floor(state.elapsed % 60);
     refs.timer.textContent = `${m}:${String(s).padStart(2, "0")}`;
+
+    // チャンネル解放アンロックを監視（unlockAt を跨いだら一覧再描画）
+    const visibleNow = refs.chatList.children.length;
+    const expected = getUnlockedChannels().length;
+    if (visibleNow !== expected) renderChannelList();
 
     // --- 1. 在席メーターの減少 ---
     const timeFactor = 1.0 + (state.elapsed * 0.0035);
@@ -503,60 +603,36 @@ export function startJiggler(mount, gameId) {
   });
 
   function triggerChat() {
+    // 解放済みチャンネルの sender だけから抽選
+    const unlocked = getUnlockedChannels();
+    const pool = CHAT_QUESTIONS.filter(q => unlocked.includes(senderToChannelId(q.sender)));
+    const q = pick(pool.length ? pool : CHAT_QUESTIONS);
+    const channelId = senderToChannelId(q.sender);
+
     state.chatActive = true;
-    const q = pick(CHAT_QUESTIONS);
     state.chatSender = q.sender;
     state.chatText = q.text;
-    
+    state.pendingChannel = channelId;
     state.chatLimit = Math.max(1.8, 3.5 - state.completed * 0.15);
     state.chatTimer = state.chatLimit;
-
-    // 佐藤部長の問い詰めメッセージをチャットに追加
-    appendMessage(q.sender, q.text, "たった今", true);
-
-    // Teams UIの通知バッジ表示とプレビュー更新
-    if (refs.teamsBadge) {
-      refs.teamsBadge.style.display = "flex";
-      refs.teamsBadge.textContent = "1";
-    }
-    if (refs.teamsPreview) {
-      refs.teamsPreview.textContent = q.text;
-      refs.teamsPreview.style.fontWeight = "bold";
-      refs.teamsPreview.style.color = "#fff";
-    }
-
-    // 返信選択肢を決定
     state.chatReplyText = pick(CHAT_REPLIES);
 
-    // インライン返信枠をチャット末尾に追加
-    const replyBox = el("div.teams-inline-reply-box#teams-reply-box", {}, [
-      el("div.teams-countdown-track", {}, [
-        el("div.teams-countdown-fill#jig-chat-timer-fill", { style: { width: "100%" } })
-      ]),
-      el("div.teams-reply-actions", {}, [
-        el("button.teams-reply-btn#jig-reply-btn", {
-          // clickとtouchstartを両方バインドし、バブリングとデフォルト挙動を遮断する
-          onclick: (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            submitReply();
-          },
-          ontouchstart: (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            submitReply();
-          }
-        }, [
-          el("span", { text: `💬 返信: 「${state.chatReplyText}」` })
-        ])
-      ])
-    ]);
+    // チャンネルに未読＋プレビュー反映
+    state.channels[channelId].unread += 1;
+    state.channels[channelId].preview = q.text;
+    renderChannelList();
 
-    refs.messagesContainer.appendChild(replyBox);
-    refs.messagesContainer.scrollTop = refs.messagesContainer.scrollHeight;
-
-    // タイマーバーの参照を動的に設定
-    refs.chatTimerFill = replyBox.querySelector("#jig-chat-timer-fill");
+    // アクティブチャンネル ＝ pendingChannel なら即メッセージ＋返信ボックス表示
+    if (state.activeChannel === channelId) {
+      showPendingChatMessage();
+    } else {
+      // 別チャンネルから着信：「○○さんから新着メッセージ。切り替えて返信！」のヒントだけ表示
+      const hint = el("div.teams-channel-hint", {
+        text: `🔔 ${CHANNELS[channelId].name} から新着メッセージ。左の一覧から切り替えて返信！`,
+      });
+      refs.messagesContainer.appendChild(hint);
+      refs.messagesContainer.scrollTop = refs.messagesContainer.scrollHeight;
+    }
     updateWorkerVisual();
   }
 

@@ -2,10 +2,10 @@
 // collection.js — コレクション（レトロ版）
 // =========================================================================
 
-import { el } from "../dom.js?v=1.0.7";
-import { Store } from "../state.js?v=1.0.7";
-import { REJECTION_MAILS, TITLES } from "../data.js?v=1.0.7";
-import { Router } from "../app.js?v=1.0.7";
+import { el } from "../dom.js?v=1.0.8";
+import { Store } from "../state.js?v=1.0.8";
+import { REJECTION_MAILS, TITLES } from "../data.js?v=1.0.8";
+import { Router } from "../app.js?v=1.0.8";
 
 export function renderCollection(mount) {
   const counts = {};
