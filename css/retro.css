@@ -4028,7 +4028,7 @@ img, svg { image-rendering: pixelated; image-rendering: crisp-edges; }
   min-height: 280px;
 }
 .jig-desk-split {
-  flex: 0 0 200px !important;  /* 下段は固定 200px に縮める */
+  flex: 0 0 260px !important;  /* 下段を広めにとってサボリ絵を見えやすく */
   display: flex;
   gap: 8px;
   min-height: 0;
@@ -4097,11 +4097,15 @@ img, svg { image-rendering: pixelated; image-rendering: crisp-edges; }
   margin: 2px 0;
 }
 .jig-worker-image {
+  width: 100% !important;
+  height: 100% !important;
   max-width: 100%;
   max-height: 100%;
-  width: auto !important;
-  height: auto !important;
   object-fit: contain;
+  image-rendering: pixelated;
+}
+.jig-worker-showcase {
+  min-height: 140px;
 }
 .jig-sabori-btn {
   flex: none;
@@ -4120,10 +4124,18 @@ img, svg { image-rendering: pixelated; image-rendering: crisp-edges; }
   border-radius: 8px;
   min-width: 220px !important;
 }
+.teams-monitor-textcol {
+  display: flex; flex-direction: column; line-height: 1.15;
+}
 .teams-monitor-label {
   font-size: 13px !important;
   font-weight: 800 !important;
   color: #fff !important;
+}
+.teams-monitor-hint {
+  font-size: 10px;
+  color: #5be8ff;
+  opacity: .9;
 }
 .teams-monitor-val {
   font-family: var(--r-font-en) !important;

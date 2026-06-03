@@ -159,7 +159,10 @@ export function startJiggler(mount, gameId) {
             ]),
             // 在席維持レベル (PC監視システムバナー)
             el("div.teams-monitor-banner", {}, [
-              el("span.teams-monitor-label", { text: "在席維持:" }),
+              el("div.teams-monitor-textcol", {}, [
+                el("span.teams-monitor-label", { text: "在席ステータス" }),
+                el("span.teams-monitor-hint", { text: "↓マウスを動かして緑をキープ" }),
+              ]),
               el("span.teams-monitor-val#jig-mood-val", { text: "80%" }),
               el("div.teams-monitor-track", {}, [
                 el("div.teams-monitor-fill#jig-mood-fill", { style: { width: "80%" } })
