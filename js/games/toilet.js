@@ -5,10 +5,10 @@
 // アイコンで予兆表示される。流したドアの前で待てば空きを取れる。
 // =========================================================================
 
-import { el, clear, loop, clamp, pick, rand } from "../dom.js?v=1.2.1";
-import { Router } from "../app.js?v=1.2.1";
-import { finishGame } from "./result.js?v=1.2.1";
-import { SVG_TOP_PLAYER, SVG_TOP_NPC_BOSS, SVG_TOP_NPC_OL } from "../art.js?v=1.2.1";
+import { el, clear, loop, clamp, pick, rand } from "../dom.js?v=1.2.2";
+import { Router } from "../app.js?v=1.2.2";
+import { finishGame } from "./result.js?v=1.2.2";
+import { SVG_TOP_PLAYER, SVG_TOP_NPC_BOSS, SVG_TOP_NPC_OL } from "../art.js?v=1.2.2";
 
 const NPC_SVGS = [SVG_TOP_NPC_BOSS, SVG_TOP_NPC_OL];
 

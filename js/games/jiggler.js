@@ -4,10 +4,10 @@
 //      【新UI】上半分：PC画面、下半分左：マウスパッド、下半分右：さぼり(ドット絵＆工作演出)
 // =========================================================================
 
-import { el, clear, loop, clamp, pick } from "../dom.js?v=1.2.1";
-import { Router } from "../app.js?v=1.2.1";
-import { finishGame } from "./result.js?v=1.2.1";
-import { SVG_WORKER } from "../art.js?v=1.2.1";
+import { el, clear, loop, clamp, pick } from "../dom.js?v=1.2.2";
+import { Router } from "../app.js?v=1.2.2";
+import { finishGame } from "./result.js?v=1.2.2";
+import { SVG_WORKER } from "../art.js?v=1.2.2";
 
 // サボりのお題（ありがちな内職・現実逃避）
 const SABORI_MODELS = [
@@ -225,36 +225,8 @@ export function startJiggler(mount, gameId) {
   ]);
 
   mount(screen);
-
-  // --- 遊び方チュートリアル（最初に1回だけ表示） ---
-  const tutorial = el("div", {
-    style: {
-      position: "absolute", inset: "0",
-      background: "rgba(0,0,0,0.86)",
-      zIndex: "9999",
-      display: "flex", flexDirection: "column",
-      justifyContent: "center", alignItems: "center",
-      padding: "20px", textAlign: "center", color: "#fff",
-      fontFamily: 'var(--r-font-jp, "DotGothic16", sans-serif)',
-    }
-  }, [
-    el("div", { style: { fontSize: "20px", fontWeight: "700", marginBottom: "14px", color: "#ffd24a", textShadow: "2px 2px 0 #1a1230" }, text: "■ 遊び方 ■" }),
-    el("div", { style: { fontSize: "13px", lineHeight: "1.7", maxWidth: "320px", marginBottom: "16px" } }, [
-      el("div", { style: { marginBottom: "10px" }, text: "🎯 目的：在席ステータス（緑）を保ちながら、こっそりサボる！" }),
-      el("div", { style: { marginBottom: "6px", color: "#5be8ff" }, text: "① 右下のマウスパッドをドラッグ" }),
-      el("div", { style: { marginBottom: "10px", fontSize: "11px", color: "#c8b8e8" }, text: "→ 在席ゲージが回復（PCランプ緑キープ）" }),
-      el("div", { style: { marginBottom: "6px", color: "#c267ff" }, text: "② 左下「サボる」ボタンを長押し" }),
-      el("div", { style: { marginBottom: "10px", fontSize: "11px", color: "#c8b8e8" }, text: "→ サボり進捗が貯まる（=お金）。ただし在席ゲージは減りやすくなる" }),
-      el("div", { style: { marginBottom: "6px", color: "#ff5cb4" }, text: "③ 上の Teams にチャットが来たら即返信" }),
-      el("div", { style: { marginBottom: "0", fontSize: "11px", color: "#c8b8e8" }, text: "→ 別チャンネルから来た時は左の一覧から切替えて返信" }),
-    ]),
-    el("div", { style: { fontSize: "11px", color: "#ff5b6e", marginBottom: "14px" }, text: "在席ゲージ0 or チャット既読スルーで強制退場！" }),
-    el("button.pbtn.green", {
-      style: { fontSize: "16px", padding: "10px 28px" },
-      onclick: () => { tutorial.remove(); state.paused = false; }
-    }, [el("span", { text: "▶ スタート" })]),
-  ]);
-  screen.appendChild(tutorial);
+  // 遊び方は jobs.js 側のモーダル「遊び方」ボタンから参照可能
+  state.paused = false;
 
   // DOM 参照
   const refs = {

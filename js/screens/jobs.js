@@ -2,11 +2,61 @@
 // jobs.js — 求人選択（労働選択）画面（コンパクト＋詳細モーダル）
 // =========================================================================
 
-import { el, clear } from "../dom.js?v=1.2.1";
-import { Store } from "../state.js?v=1.2.1";
-import { GAMES, GAME_ORDER } from "../data.js?v=1.2.1";
-import { Router } from "../app.js?v=1.2.1";
-import { AVATARS } from "../art.js?v=1.2.1";
+import { el, clear } from "../dom.js?v=1.2.2";
+import { Store } from "../state.js?v=1.2.2";
+import { GAMES, GAME_ORDER } from "../data.js?v=1.2.2";
+import { Router } from "../app.js?v=1.2.2";
+import { AVATARS } from "../art.js?v=1.2.2";
+
+// 各業務の遊び方（目的・操作・終了条件）
+const HOW_TO = {
+  powerpotter: {
+    goal: "上司の指示に従ってスライドを修正し続けろ。1箇所完遂で +5円。",
+    steps: [
+      "上司から「タイトルを赤に」「ロゴを太字に」など指示が降ってくる",
+      "スライド上の該当要素をタップ → 指示に合うプロパティに変更",
+      "完遂数で給料アップ。ただし矛盾指示・リセットあり",
+    ],
+    end: "上司の機嫌ゲージが0になると強制退社（ゲーム終了）。",
+  },
+  chatrally: {
+    goal: "佐藤部長のメッセージに、空気を読んだスタンプで爆速リアクション。10ラリー完遂を目指せ。",
+    steps: [
+      "佐藤部長のメッセージが流れてくる",
+      "👍了解 / 🙇謝罪 / 😂爆笑忖度 / 🎉ヨイショ から正解を選ぶ",
+      "ラウンドが進むほど制限時間が短くなる",
+    ],
+    end: "忖度ゲージ0、または時間切れ（既読スルー）で失敗。",
+  },
+  jiggler: {
+    goal: "在席ステータス（緑）を保ちながら、こっそりサボって稼げ。",
+    steps: [
+      "右下マウスパッドをドラッグ → 在席ゲージ回復（PCランプ緑キープ）",
+      "左下「長押しでサボる」ボタン押下 → サボり進捗が貯まる（=お金）。ただし在席ゲージは減りやすくなる",
+      "上のTeamsにチャットが来たら即返信。別チャンネルから来た時は左の一覧から切替えて返信",
+    ],
+    end: "在席ゲージ0、またはチャット既読スルーで強制退場。",
+  },
+  exchange: {
+    goal: "右から来る相手に対し、適切な距離で正しいアクション。マナー値を守り切れ。",
+    steps: [
+      "人間：「名刺を出す」ボタン",
+      "犬・猫：「なでなで」ボタン",
+      "キャッチセールス：無視（何もしない）が正解",
+      "距離80〜140pxのスイートスポット内で実行",
+    ],
+    end: "マナー値0で出禁（ゲーム終了）。",
+  },
+  toilet: {
+    goal: "個室にこもって1秒1円でサボれ。腹痛を抑えつつ空き個室を確保せよ。",
+    steps: [
+      "俯瞰ビューで自キャラを操作",
+      "各個室の状態（無音→紙→流す→出てくる→空き）を読んで、流した直後の個室を狙う",
+      "個室にこもると秒単位でお金が増える",
+    ],
+    end: "腹痛ゲージ満タンで失敗（給料没収）。",
+  },
+};
 
 export function renderJobs(mount) {
   function draw() {
@@ -181,6 +231,9 @@ export function renderJobs(mount) {
         ]),
         el("div.job-detail-controls", {}, [
           el("button.pbtn.outline", { onclick: close }, [el("span", { text: "戻る" })]),
+          el("button.pbtn.yellow", {
+            onclick: () => showHowToModal(id),
+          }, [el("span", { text: "遊び方" })]),
           el("button.pbtn.green", {
             onclick: () => {
               close();
@@ -198,6 +251,37 @@ export function renderJobs(mount) {
     }, [dialogNode]);
 
     document.getElementById("app").appendChild(modalMask);
+  }
+
+  function showHowToModal(id) {
+    const g = GAMES[id];
+    const h = HOW_TO[id];
+    if (!h) return;
+    let mask;
+    const close = () => mask.remove();
+    const dialog = el("div.job-detail-dialog.howto-dialog", { "data-job": id }, [
+      el("div.job-detail-header", { text: `遊び方：${g.jpTitle}` }),
+      el("div.howto-section", {}, [
+        el("div.howto-label", { text: "■ 目的" }),
+        el("div.howto-text", { text: h.goal }),
+      ]),
+      el("div.howto-section", {}, [
+        el("div.howto-label", { text: "■ 操作" }),
+        el("ol.howto-steps", {}, h.steps.map(s => el("li", { text: s }))),
+      ]),
+      el("div.howto-section", {}, [
+        el("div.howto-label", { text: "■ 終了条件" }),
+        el("div.howto-text", { style: { color: "var(--r-red)" }, text: h.end }),
+      ]),
+      el("div.job-detail-controls", {}, [
+        el("button.pbtn.outline", { onclick: close }, [el("span", { text: "閉じる" })]),
+      ]),
+    ]);
+    mask = el("div.retro-modal-mask", {
+      style: { zIndex: "1001" },
+      onclick: (e) => { if (e.target === mask) close(); },
+    }, [dialog]);
+    document.getElementById("app").appendChild(mask);
   }
 
   draw();
