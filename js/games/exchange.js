@@ -1,449 +1,266 @@
 // =========================================================================
-// exchange.js — 名刺交換タクティカル（タイミングゲーム）
-// プレイヤーは画面左、右向き固定。
-// 取引先(人間)＋たまに犬・猫が画面右から歩いてくる。
-// スイートスポット（プレイヤーから80〜140px）内で正しいアクションを実行：
-//   人間 → 「名刺を出す」
-//   犬 / 猫 → 「なでなで」
-// 早すぎ/遅すぎ/間違いアクション/無視はマナー値減少。
-// マナー値0で出禁。
+// exchange.js — 名刺おぼえゲーム
+// 名刺を一瞬だけ見せる → 伏せる → 佐藤部長が「○○さんは何番？」と聞いてくる
+// 制限時間内に正しい名刺をタップ。ラウンドが進むほど人数増・記憶時間短縮。
 // =========================================================================
 
-import { el, clear, loop, clamp, pick, rand } from "../dom.js?v=1.2.3";
-import { Router } from "../app.js?v=1.2.3";
-import { finishGame } from "./result.js?v=1.2.3";
-import { SVG_WORKER, SVG_BOSS, SVG_AGENT, SVG_DOG, SVG_CAT, SVG_SALESMAN, SVG_OL, SVG_FEMALE_EXEC } from "../art.js?v=1.2.3";
+import { el, clear, loop, pick } from "../dom.js?v=1.2.4";
+import { Router } from "../app.js?v=1.2.4";
+import { finishGame } from "./result.js?v=1.2.4";
 
-// 取引先プリセット（人間）— 男女ミックス
-const HUMANS = [
-  { name: "山田部長",       company: "テクノA社",       svg: SVG_BOSS,        color: "#ec6a3c" },
-  { name: "田中ゆかり様",   company: "Bシステムズ",      svg: SVG_OL,          color: "#d23b8a" },
-  { name: "鈴木みどり課長", company: "C商事HD",          svg: SVG_FEMALE_EXEC, color: "#2fae8f" },
-  { name: "佐々木さん",     company: "D製作所",          svg: SVG_AGENT,       color: "#6264a7" },
-  { name: "高橋様",         company: "Eインダストリー",  svg: SVG_BOSS,        color: "#b8860b" },
-  { name: "中村理沙様",     company: "Fクリエイティブ",  svg: SVG_OL,          color: "#ff8ade" },
-  { name: "井上女史",       company: "G法律事務所",      svg: SVG_FEMALE_EXEC, color: "#5b9bd5" },
+// 取引先プール（出るたび顔・色変える）
+const CONTACTS = [
+  { name: "山田太郎", title: "部長", company: "テクノA社", color: "#ec6a3c" },
+  { name: "鈴木花子", title: "課長", company: "Bシステムズ", color: "#d23b8a" },
+  { name: "佐藤健一", title: "主任", company: "C商事HD", color: "#2fae8f" },
+  { name: "高橋美奈", title: "係長", company: "D製作所", color: "#6264a7" },
+  { name: "田中誠", title: "次長", company: "Eインダストリー", color: "#b8860b" },
+  { name: "伊藤あゆみ", title: "課長代理", company: "Fクリエイティブ", color: "#ff8ade" },
+  { name: "中村隆", title: "支店長", company: "G法律事務所", color: "#5b9bd5" },
+  { name: "渡辺結衣", title: "リーダー", company: "Hホールディングス", color: "#c267ff" },
+  { name: "小林大輔", title: "本部長", company: "Iソリューションズ", color: "#34c759" },
+  { name: "加藤さくら", title: "マネージャー", company: "Jテクノロジー", color: "#ff5b6e" },
+  { name: "斎藤明", title: "シニア", company: "Kインターナショナル", color: "#ffd24a" },
+  { name: "山本智子", title: "プランナー", company: "Lパートナーズ", color: "#8a4dff" },
 ];
 
-// 動物（紛れ込み）
-const ANIMALS = [
-  { name: "ポチ",  company: "迷い犬", svg: SVG_DOG, color: "#c89060", kind: "dog" },
-  { name: "クロ",  company: "社猫",   svg: SVG_CAT, color: "#1f1f1f", kind: "cat" },
-];
-
-// 怪しいキャッチセールス（無視するのが正解）— 男女ミックス
-const SALESMEN = [
-  { name: "営業のキム",         company: "?副業セミナー",   svg: SVG_SALESMAN,    color: "#ffd24a", kind: "salesman" },
-  { name: "コンサル黒田",       company: "?マーケ研究所",   svg: SVG_SALESMAN,    color: "#ff5cb4", kind: "salesman" },
-  { name: "山田Pro",            company: "?投資ファミリー", svg: SVG_SALESMAN,    color: "#8a4dff", kind: "salesman" },
-  { name: "ライフコーチ高橋",   company: "?自己啓発協会",   svg: SVG_FEMALE_EXEC, color: "#ff5cb4", kind: "salesman" },
-  { name: "プロデューサー北野", company: "?キラキラスクール",svg: SVG_OL,          color: "#ffd24a", kind: "salesman" },
-];
-
-const PHRASES_HUMAN = [
-  "お世話になっております！",
-  "本日はお時間頂きありがとうございます",
-  "弊社の◯◯と申します",
-  "どうぞよろしくお願いいたします",
-  "貴重なお時間を頂きまして",
-];
-const PHRASES_DOG = ["わんっ！", "ハッハッハッ……", "シッポふりふり", "クンクン……"];
-const PHRASES_CAT = ["……ニャア", "（しっぽぴん）", "なで待ち", "ゴロゴロ"];
-const PHRASES_SALESMAN = [
-  "あ、社長！ちょっとお時間よろしいですか？",
-  "弊社、業界最大手の◯◯協会の…",
-  "御社の利益、3倍に伸ばす手法を…",
-  "今だけ無料の特別セミナーが…",
-  "資料だけでも受け取って頂けませんか？",
-];
-
-const PLAYER_CENTER = 70;
-const SWEET_MIN_DIST = 80;
-const SWEET_MAX_DIST = 140;
-const VISITOR_WIDTH = 64;
+const MAX_ROUNDS = 10;
+const MAX_LIVES = 3;
 
 export function startExchange(mount, gameId) {
   const state = {
     active: true,
-    elapsed: 0,
-    mood: 80,
-    successCount: 0,
-    failCount: 0,
-    combo: 0,
-    maxCombo: 0,
-    visitors: [],        // 同時に複数いる
-    nextSpawnDelay: 0.3,
-    spawnId: 0,
+    round: 1,
+    lives: MAX_LIVES,
+    score: 0,
+    correctCount: 0,
+    cards: [],          // 当ラウンドの名刺配列
+    targetIdx: -1,      // 正解インデックス
+    phase: "intro",     // intro | memorize | quiz | result
+    timer: 0,
   };
 
-  const screen = el("div.ex-game", {}, [
-    el("div.ex-titlebar", {}, [
+  // --- DOM ---
+  const root = el("div.exch-game", {}, [
+    el("div.exch-titlebar", {}, [
       el("button.pbtn.outline", {
-        style: { padding: "4px 8px", fontSize: "11px", minWidth: "auto" },
-        onclick: () => quit(false),
+        style: { padding: "4px 10px", fontSize: "12px", minWidth: "auto" },
+        onclick: () => quit(false)
       }, [el("span", { text: "← メニュー" })]),
-      el("div.ex-room-name", { text: "応接室 ロビー" }),
-      el("div.ex-clock#ex-clock", { text: "0:00" }),
+      el("div.exch-title", { text: "名刺おぼえ会議" }),
+      el("div.exch-stats#exch-stats", { text: `ROUND 1 / ${MAX_ROUNDS}` }),
     ]),
 
-    el("div.ex-statusbar", {}, [
-      el("div.ex-status-mood", {}, [
-        el("span.ex-status-label", { text: "マナー値" }),
-        el("div.ex-track", {}, [
-          el("div.ex-fill#ex-mood-fill", { style: { width: "80%" } })
-        ]),
-        el("span.ex-status-val#ex-mood-val", { text: "80%" }),
-      ]),
-      el("div.ex-status-item", {}, [
-        el("span.ex-status-label", { text: "成功" }),
-        el("span.ex-status-val#ex-count", { text: "0" }),
-      ]),
-      el("div.ex-status-item", {}, [
-        el("span.ex-status-label", { text: "コンボ" }),
-        el("span.ex-status-val.combo#ex-combo", { text: "0" }),
-      ]),
+    el("div.exch-bosswrap", {}, [
+      el("img.exch-boss", { src: "assets/img/boss.png", alt: "佐藤部長" }),
+      el("div.exch-bubble#exch-bubble", { text: "今日交換した名刺、覚えておけよ。" }),
     ]),
 
-    el("div.ex-stage#ex-stage", {}, [
-      el("div.ex-wall"),
-      el("div.ex-wall-logo", { text: "WELCOME" }),
-      el("div.ex-floor"),
-      el("div.ex-sweet-spot", { style: {
-        left: (PLAYER_CENTER + SWEET_MIN_DIST) + "px",
-        width: (SWEET_MAX_DIST - SWEET_MIN_DIST) + "px",
-      }}),
-      el("div.ex-dialog#ex-dialog"),
-      el("div.ex-player#ex-player", { style: { left: (PLAYER_CENTER - VISITOR_WIDTH/2) + "px" } }, [
-        el("div.ex-character", { html: SVG_WORKER }),
-        el("div.ex-name-tag", { text: "あなた" }),
+    el("div.exch-meta", {}, [
+      el("div.exch-lives#exch-lives", { text: "❤".repeat(MAX_LIVES) }),
+      el("div.exch-timer-wrap", {}, [
+        el("div.exch-timer-fill#exch-timer-fill", { style: { width: "0%" } }),
       ]),
+      el("div.exch-score#exch-score", { text: "0円" }),
     ]),
 
-    // 3 ボタン：名刺を出す（人間用）／なでなで（動物用）／シカト（キャッチセールス用）
-    el("div.ex-action-bar", {}, [
-      el("button.pbtn.green.ex-action-btn#ex-card-btn", {
-        onclick: (e) => { e.preventDefault(); doAction("card"); },
-        ontouchstart: (e) => { e.preventDefault(); doAction("card"); },
-      }, [el("span", { text: "名刺を出す" })]),
-      el("button.pbtn.yellow.ex-action-btn#ex-pet-btn", {
-        onclick: (e) => { e.preventDefault(); doAction("pet"); },
-        ontouchstart: (e) => { e.preventDefault(); doAction("pet"); },
-      }, [el("span", { text: "なでなで" })]),
-      el("button.pbtn.purple.ex-action-btn#ex-ignore-btn", {
-        onclick: (e) => { e.preventDefault(); doAction("ignore"); },
-        ontouchstart: (e) => { e.preventDefault(); doAction("ignore"); },
-      }, [el("span", { text: "シカト" })]),
-    ]),
+    el("div.exch-grid#exch-grid", {}),
+
+    el("div.exch-toast#exch-toast"),
   ]);
 
-  mount(screen);
+  mount(root);
 
   const refs = {
-    clock: screen.querySelector("#ex-clock"),
-    moodFill: screen.querySelector("#ex-mood-fill"),
-    moodVal: screen.querySelector("#ex-mood-val"),
-    count: screen.querySelector("#ex-count"),
-    combo: screen.querySelector("#ex-combo"),
-    stage: screen.querySelector("#ex-stage"),
-    dialog: screen.querySelector("#ex-dialog"),
-    player: screen.querySelector("#ex-player"),
+    bubble: root.querySelector("#exch-bubble"),
+    grid: root.querySelector("#exch-grid"),
+    lives: root.querySelector("#exch-lives"),
+    score: root.querySelector("#exch-score"),
+    stats: root.querySelector("#exch-stats"),
+    timerFill: root.querySelector("#exch-timer-fill"),
+    toast: root.querySelector("#exch-toast"),
   };
 
-  // --- visitor 管理 ---------------------------------------------------------
-
-  function spawnVisitor() {
-    // 抽選：人間 / 動物 / キャッチセールス
-    const r = Math.random();
-    const animalChance   = 0.18 + state.elapsed * 0.002;       // 動物
-    const salesmanChance = 0.10 + state.elapsed * 0.0025;       // セールス（経過で上昇）
-    let def, kind;
-    if (r < salesmanChance) {
-      def = pick(SALESMEN);
-      kind = "salesman";
-    } else if (r < salesmanChance + animalChance) {
-      def = pick(ANIMALS);
-      kind = def.kind;
-    } else {
-      def = pick(HUMANS);
-      kind = "human";
-    }
-    const isAnimal = (kind === "dog" || kind === "cat");
-    const isSalesman = (kind === "salesman");
-
-    // 速度：基本さらに速く、徐々に加速。動物は少し速め、セールスはやや遅い（しつこく）。
-    const baseSpeed = 165;
-    const speedMul = 1 + state.elapsed * 0.020;
-    const typeBoost = isAnimal ? 1.15 : (isSalesman ? 0.85 : 1.0);
-    const speed = baseSpeed * speedMul * typeBoost;
-
-    const stageWidth = refs.stage.clientWidth || 380;
-    const startX = stageWidth + 40;
-    const id = ++state.spawnId;
-
-    const cls = "ex-visitor"
-      + (isAnimal ? " is-animal" : "")
-      + (isSalesman ? " is-salesman" : "");
-    const dom = el("div", {
-      class: cls,
-      style: { left: (startX - VISITOR_WIDTH/2) + "px" }
-    }, [
-      el("div.ex-character", { style: { transform: "scaleX(-1)" }, html: def.svg }),
-      el("div.ex-name-tag", { style: { background: def.color }, text: def.name }),
-    ]);
-    refs.stage.appendChild(dom);
-
-    const correctAction = isAnimal ? "pet" : (isSalesman ? "ignore" : "card");
-    const visitor = { id, def, kind, x: startX, speed, dom, action: correctAction };
-    state.visitors.push(visitor);
-
-    // セリフは最も手前の visitor のものを表示
-    setTimeout(() => {
-      const front = getFrontVisitor();
-      if (!front) return;
-      const phr = front.kind === "human"    ? PHRASES_HUMAN
-                : front.kind === "salesman" ? PHRASES_SALESMAN
-                : front.kind === "dog"      ? PHRASES_DOG
-                :                              PHRASES_CAT;
-      refs.dialog.textContent = front.kind === "human" || front.kind === "salesman"
-        ? `${front.def.company} ${front.def.name}：${pick(phr)}`
-        : `${front.def.name}「${pick(phr)}」`;
-      refs.dialog.classList.add("visible");
-    }, 220);
-  }
-
-  function getFrontVisitor() {
-    // 最も x の小さい（プレイヤーに近い）visitor
-    if (state.visitors.length === 0) return null;
-    return state.visitors.reduce((a, b) => a.x < b.x ? a : b);
-  }
-
-  function removeVisitor(v) {
-    const idx = state.visitors.indexOf(v);
-    if (idx >= 0) state.visitors.splice(idx, 1);
-    if (v.dom && v.dom.parentNode) {
-      v.dom.style.transition = "opacity 0.25s";
-      v.dom.style.opacity = "0";
-      setTimeout(() => v.dom.remove(), 250);
-    }
-    // 次のセリフ更新
-    const next = getFrontVisitor();
-    if (next) {
-      const phr = next.kind === "human"    ? PHRASES_HUMAN
-                : next.kind === "salesman" ? PHRASES_SALESMAN
-                : next.kind === "dog"      ? PHRASES_DOG
-                :                             PHRASES_CAT;
-      refs.dialog.textContent = next.kind === "human" || next.kind === "salesman"
-        ? `${next.def.company} ${next.def.name}：${pick(phr)}`
-        : `${next.def.name}「${pick(phr)}」`;
-      refs.dialog.classList.add("visible");
-    } else {
-      refs.dialog.classList.remove("visible");
-    }
-  }
-
-  // --- 判定 ----------------------------------------------------------------
-
-  function doAction(action) {
+  // --- ラウンド進行 ---
+  function startRound() {
     if (!state.active) return;
-    const v = getFrontVisitor();
-    if (!v) {
-      spawnPop("誰もいません…", "ng");
-      state.mood = clamp(state.mood - 2, 0, 100);
-      state.combo = 0;
-      updateStatus();
-      return;
-    }
-    const dist = v.x - PLAYER_CENTER;
+    if (state.round > MAX_ROUNDS) { finish(true); return; }
 
-    // タイミング判定
-    let timing;
-    if (dist > SWEET_MAX_DIST)      timing = "early";
-    else if (dist < SWEET_MIN_DIST) timing = "late";
-    else                             timing = "perfect";
+    // 名刺数: ROUND1=3, +0.5ずつ加算（最大8）
+    const cardCount = Math.min(8, 3 + Math.floor((state.round - 1) * 0.6));
+    // 記憶時間: 基本4秒, ラウンド毎に0.25減（最低1.5秒）
+    const memorizeSec = Math.max(1.5, 4 - (state.round - 1) * 0.25);
+    // 回答制限時間: 6秒
+    const quizSec = 6;
 
-    // アクション判定
-    const correctAction = v.action === action;
+    state.cards = pickN(CONTACTS, cardCount);
+    state.targetIdx = Math.floor(Math.random() * cardCount);
 
-    if (timing === "perfect" && correctAction) {
-      // 成功
-      state.successCount++;
-      state.combo++;
-      state.maxCombo = Math.max(state.maxCombo, state.combo);
-      state.mood = clamp(state.mood + 4, 0, 100);
-      const bonusText = v.kind === "salesman" ? "（撃退ボーナス +10円）"
-                       : (v.kind !== "human" ? "（社内マスコット +10円）" : "");
-      spawnPop(`成功！ +10円${bonusText}`, "ok");
-      if (action === "card")        bowAnimation(v);
-      else if (action === "pet")    petAnimation(v);
-      else                          ignoreAnimation(v);  // シカト＝そのまま通す
-      v.speed = 240;
-      setTimeout(() => removeVisitor(v), 500);
-    } else if (timing === "perfect" && !correctAction) {
-      // 距離はOK、アクション間違い
-      state.failCount++;
-      state.combo = 0;
-      state.mood = clamp(state.mood - 10, 0, 100);
-      let msg;
-      if (v.kind === "human")          msg = action === "pet" ? "なでないで！名刺！" : "シカトはダメ！";
-      else if (v.kind === "salesman")  msg = "罠だ！名刺渡しちゃダメ！";
-      else                              msg = "犬猫だよ！なでて！";
-      spawnPop(msg, "ng");
-      shakeVisitor(v);
-    } else if (timing === "early") {
-      state.failCount++;
-      state.combo = 0;
-      state.mood = clamp(state.mood - 6, 0, 100);
-      spawnPop("早すぎ！", "ng");
-      shakeVisitor(v);
-    } else {
-      // late
-      state.failCount++;
-      state.combo = 0;
-      state.mood = clamp(state.mood - 10, 0, 100);
-      spawnPop("遅い！失礼です", "ng");
-      shakeVisitor(v);
-      setTimeout(() => removeVisitor(v), 400);
-    }
-    updateStatus();
+    refs.stats.textContent = `ROUND ${state.round} / ${MAX_ROUNDS}`;
+    refs.bubble.textContent = `今から${cardCount}名と名刺交換。よく覚えておけよ。`;
+
+    renderCards(true);  // 表向き
+    state.phase = "memorize";
+    runTimer(memorizeSec, () => askQuestion(quizSec));
   }
 
-  // --- 演出 ----------------------------------------------------------------
-
-  function spawnPop(text, type) {
-    const p = el("div", { class: "ex-pop " + type, text });
-    refs.stage.appendChild(p);
-    setTimeout(() => p.remove(), 1000);
-  }
-
-  function bowAnimation(v) {
-    refs.player.classList.add("bowing");
-    v.dom.classList.add("bowing");
-    setTimeout(() => {
-      refs.player.classList.remove("bowing");
-      v.dom?.classList.remove("bowing");
-    }, 500);
-  }
-
-  function petAnimation(v) {
-    refs.player.classList.add("petting");
-    v.dom.classList.add("petted");
-    setTimeout(() => {
-      refs.player.classList.remove("petting");
-      v.dom?.classList.remove("petted");
-    }, 500);
-  }
-
-  function ignoreAnimation(v) {
-    // プレイヤーは「目をそらす」演出。セールスは去っていく。
-    refs.player.classList.add("ignoring");
-    v.dom.classList.add("ignored");
-    setTimeout(() => {
-      refs.player.classList.remove("ignoring");
-      v.dom?.classList.remove("ignored");
-    }, 500);
-  }
-
-  function shakeVisitor(v) {
-    v.dom.classList.add("shake");
-    setTimeout(() => v.dom?.classList.remove("shake"), 350);
-  }
-
-  function updateStatus() {
-    refs.moodFill.style.width = state.mood + "%";
-    refs.moodVal.textContent = Math.floor(state.mood) + "%";
-    refs.count.textContent = String(state.successCount);
-    refs.combo.textContent = String(state.combo);
-    refs.moodFill.classList.remove("warning", "critical");
-    if (state.mood < 30)      refs.moodFill.classList.add("critical");
-    else if (state.mood < 60) refs.moodFill.classList.add("warning");
-  }
-
-  // --- メインループ --------------------------------------------------------
-
-  const game = loop((dt) => {
+  function askQuestion(quizSec) {
     if (!state.active) return;
-    state.elapsed += dt;
+    state.phase = "quiz";
 
-    const m = Math.floor(state.elapsed / 60);
-    const s = Math.floor(state.elapsed % 60);
-    refs.clock.textContent = `${m}:${String(s).padStart(2, "0")}`;
+    // 問題タイプ: name(60%) / company(40%)
+    const target = state.cards[state.targetIdx];
+    const useCompany = Math.random() < 0.4;
+    const q = useCompany
+      ? `${target.company}の方は何番だったかね？`
+      : `${target.name}${target.title}は何番だったかね？`;
+    refs.bubble.textContent = q;
 
-    state.mood = clamp(state.mood - 0.4 * dt, 0, 100);
-    if (state.mood <= 0) { quit(true, "fired"); return; }
+    renderCards(false); // 伏せる→番号のみ
+    runTimer(quizSec, () => handleAnswer(-1)); // 時間切れ
+  }
 
-    // 複数 visitor の同時管理 — 既に1人いても次々追加
-    state.nextSpawnDelay -= dt;
-    if (state.nextSpawnDelay <= 0) {
-      // 同時に画面上にいてもOK、ただし最大3体まで
-      if (state.visitors.length < 3) {
-        spawnVisitor();
-      }
-      // 次のスポーンまでの間隔（時間経過で更に短く）
-      const base = Math.max(0.4, 1.0 - state.elapsed * 0.015);
-      state.nextSpawnDelay = base + rand(0, 0.4);
+  function handleAnswer(pickedIdx) {
+    if (state.phase !== "quiz") return;
+    state.phase = "result";
+    stopTimer();
+
+    const correct = pickedIdx === state.targetIdx;
+    revealCards(pickedIdx);
+
+    if (correct) {
+      const gain = 10 + state.round * 3;
+      state.score += gain;
+      state.correctCount++;
+      refs.score.textContent = `${state.score}円`;
+      toast(`正解！ +${gain}円`, "ok");
+      refs.bubble.textContent = "うむ、よく覚えていたな。";
+    } else {
+      state.lives--;
+      refs.lives.textContent = "❤".repeat(Math.max(0, state.lives)) + "🖤".repeat(Math.max(0, MAX_LIVES - state.lives));
+      const target = state.cards[state.targetIdx];
+      toast(`不正解… 正解は ${state.targetIdx + 1} 番`, "ng");
+      refs.bubble.textContent = pickedIdx < 0
+        ? `おい、答えないとは何事か！${target.name}${target.title}だぞ！`
+        : `違う！${target.name}${target.title}は ${state.targetIdx + 1} 番だ！`;
     }
 
-    // 各 visitor を移動
-    for (const v of state.visitors.slice()) {
-      v.x -= v.speed * dt;
-      v.dom.style.left = (v.x - VISITOR_WIDTH/2) + "px";
-      // 通り過ぎ
-      if (v.x < PLAYER_CENTER - 30) {
-        if (v.kind === "salesman") {
-          // セールスは通り過ぎてくれてラッキー（小ボーナス）
-          state.successCount++;
-          state.combo++;
-          state.maxCombo = Math.max(state.maxCombo, state.combo);
-          state.mood = clamp(state.mood + 2, 0, 100);
-          spawnPop("撃退！ +10円", "ok");
-        } else {
-          spawnPop("無視した！", "ng");
-          state.mood = clamp(state.mood - 12, 0, 100);
-          state.combo = 0;
-          state.failCount++;
-        }
-        removeVisitor(v);
+    setTimeout(() => {
+      if (!state.active) return;
+      if (state.lives <= 0) { finish(false); return; }
+      state.round++;
+      startRound();
+    }, 1800);
+  }
+
+  // --- カード描画 ---
+  function renderCards(faceUp) {
+    clear(refs.grid);
+    state.cards.forEach((c, i) => {
+      const card = el("div.exch-card", {
+        class: faceUp ? "face-up" : "face-down",
+        onclick: () => { if (state.phase === "quiz") handleAnswer(i); },
+      }, faceUp ? [
+        el("div.exch-card-num", { text: String(i + 1) }),
+        el("div.exch-card-avatar", { style: { background: c.color }, text: c.name[0] }),
+        el("div.exch-card-name", { text: c.name }),
+        el("div.exch-card-title", { text: c.title }),
+        el("div.exch-card-company", { text: c.company }),
+      ] : [
+        el("div.exch-card-back-num", { text: String(i + 1) }),
+        el("div.exch-card-back-label", { text: "名刺" }),
+      ]);
+      refs.grid.appendChild(card);
+    });
+  }
+
+  function revealCards(pickedIdx) {
+    [...refs.grid.children].forEach((cardEl, i) => {
+      cardEl.classList.remove("face-down");
+      cardEl.classList.add("face-up");
+      const c = state.cards[i];
+      clear(cardEl);
+      cardEl.appendChild(el("div.exch-card-num", { text: String(i + 1) }));
+      cardEl.appendChild(el("div.exch-card-avatar", { style: { background: c.color }, text: c.name[0] }));
+      cardEl.appendChild(el("div.exch-card-name", { text: c.name }));
+      cardEl.appendChild(el("div.exch-card-title", { text: c.title }));
+      cardEl.appendChild(el("div.exch-card-company", { text: c.company }));
+      if (i === state.targetIdx) cardEl.classList.add("correct");
+      if (i === pickedIdx && pickedIdx !== state.targetIdx) cardEl.classList.add("wrong");
+    });
+  }
+
+  // --- タイマー ---
+  let timerHandle = null;
+  function runTimer(totalSec, onEnd) {
+    stopTimer();
+    state.timer = totalSec;
+    const total = totalSec;
+    refs.timerFill.style.width = "100%";
+    timerHandle = setInterval(() => {
+      state.timer -= 0.05;
+      const pct = Math.max(0, (state.timer / total) * 100);
+      refs.timerFill.style.width = pct + "%";
+      if (state.timer <= 0) {
+        stopTimer();
+        onEnd();
       }
-    }
+    }, 50);
+  }
+  function stopTimer() {
+    if (timerHandle) { clearInterval(timerHandle); timerHandle = null; }
+  }
 
-    updateStatus();
-  });
+  // --- トースト ---
+  function toast(msg, kind) {
+    refs.toast.textContent = msg;
+    refs.toast.className = "exch-toast show " + (kind || "");
+    setTimeout(() => { refs.toast.className = "exch-toast"; }, 1400);
+  }
 
-  function quit(forced, reason) {
+  // --- 終了 ---
+  function quit(forced) {
     state.active = false;
-    game.stop();
+    stopTimer();
+    if (forced === false) Router.menu();
+  }
 
-    const unitPrice = 10;
-    const earned = state.successCount * unitPrice;
-    const deductionVal = state.successCount > 0 ? 5 : 0;
-    const coins = Math.max(0, earned - deductionVal);
-    const score = state.successCount * 100 + state.maxCombo * 20 + Math.floor(state.mood);
-
-    let comment, msg;
-    if (reason === "fired") {
-      msg = `マナー値0で出禁（${state.successCount}件成功）。`;
-      comment = "取引先一同「失礼な方ですね…」 / 犬「ワン……」";
-    } else if (state.successCount === 0) {
-      msg = "1件も成立せず帰社。";
-      comment = "佐藤部長「君、本当に営業マンなのかね？マナー研修からやり直しだ。」";
-    } else if (state.successCount >= 20) {
-      msg = `${state.successCount}件成功！最大コンボ ${state.maxCombo}。社内マスコットも安心。`;
-      comment = "佐藤部長「素晴らしい！君は名刺交換の達人、しかも動物にも好かれるとは。」";
-    } else if (state.successCount >= 10) {
-      msg = `${state.successCount}件の応対に成功。`;
-      comment = "佐藤部長「まあまあだな。次は20件超を狙いたまえ。」";
+  function finish(cleared) {
+    state.active = false;
+    stopTimer();
+    const coins = Math.floor(state.score / 5);
+    const score = state.score;
+    let msg, comment;
+    if (cleared) {
+      msg = `全${MAX_ROUNDS}ラウンド完遂！正解 ${state.correctCount}件、最終 ${state.score}円。`;
+      comment = "佐藤部長「素晴らしい記憶力だ。次の役員会も任せたぞ。」";
+    } else if (state.correctCount === 0) {
+      msg = "全問不正解で帰社。";
+      comment = "佐藤部長「君、本当に名刺を見ていたのかね？社会人失格だ。」";
     } else {
-      msg = `${state.successCount}件のみ成立。`;
-      comment = "佐藤部長「もう少し気合いを入れて取引先と向き合いたまえ。」";
+      msg = `${state.round - 1}ラウンドで脱落（正解 ${state.correctCount}件）。`;
+      comment = "佐藤部長「もう少し集中して相手の名刺を見たまえ。」";
     }
-
     finishGame(gameId, score, coins, msg, {
-      isWin: true,
-      allowances: [{ name: `応対成功 × ${state.successCount}`, value: earned }],
-      deductions: deductionVal > 0 ? [{ name: "名刺印刷代", value: deductionVal }] : [],
+      isWin: cleared,
+      allowances: [{ name: `正答ボーナス × ${state.correctCount}`, value: state.score }],
+      deductions: [],
       bossComment: comment,
     });
   }
 
-  return { dispose() { game.stop(); } };
+  // --- 開始: 最初のラウンド ---
+  startRound();
+
+  return { dispose() { state.active = false; stopTimer(); } };
+}
+
+function pickN(arr, n) {
+  const copy = arr.slice();
+  const out = [];
+  for (let i = 0; i < n && copy.length > 0; i++) {
+    const idx = Math.floor(Math.random() * copy.length);
+    out.push(copy.splice(idx, 1)[0]);
+  }
+  return out;
 }

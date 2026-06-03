@@ -2,11 +2,11 @@
 // jobs.js — 求人選択（労働選択）画面（コンパクト＋詳細モーダル）
 // =========================================================================
 
-import { el, clear } from "../dom.js?v=1.2.3";
-import { Store } from "../state.js?v=1.2.3";
-import { GAMES, GAME_ORDER } from "../data.js?v=1.2.3";
-import { Router } from "../app.js?v=1.2.3";
-import { AVATARS } from "../art.js?v=1.2.3";
+import { el, clear } from "../dom.js?v=1.2.4";
+import { Store } from "../state.js?v=1.2.4";
+import { GAMES, GAME_ORDER } from "../data.js?v=1.2.4";
+import { Router } from "../app.js?v=1.2.4";
+import { AVATARS } from "../art.js?v=1.2.4";
 
 // 各業務の遊び方（目的・操作・終了条件）
 const HOW_TO = {
@@ -38,14 +38,14 @@ const HOW_TO = {
     end: "在席ゲージ0、またはチャット既読スルーで強制退場。",
   },
   exchange: {
-    goal: "右から来る相手に対し、適切な距離で正しいアクション。マナー値を守り切れ。",
+    goal: "一瞬だけ見える名刺を覚え、佐藤部長の質問に正しい番号で答えろ。",
     steps: [
-      "人間：「名刺を出す」ボタン",
-      "犬・猫：「なでなで」ボタン",
-      "キャッチセールス：無視（何もしない）が正解",
-      "距離80〜140pxのスイートスポット内で実行",
+      "ラウンド開始：3〜8名分の名刺が表で表示される（記憶タイム）",
+      "時間切れで名刺が伏せられる（番号だけ見える）",
+      "佐藤部長が「○○さんは何番？」と聞いてくる → 該当カードをタップ",
+      "ラウンドが進むほど人数増・記憶時間短縮",
     ],
-    end: "マナー値0で出禁（ゲーム終了）。",
+    end: "ライフ❤3つ無くなったらゲームオーバー。10ラウンド完遂でクリア。",
   },
   toilet: {
     goal: "個室にこもって1秒1円でサボれ。腹痛を抑えつつ空き個室を確保せよ。",
@@ -206,11 +206,11 @@ export function renderJobs(mount) {
         rewardText = "在席時間報酬";
         mediaNode = el("div", { style: { fontSize: "36px" }, text: "🖱" });
       } else if (id === "exchange") {
-        headerText = "名刺交換タクティカル";
-        descText = "【対面マナー】相手より低く爆速で出す謙虚さの極み！";
-        catchphrase = "相手より1ミリでも\n低く出せ！";
-        rewardText = "マナー合格報酬";
-        mediaNode = el("div", { style: { fontSize: "36px" }, text: "📄" });
+        headerText = "名刺おぼえ会議";
+        descText = "【記憶系】交換した名刺を一瞬で覚え、佐藤部長の質問に正しい番号で答えろ！";
+        catchphrase = "誰が何番か\n瞬時に思い出せ！";
+        rewardText = "正答ボーナス +10円〜";
+        mediaNode = el("div", { style: { fontSize: "36px" }, text: "🃏" });
       } else if (id === "toilet") {
         headerText = "トイレ逃避タイム";
         descText = "【個室サバイバル】極限までサボれ。ノック・上司接近に正しく対応！";
