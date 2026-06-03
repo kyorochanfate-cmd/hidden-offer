@@ -782,7 +782,7 @@ export function startPowerPotter(mount, gameId) {
     refs.bubbleStatus.classList.add("ng");
   }
 
-  const BOSS_MOOD_IMG = { rage: "angry2", irritated: "angry", normal: "smile", happy: "bigsmile" };
+  const BOSS_MOOD_IMG = { rage: "sato_angry", irritated: "sato_angry", normal: "sato_normal", happy: "sato_smile" };
   function setBossFace(mood) {
     const m = mood < 30 ? "rage" : mood < 60 ? "irritated" : mood < 85 ? "normal" : "happy";
     if (refs.bossFace.dataset.mood !== m) {
@@ -904,7 +904,7 @@ export function startPowerPotter(mount, gameId) {
   applyElementStyles();
   renderSelection();
   renderPanel();
-  refs.bossFace.innerHTML = `<img class="boss-img boss-mood-normal" src="assets/img/smile.png" alt="佐藤部長"/>`;
+  refs.bossFace.innerHTML = `<img class="boss-img boss-mood-normal" src="assets/img/sato_smile.png" alt="佐藤部長"/>`;
   refs.bossFace.dataset.mood = "normal";
 
   function quit(forced, reason) {
