@@ -14,10 +14,10 @@ const PROBLEMS = [
   { text: "明日の会議、10時に会議室Aで開始するから遅れずに頼むぞ。", answer: "like", sender: "佐藤部長" },
   { text: "今日の週報、なるべく定時までに提出しておいてくれ。", answer: "like", sender: "佐藤部長" },
   { text: "この企画書、後で全員にPDFで共有しておいて。", answer: "like", sender: "佐藤部長" },
-  { text: "来週月曜日は直行します。午前中はチャットのみ対応可能です。", answer: "like", sender: "同僚 田中ゆかり" },
-  { text: "PCのパスワード更新期限は本日までです。各自速やかに更新してください。", answer: "like", sender: "システム管理部" },
-  { text: "経費精算の領収書、来週火曜までに必ず提出してください。", answer: "like", sender: "経理 高橋さん" },
-  { text: "新人歓迎会の出欠回答、まだの方は本日中にお願いします。", answer: "like", sender: "総務 山下" },
+  { text: "来週月曜は俺が直行するから、午前中はチャットで連絡してくれ。", answer: "like", sender: "佐藤部長" },
+  { text: "全社のパスワード更新期限、今日までだぞ。君もう変えたか？", answer: "like", sender: "佐藤部長" },
+  { text: "経費精算の領収書、来週火曜までに必ず出しておけよ。", answer: "like", sender: "佐藤部長" },
+  { text: "新人歓迎会の出欠、まだ返事してないだろ。今日中に頼む。", answer: "like", sender: "佐藤部長" },
 
   // 🙇‍♂️ 謝罪（お叱り・理不尽な要求・ミス指摘）
   { text: "おい、昨日頼んだスライドがまだ共有フォルダに入ってないんだが？", answer: "sorry", sender: "佐藤部長" },
