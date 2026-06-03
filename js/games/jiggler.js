@@ -4,10 +4,10 @@
 //      【新UI】上半分：PC画面、下半分左：マウスパッド、下半分右：さぼり(ドット絵＆工作演出)
 // =========================================================================
 
-import { el, clear, loop, clamp, pick } from "../dom.js?v=1.2.0";
-import { Router } from "../app.js?v=1.2.0";
-import { finishGame } from "./result.js?v=1.2.0";
-import { SVG_WORKER } from "../art.js?v=1.2.0";
+import { el, clear, loop, clamp, pick } from "../dom.js?v=1.2.1";
+import { Router } from "../app.js?v=1.2.1";
+import { finishGame } from "./result.js?v=1.2.1";
+import { SVG_WORKER } from "../art.js?v=1.2.1";
 
 // サボりのお題（ありがちな内職・現実逃避）
 const SABORI_MODELS = [
