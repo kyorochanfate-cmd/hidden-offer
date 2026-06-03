@@ -3,19 +3,19 @@
 // 仕様書 6-2: 画面遷移は必ず Router 経由。各画面は独立モジュール。
 // =========================================================================
 
-import { renderMenu } from "./screens/menu.js?v=1.2.1";
-import { renderJobs } from "./screens/jobs.js?v=1.2.1";
-import { renderGacha } from "./screens/gacha.js?v=1.2.1";
-import { renderCollection } from "./screens/collection.js?v=1.2.1";
-import { renderSettings } from "./screens/settings.js?v=1.2.1";
-import { GAMES } from "./data.js?v=1.2.1";
+import { renderMenu } from "./screens/menu.js?v=1.2.2";
+import { renderJobs } from "./screens/jobs.js?v=1.2.2";
+import { renderGacha } from "./screens/gacha.js?v=1.2.2";
+import { renderCollection } from "./screens/collection.js?v=1.2.2";
+import { renderSettings } from "./screens/settings.js?v=1.2.2";
+import { GAMES } from "./data.js?v=1.2.2";
 
 // 各ミニゲームの起動関数
-import { startPowerPotter } from "./games/powerpotter.js?v=1.2.1";
-import { startChatRally } from "./games/chatrally.js?v=1.2.1";
-import { startJiggler } from "./games/jiggler.js?v=1.2.1";
-import { startExchange } from "./games/exchange.js?v=1.2.1";
-import { startToilet } from "./games/toilet.js?v=1.2.1";
+import { startPowerPotter } from "./games/powerpotter.js?v=1.2.2";
+import { startChatRally } from "./games/chatrally.js?v=1.2.2";
+import { startJiggler } from "./games/jiggler.js?v=1.2.2";
+import { startExchange } from "./games/exchange.js?v=1.2.2";
+import { startToilet } from "./games/toilet.js?v=1.2.2";
 
 const GAME_LAUNCHERS = {
   powerpotter: startPowerPotter,
