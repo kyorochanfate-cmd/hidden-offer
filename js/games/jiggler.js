@@ -4,10 +4,10 @@
 //      【新UI】上半分：PC画面、下半分左：マウスパッド、下半分右：さぼり(ドット絵＆工作演出)
 // =========================================================================
 
-import { el, clear, loop, clamp, pick } from "../dom.js?v=1.2.2";
-import { Router } from "../app.js?v=1.2.2";
-import { finishGame } from "./result.js?v=1.2.2";
-import { SVG_WORKER } from "../art.js?v=1.2.2";
+import { el, clear, loop, clamp, pick } from "../dom.js?v=1.2.3";
+import { Router } from "../app.js?v=1.2.3";
+import { finishGame } from "./result.js?v=1.2.3";
+import { SVG_WORKER } from "../art.js?v=1.2.3";
 
 // サボりのお題（ありがちな内職・現実逃避）
 const SABORI_MODELS = [
@@ -390,13 +390,17 @@ export function startJiggler(mount, gameId) {
   // --- 爆速返信アクション ---
   function submitReply() {
     if (!state.active || !state.chatActive) return;
-    // 違うチャンネルを見ている時は返信不可（プレイヤーは正しいチャンネルに切り替える必要がある）
     if (state.activeChannel !== state.pendingChannel) return;
     state.chatActive = false;
 
     // 返信エリアを消去
     const replyBox = refs.messagesContainer.querySelector("#teams-reply-box");
     if (replyBox) replyBox.remove();
+
+    // 未読バッジをリセット
+    if (state.pendingChannel) {
+      state.channels[state.pendingChannel].unread = 0;
+    }
 
     // 自分の返答メッセージを履歴に追加（active なら DOM にも反映）
     pushMessage(state.pendingChannel, "自分", state.chatReplyText, "たった今", false);
@@ -568,11 +572,10 @@ export function startJiggler(mount, gameId) {
     const timeFactor = 1.0 + (state.elapsed * 0.0035);
     const decayRate = (state.isSaboring ? state.decaySabori : state.decayNormal) * timeFactor;
     
-    // チャット奇襲中以外は在席メーターが時間減少
-    if (!state.chatActive) {
-      state.mood = clamp(state.mood - decayRate * dt, 0, 100);
-      updateMoodUI();
-    }
+    // 在席メーターは常に減少（チャット中は通常の半分速度）
+    const chatPenalty = state.chatActive ? 0.5 : 1.0;
+    state.mood = clamp(state.mood - decayRate * chatPenalty * dt, 0, 100);
+    updateMoodUI();
 
     if (state.mood <= 0) {
       quit(true, "away");
