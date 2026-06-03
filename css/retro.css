@@ -989,10 +989,19 @@ img, svg { image-rendering: pixelated; image-rendering: crisp-edges; }
 
 .job-detail-controls {
   display: flex;
-  gap: 10px;
+  gap: 6px;
   margin-top: 6px;
+  flex-wrap: nowrap;
 }
-.job-detail-controls .pbtn { flex: 1; }
+.job-detail-controls .pbtn {
+  flex: 1;
+  min-width: 0;
+  padding-left: 6px !important;
+  padding-right: 6px !important;
+  font-size: 13px !important;
+  white-space: nowrap;
+}
+.job-detail-controls .pbtn span { font-size: 13px !important; }
 
 /* チャットラリー詳細用ミニチャットモック */
 .mini-chat-mock {
@@ -2898,10 +2907,19 @@ img, svg { image-rendering: pixelated; image-rendering: crisp-edges; }
 
 .job-detail-controls {
   display: flex;
-  gap: 10px;
+  gap: 6px;
   margin-top: 6px;
+  flex-wrap: nowrap;
 }
-.job-detail-controls .pbtn { flex: 1; }
+.job-detail-controls .pbtn {
+  flex: 1;
+  min-width: 0;
+  padding-left: 6px !important;
+  padding-right: 6px !important;
+  font-size: 13px !important;
+  white-space: nowrap;
+}
+.job-detail-controls .pbtn span { font-size: 13px !important; }
 
 /* チャットラリー詳細用ミニチャットモック */
 .mini-chat-mock {
