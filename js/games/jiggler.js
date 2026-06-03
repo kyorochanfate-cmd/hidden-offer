@@ -9,16 +9,16 @@ import { Router } from "../app.js?v=1.2.0";
 import { finishGame } from "./result.js?v=1.2.0";
 import { SVG_WORKER } from "../art.js?v=1.2.0";
 
-// プラモデルお題
+// サボりのお題（ありがちな内職・現実逃避）
 const SABORI_MODELS = [
-  "HG ギラ・ドーガ",
-  "1/12 オフィスデスク",
-  "超合金 佐藤部長",
-  "ミニ四駆 アバンテ",
-  "佐藤部長の胸像（金メッキ仕様）",
-  "1/24 オフィスチェア（エルゴ）",
-  "MG サザビー（サボり専用モデル）",
-  "ドット絵職人のキーボード",
+  "スマホでSNS",
+  "ネットサーフィン",
+  "転職サイト閲覧",
+  "ぼんやり妄想",
+  "デスクで内職",
+  "Amazon の買い物",
+  "競馬の予想",
+  "副業の確定申告",
 ];
 
 // 突発チャットお題（sender ごとに振り分けてチャンネルに着信）
@@ -106,6 +106,9 @@ export function startJiggler(mount, gameId) {
     effectTimer: 0.0,
   };
 
+  // チュートリアル表示中はゲーム停止
+  state.paused = true;
+
   // 画面構築
   const screen = el("div.jig-game", {}, [
     // PCモニターのベゼルヘッダー
@@ -156,7 +159,10 @@ export function startJiggler(mount, gameId) {
             ]),
             // 在席維持レベル (PC監視システムバナー)
             el("div.teams-monitor-banner", {}, [
-              el("span.teams-monitor-label", { text: "在席維持:" }),
+              el("div.teams-monitor-textcol", {}, [
+                el("span.teams-monitor-label", { text: "在席ステータス" }),
+                el("span.teams-monitor-hint", { text: "↓マウスを動かして緑をキープ" }),
+              ]),
               el("span.teams-monitor-val#jig-mood-val", { text: "80%" }),
               el("div.teams-monitor-track", {}, [
                 el("div.teams-monitor-fill#jig-mood-fill", { style: { width: "80%" } })
@@ -200,13 +206,13 @@ export function startJiggler(mount, gameId) {
 
         // さぼりボタン
         el("button.pbtn.purple.jig-sabori-btn#jig-sabori-btn", {}, [
-          el("span", { text: "サボる" })
+          el("span", { text: "長押しでサボる" })
         ])
       ]),
 
       // 下右：仮想マウス操作スペース
       el("div.jig-mouse-area#jig-desktop", {}, [
-        el("div.jig-desktop-label", { text: "■ マウスパッド" }),
+        el("div.jig-desktop-label", { text: "■ ここをドラッグして在席キープ" }),
 
         // 仮想マウス
         el("div.jig-virtual-mouse#jig-mouse", {
@@ -219,6 +225,36 @@ export function startJiggler(mount, gameId) {
   ]);
 
   mount(screen);
+
+  // --- 遊び方チュートリアル（最初に1回だけ表示） ---
+  const tutorial = el("div", {
+    style: {
+      position: "absolute", inset: "0",
+      background: "rgba(0,0,0,0.86)",
+      zIndex: "9999",
+      display: "flex", flexDirection: "column",
+      justifyContent: "center", alignItems: "center",
+      padding: "20px", textAlign: "center", color: "#fff",
+      fontFamily: 'var(--r-font-jp, "DotGothic16", sans-serif)',
+    }
+  }, [
+    el("div", { style: { fontSize: "20px", fontWeight: "700", marginBottom: "14px", color: "#ffd24a", textShadow: "2px 2px 0 #1a1230" }, text: "■ 遊び方 ■" }),
+    el("div", { style: { fontSize: "13px", lineHeight: "1.7", maxWidth: "320px", marginBottom: "16px" } }, [
+      el("div", { style: { marginBottom: "10px" }, text: "🎯 目的：在席ステータス（緑）を保ちながら、こっそりサボる！" }),
+      el("div", { style: { marginBottom: "6px", color: "#5be8ff" }, text: "① 右下のマウスパッドをドラッグ" }),
+      el("div", { style: { marginBottom: "10px", fontSize: "11px", color: "#c8b8e8" }, text: "→ 在席ゲージが回復（PCランプ緑キープ）" }),
+      el("div", { style: { marginBottom: "6px", color: "#c267ff" }, text: "② 左下「サボる」ボタンを長押し" }),
+      el("div", { style: { marginBottom: "10px", fontSize: "11px", color: "#c8b8e8" }, text: "→ サボり進捗が貯まる（=お金）。ただし在席ゲージは減りやすくなる" }),
+      el("div", { style: { marginBottom: "6px", color: "#ff5cb4" }, text: "③ 上の Teams にチャットが来たら即返信" }),
+      el("div", { style: { marginBottom: "0", fontSize: "11px", color: "#c8b8e8" }, text: "→ 別チャンネルから来た時は左の一覧から切替えて返信" }),
+    ]),
+    el("div", { style: { fontSize: "11px", color: "#ff5b6e", marginBottom: "14px" }, text: "在席ゲージ0 or チャット既読スルーで強制退場！" }),
+    el("button.pbtn.green", {
+      style: { fontSize: "16px", padding: "10px 28px" },
+      onclick: () => { tutorial.remove(); state.paused = false; }
+    }, [el("span", { text: "▶ スタート" })]),
+  ]);
+  screen.appendChild(tutorial);
 
   // DOM 参照
   const refs = {
@@ -287,6 +323,11 @@ export function startJiggler(mount, gameId) {
     refs.messagesContainer.appendChild(msgNode);
     refs.messagesContainer.scrollTop = refs.messagesContainer.scrollHeight;
   }
+
+  // チャンネルごとのメッセージ履歴（切替時に再描画用）
+  state.channels.sato.history   = initialHistory.slice();
+  state.channels.tanaka.history = [];
+  state.channels.hr.history     = [];
 
   // 初期メッセージ描画
   initialHistory.forEach(h => appendMessage(h.sender, h.text, h.time, h.isBoss));
@@ -385,13 +426,10 @@ export function startJiggler(mount, gameId) {
     const replyBox = refs.messagesContainer.querySelector("#teams-reply-box");
     if (replyBox) replyBox.remove();
 
-    // チャンネルプレビューを更新
-    state.channels[state.pendingChannel].preview = state.chatReplyText;
+    // 自分の返答メッセージを履歴に追加（active なら DOM にも反映）
+    pushMessage(state.pendingChannel, "自分", state.chatReplyText, "たった今", false);
     state.pendingChannel = null;
     renderChannelList();
-
-    // 自分の返答メッセージを追加
-    appendMessage("自分", state.chatReplyText, "たった今", false);
     
     // 在席メーター大幅回復
     state.mood = Math.min(100, state.mood + 20);
@@ -482,14 +520,10 @@ export function startJiggler(mount, gameId) {
     state.channels[channelId].unread = 0;
     refs.roomName.textContent = CHANNELS[channelId].name;
 
-    // 既存メッセージをクリアし、当該チャンネルの履歴に応じて再構築
+    // 既存メッセージをクリアし、当該チャンネルの履歴を再描画
     clear(refs.messagesContainer);
-
-    // 奇襲中で当該チャンネル宛なら、待たせていたメッセージ＋返信ボックスを表示
-    if (state.chatActive && state.pendingChannel === channelId) {
-      showPendingChatMessage();
-    } else {
-      // それ以外は「未読なし」のヒントだけ
+    const history = state.channels[channelId].history || [];
+    if (history.length === 0) {
       refs.messagesContainer.appendChild(
         el("div.teams-msg.system", {}, [
           el("div.teams-msg-content", {}, [
@@ -497,15 +531,33 @@ export function startJiggler(mount, gameId) {
           ])
         ])
       );
+    } else {
+      history.forEach(h => appendMessage(h.sender, h.text, h.time, h.isBoss));
+    }
+
+    // 奇襲中で当該チャンネル宛なら返信ボックスを表示
+    if (state.chatActive && state.pendingChannel === channelId) {
+      showPendingChatMessage();
     }
     renderChannelList();
   }
 
+  // 履歴に追加し、アクティブなら画面にも反映
+  function pushMessage(channelId, sender, text, time, isBoss) {
+    const ch = state.channels[channelId];
+    if (!ch.history) ch.history = [];
+    ch.history.push({ sender, text, time, isBoss });
+    ch.preview = text;
+    if (state.activeChannel === channelId) {
+      appendMessage(sender, text, time, isBoss);
+    }
+  }
+
   function showPendingChatMessage() {
-    // pendingChannel の最新メッセージと返信ボックスを描画
-    const sender = state.chatSender;
-    const text = state.chatText;
-    appendMessage(sender, text, "たった今", true);
+    // pendingChannel の最新メッセージは履歴に既にあるので最後を描画
+    const history = state.channels[state.pendingChannel].history || [];
+    const last = history[history.length - 1];
+    if (last) appendMessage(last.sender, last.text, last.time, last.isBoss);
 
     // 返信ボックス（既存 triggerChat と同じ DOM）を追加
     const replyBox = el("div.teams-inline-reply-box#teams-reply-box", {}, [
@@ -526,7 +578,7 @@ export function startJiggler(mount, gameId) {
 
   // --- メインゲームループ ---
   const gameLoop = loop((dt) => {
-    if (!state.active) return;
+    if (!state.active || state.paused) return;
 
     state.elapsed += dt;
 
@@ -617,14 +669,28 @@ export function startJiggler(mount, gameId) {
     state.chatTimer = state.chatLimit;
     state.chatReplyText = pick(CHAT_REPLIES);
 
-    // チャンネルに未読＋プレビュー反映
+    // チャンネルに未読＋履歴に追加
     state.channels[channelId].unread += 1;
-    state.channels[channelId].preview = q.text;
+    pushMessage(channelId, q.sender, q.text, "たった今", true);
     renderChannelList();
 
-    // アクティブチャンネル ＝ pendingChannel なら即メッセージ＋返信ボックス表示
+    // アクティブチャンネル ＝ pendingChannel なら返信ボックスを追加
     if (state.activeChannel === channelId) {
-      showPendingChatMessage();
+      // 返信ボックスのみ追加（メッセージは pushMessage 内で既に描画済み）
+      const replyBox = el("div.teams-inline-reply-box#teams-reply-box", {}, [
+        el("div.teams-countdown-track", {}, [
+          el("div.teams-countdown-fill#jig-chat-timer-fill", { style: { width: "100%" } })
+        ]),
+        el("div.teams-reply-actions", {}, [
+          el("button.teams-reply-btn#jig-reply-btn", {
+            onclick: (e) => { e.preventDefault(); e.stopPropagation(); submitReply(); },
+            ontouchstart: (e) => { e.preventDefault(); e.stopPropagation(); submitReply(); },
+          }, [el("span", { text: `💬 返信: 「${state.chatReplyText}」` })])
+        ])
+      ]);
+      refs.messagesContainer.appendChild(replyBox);
+      refs.messagesContainer.scrollTop = refs.messagesContainer.scrollHeight;
+      refs.chatTimerFill = replyBox.querySelector("#jig-chat-timer-fill");
     } else {
       // 別チャンネルから着信：「○○さんから新着メッセージ。切り替えて返信！」のヒントだけ表示
       const hint = el("div.teams-channel-hint", {

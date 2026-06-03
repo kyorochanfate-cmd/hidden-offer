@@ -123,24 +123,52 @@
 }
 .retro-link:active { color: #fff; }
 
-/* スパーク装飾（ロゴ周りの星） */
+/* タイトルロゴ周りの不穏な赤いオーラ */
 .neon-sparks {
   position: relative;
   display: inline-block;
+  isolation: isolate;
 }
-.neon-sparks::before, .neon-sparks::after {
-  content: "✦";
+.neon-sparks::before {
+  content: "";
   position: absolute;
-  color: var(--r-yellow);
-  font-size: 14px;
-  text-shadow: 0 0 6px rgba(255, 210, 74, .9);
-  animation: twinkle 1.4s ease-in-out infinite;
+  left: 50%; top: 50%;
+  transform: translate(-50%, -50%);
+  width: 130%; height: 140%;
+  background: radial-gradient(ellipse at center,
+    rgba(180, 0, 0, .55) 0%,
+    rgba(110, 0, 0, .32) 35%,
+    rgba(40, 0, 0, .15) 60%,
+    transparent 75%);
+  filter: blur(10px);
+  z-index: -1;
+  animation: ominous-aura 6s infinite ease-in-out;
+  pointer-events: none;
 }
-.neon-sparks::before { left: -16px; top: -4px; }
-.neon-sparks::after  { right: -16px; bottom: -2px; animation-delay: .7s; }
-@keyframes twinkle {
-  0%,100% { opacity: 1; transform: scale(1); }
-  50%     { opacity: .4; transform: scale(.6); }
+.neon-sparks::after {
+  /* 上から滲む赤い影 */
+  content: "極秘";
+  position: absolute;
+  right: -6px; top: -10px;
+  font-family: "Noto Serif JP", serif; font-weight: 900;
+  font-size: 14px; letter-spacing: .12em;
+  color: #fff;
+  background: #8a0000;
+  padding: 3px 6px 2px;
+  border: 1.5px solid #2a0000;
+  transform: rotate(8deg);
+  box-shadow: 0 2px 0 #1a0000, 0 0 8px rgba(180, 0, 0, .8);
+  text-shadow: 0 1px 0 #2a0000;
+  z-index: 2;
+  animation: stamp-pulse 2.4s ease-in-out infinite;
+}
+@keyframes ominous-aura {
+  0%, 100% { opacity: .65; transform: translate(-50%, -50%) scale(1); }
+  50%      { opacity: 1;   transform: translate(-50%, -50%) scale(1.08); }
+}
+@keyframes stamp-pulse {
+  0%, 100% { transform: rotate(8deg) scale(1); }
+  50%      { transform: rotate(8deg) scale(1.05); }
 }
 
 
@@ -233,20 +261,45 @@ img, svg { image-rendering: pixelated; image-rendering: crisp-edges; }
   animation: text-flicker 5s infinite;
 }
 
-/* 日本語メインタイトル用 */
+/* 日本語メインタイトル用 — おどろおどろしい血染めロゴ */
 .neon-logo-jp {
-  font-family: var(--r-font-jp);
-  font-size: 64px; font-weight: 900; letter-spacing: .08em;
-  background: linear-gradient(180deg, #ffffff 0%, #ff8ade 40%, #c267ff 100%);
+  font-family: "Noto Serif JP", "Yu Mincho", "ヒラギノ明朝 ProN", serif;
+  font-size: 92px; font-weight: 900; letter-spacing: .02em;
+  background:
+    linear-gradient(180deg,
+      #f3e5e0 0%,
+      #d98a8a 28%,
+      #a01818 55%,
+      #5a0000 85%,
+      #2a0000 100%);
   -webkit-background-clip: text; background-clip: text;
   color: transparent;
   text-align: center; padding: 4px 0;
-  -webkit-text-stroke: 2.5px #0a0518;
+  -webkit-text-stroke: 5px #050000;
   filter:
-    drop-shadow(0 0 8px rgba(255,92,180,0.95))
-    drop-shadow(0 0 20px rgba(194,103,255,0.75))
-    drop-shadow(0 0 30px rgba(138,77,255,0.5));
-  animation: neon-flicker 4s infinite alternate;
+    drop-shadow(0 2px 0 #050000)
+    drop-shadow(0 0 4px rgba(160, 24, 24, 1))
+    drop-shadow(0 0 18px rgba(120, 0, 0, .95))
+    drop-shadow(0 0 36px rgba(80, 0, 0, .85))
+    drop-shadow(0 6px 12px rgba(0,0,0,.85));
+  animation: ominous-flicker 5.3s infinite;
+  transform: skewY(-1.5deg);
+  position: relative;
+  text-shadow:
+    0 0 1px #1a0000,
+    0 0 14px rgba(180, 0, 0, .55);
+}
+
+@keyframes ominous-flicker {
+  0%, 100% { opacity: 1; }
+  41% { opacity: 1; }
+  42% { opacity: .35; }
+  43% { opacity: 1; }
+  47% { opacity: .92; }
+  48% { opacity: 1; }
+  72% { opacity: 1; }
+  73% { opacity: .5; }
+  74% { opacity: 1; }
 }
 .retro-card .label {
   font-family: var(--r-font-en); font-size: 10px; letter-spacing: .14em;
@@ -2117,20 +2170,45 @@ img, svg { image-rendering: pixelated; image-rendering: crisp-edges; }
   animation: text-flicker 5s infinite;
 }
 
-/* 日本語メインタイトル用 */
+/* 日本語メインタイトル用 — おどろおどろしい血染めロゴ */
 .neon-logo-jp {
-  font-family: var(--r-font-jp);
-  font-size: 64px; font-weight: 900; letter-spacing: .08em;
-  background: linear-gradient(180deg, #ffffff 0%, #ff8ade 40%, #c267ff 100%);
+  font-family: "Noto Serif JP", "Yu Mincho", "ヒラギノ明朝 ProN", serif;
+  font-size: 92px; font-weight: 900; letter-spacing: .02em;
+  background:
+    linear-gradient(180deg,
+      #f3e5e0 0%,
+      #d98a8a 28%,
+      #a01818 55%,
+      #5a0000 85%,
+      #2a0000 100%);
   -webkit-background-clip: text; background-clip: text;
   color: transparent;
   text-align: center; padding: 4px 0;
-  -webkit-text-stroke: 2.5px #0a0518;
+  -webkit-text-stroke: 5px #050000;
   filter:
-    drop-shadow(0 0 8px rgba(255,92,180,0.95))
-    drop-shadow(0 0 20px rgba(194,103,255,0.75))
-    drop-shadow(0 0 30px rgba(138,77,255,0.5));
-  animation: neon-flicker 4s infinite alternate;
+    drop-shadow(0 2px 0 #050000)
+    drop-shadow(0 0 4px rgba(160, 24, 24, 1))
+    drop-shadow(0 0 18px rgba(120, 0, 0, .95))
+    drop-shadow(0 0 36px rgba(80, 0, 0, .85))
+    drop-shadow(0 6px 12px rgba(0,0,0,.85));
+  animation: ominous-flicker 5.3s infinite;
+  transform: skewY(-1.5deg);
+  position: relative;
+  text-shadow:
+    0 0 1px #1a0000,
+    0 0 14px rgba(180, 0, 0, .55);
+}
+
+@keyframes ominous-flicker {
+  0%, 100% { opacity: 1; }
+  41% { opacity: 1; }
+  42% { opacity: .35; }
+  43% { opacity: 1; }
+  47% { opacity: .92; }
+  48% { opacity: 1; }
+  72% { opacity: 1; }
+  73% { opacity: .5; }
+  74% { opacity: 1; }
 }
 .retro-card .label {
   font-family: var(--r-font-en); font-size: 10px; letter-spacing: .14em;
@@ -3950,7 +4028,7 @@ img, svg { image-rendering: pixelated; image-rendering: crisp-edges; }
   min-height: 280px;
 }
 .jig-desk-split {
-  flex: 0 0 200px !important;  /* 下段は固定 200px に縮める */
+  flex: 0 0 260px !important;  /* 下段を広めにとってサボリ絵を見えやすく */
   display: flex;
   gap: 8px;
   min-height: 0;
@@ -4019,11 +4097,15 @@ img, svg { image-rendering: pixelated; image-rendering: crisp-edges; }
   margin: 2px 0;
 }
 .jig-worker-image {
+  width: 100% !important;
+  height: 100% !important;
   max-width: 100%;
   max-height: 100%;
-  width: auto !important;
-  height: auto !important;
   object-fit: contain;
+  image-rendering: pixelated;
+}
+.jig-worker-showcase {
+  min-height: 140px;
 }
 .jig-sabori-btn {
   flex: none;
@@ -4042,10 +4124,18 @@ img, svg { image-rendering: pixelated; image-rendering: crisp-edges; }
   border-radius: 8px;
   min-width: 220px !important;
 }
+.teams-monitor-textcol {
+  display: flex; flex-direction: column; line-height: 1.15;
+}
 .teams-monitor-label {
   font-size: 13px !important;
   font-weight: 800 !important;
   color: #fff !important;
+}
+.teams-monitor-hint {
+  font-size: 10px;
+  color: #5be8ff;
+  opacity: .9;
 }
 .teams-monitor-val {
   font-family: var(--r-font-en) !important;
