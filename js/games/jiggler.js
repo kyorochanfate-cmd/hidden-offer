@@ -321,6 +321,11 @@ export function startJiggler(mount, gameId) {
     refs.messagesContainer.scrollTop = refs.messagesContainer.scrollHeight;
   }
 
+  // チャンネルごとのメッセージ履歴（切替時に再描画用）
+  state.channels.sato.history   = initialHistory.slice();
+  state.channels.tanaka.history = [];
+  state.channels.hr.history     = [];
+
   // 初期メッセージ描画
   initialHistory.forEach(h => appendMessage(h.sender, h.text, h.time, h.isBoss));
   state.channels.sato.preview = initialHistory[initialHistory.length - 1]?.text || "";
@@ -418,13 +423,10 @@ export function startJiggler(mount, gameId) {
     const replyBox = refs.messagesContainer.querySelector("#teams-reply-box");
     if (replyBox) replyBox.remove();
 
-    // チャンネルプレビューを更新
-    state.channels[state.pendingChannel].preview = state.chatReplyText;
+    // 自分の返答メッセージを履歴に追加（active なら DOM にも反映）
+    pushMessage(state.pendingChannel, "自分", state.chatReplyText, "たった今", false);
     state.pendingChannel = null;
     renderChannelList();
-
-    // 自分の返答メッセージを追加
-    appendMessage("自分", state.chatReplyText, "たった今", false);
     
     // 在席メーター大幅回復
     state.mood = Math.min(100, state.mood + 20);
@@ -515,14 +517,10 @@ export function startJiggler(mount, gameId) {
     state.channels[channelId].unread = 0;
     refs.roomName.textContent = CHANNELS[channelId].name;
 
-    // 既存メッセージをクリアし、当該チャンネルの履歴に応じて再構築
+    // 既存メッセージをクリアし、当該チャンネルの履歴を再描画
     clear(refs.messagesContainer);
-
-    // 奇襲中で当該チャンネル宛なら、待たせていたメッセージ＋返信ボックスを表示
-    if (state.chatActive && state.pendingChannel === channelId) {
-      showPendingChatMessage();
-    } else {
-      // それ以外は「未読なし」のヒントだけ
+    const history = state.channels[channelId].history || [];
+    if (history.length === 0) {
       refs.messagesContainer.appendChild(
         el("div.teams-msg.system", {}, [
           el("div.teams-msg-content", {}, [
@@ -530,15 +528,33 @@ export function startJiggler(mount, gameId) {
           ])
         ])
       );
+    } else {
+      history.forEach(h => appendMessage(h.sender, h.text, h.time, h.isBoss));
+    }
+
+    // 奇襲中で当該チャンネル宛なら返信ボックスを表示
+    if (state.chatActive && state.pendingChannel === channelId) {
+      showPendingChatMessage();
     }
     renderChannelList();
   }
 
+  // 履歴に追加し、アクティブなら画面にも反映
+  function pushMessage(channelId, sender, text, time, isBoss) {
+    const ch = state.channels[channelId];
+    if (!ch.history) ch.history = [];
+    ch.history.push({ sender, text, time, isBoss });
+    ch.preview = text;
+    if (state.activeChannel === channelId) {
+      appendMessage(sender, text, time, isBoss);
+    }
+  }
+
   function showPendingChatMessage() {
-    // pendingChannel の最新メッセージと返信ボックスを描画
-    const sender = state.chatSender;
-    const text = state.chatText;
-    appendMessage(sender, text, "たった今", true);
+    // pendingChannel の最新メッセージは履歴に既にあるので最後を描画
+    const history = state.channels[state.pendingChannel].history || [];
+    const last = history[history.length - 1];
+    if (last) appendMessage(last.sender, last.text, last.time, last.isBoss);
 
     // 返信ボックス（既存 triggerChat と同じ DOM）を追加
     const replyBox = el("div.teams-inline-reply-box#teams-reply-box", {}, [
@@ -650,14 +666,28 @@ export function startJiggler(mount, gameId) {
     state.chatTimer = state.chatLimit;
     state.chatReplyText = pick(CHAT_REPLIES);
 
-    // チャンネルに未読＋プレビュー反映
+    // チャンネルに未読＋履歴に追加
     state.channels[channelId].unread += 1;
-    state.channels[channelId].preview = q.text;
+    pushMessage(channelId, q.sender, q.text, "たった今", true);
     renderChannelList();
 
-    // アクティブチャンネル ＝ pendingChannel なら即メッセージ＋返信ボックス表示
+    // アクティブチャンネル ＝ pendingChannel なら返信ボックスを追加
     if (state.activeChannel === channelId) {
-      showPendingChatMessage();
+      // 返信ボックスのみ追加（メッセージは pushMessage 内で既に描画済み）
+      const replyBox = el("div.teams-inline-reply-box#teams-reply-box", {}, [
+        el("div.teams-countdown-track", {}, [
+          el("div.teams-countdown-fill#jig-chat-timer-fill", { style: { width: "100%" } })
+        ]),
+        el("div.teams-reply-actions", {}, [
+          el("button.teams-reply-btn#jig-reply-btn", {
+            onclick: (e) => { e.preventDefault(); e.stopPropagation(); submitReply(); },
+            ontouchstart: (e) => { e.preventDefault(); e.stopPropagation(); submitReply(); },
+          }, [el("span", { text: `💬 返信: 「${state.chatReplyText}」` })])
+        ])
+      ]);
+      refs.messagesContainer.appendChild(replyBox);
+      refs.messagesContainer.scrollTop = refs.messagesContainer.scrollHeight;
+      refs.chatTimerFill = replyBox.querySelector("#jig-chat-timer-fill");
     } else {
       // 別チャンネルから着信：「○○さんから新着メッセージ。切り替えて返信！」のヒントだけ表示
       const hint = el("div.teams-channel-hint", {
