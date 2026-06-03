@@ -9,16 +9,16 @@ import { Router } from "../app.js?v=1.2.0";
 import { finishGame } from "./result.js?v=1.2.0";
 import { SVG_WORKER } from "../art.js?v=1.2.0";
 
-// プラモデルお題
+// サボりのお題（ありがちな内職・現実逃避）
 const SABORI_MODELS = [
-  "HG ギラ・ドーガ",
-  "1/12 オフィスデスク",
-  "超合金 佐藤部長",
-  "ミニ四駆 アバンテ",
-  "佐藤部長の胸像（金メッキ仕様）",
-  "1/24 オフィスチェア（エルゴ）",
-  "MG サザビー（サボり専用モデル）",
-  "ドット絵職人のキーボード",
+  "スマホでSNS",
+  "ネットサーフィン",
+  "転職サイト閲覧",
+  "ぼんやり妄想",
+  "デスクで内職",
+  "Amazon の買い物",
+  "競馬の予想",
+  "副業の確定申告",
 ];
 
 // 突発チャットお題（sender ごとに振り分けてチャンネルに着信）
@@ -105,6 +105,9 @@ export function startJiggler(mount, gameId) {
     // エフェクト用タイマー
     effectTimer: 0.0,
   };
+
+  // チュートリアル表示中はゲーム停止
+  state.paused = true;
 
   // 画面構築
   const screen = el("div.jig-game", {}, [
@@ -200,13 +203,13 @@ export function startJiggler(mount, gameId) {
 
         // さぼりボタン
         el("button.pbtn.purple.jig-sabori-btn#jig-sabori-btn", {}, [
-          el("span", { text: "サボる" })
+          el("span", { text: "長押しでサボる" })
         ])
       ]),
 
       // 下右：仮想マウス操作スペース
       el("div.jig-mouse-area#jig-desktop", {}, [
-        el("div.jig-desktop-label", { text: "■ マウスパッド" }),
+        el("div.jig-desktop-label", { text: "■ ここをドラッグして在席キープ" }),
 
         // 仮想マウス
         el("div.jig-virtual-mouse#jig-mouse", {
@@ -219,6 +222,36 @@ export function startJiggler(mount, gameId) {
   ]);
 
   mount(screen);
+
+  // --- 遊び方チュートリアル（最初に1回だけ表示） ---
+  const tutorial = el("div", {
+    style: {
+      position: "absolute", inset: "0",
+      background: "rgba(0,0,0,0.86)",
+      zIndex: "9999",
+      display: "flex", flexDirection: "column",
+      justifyContent: "center", alignItems: "center",
+      padding: "20px", textAlign: "center", color: "#fff",
+      fontFamily: 'var(--r-font-jp, "DotGothic16", sans-serif)',
+    }
+  }, [
+    el("div", { style: { fontSize: "20px", fontWeight: "700", marginBottom: "14px", color: "#ffd24a", textShadow: "2px 2px 0 #1a1230" }, text: "■ 遊び方 ■" }),
+    el("div", { style: { fontSize: "13px", lineHeight: "1.7", maxWidth: "320px", marginBottom: "16px" } }, [
+      el("div", { style: { marginBottom: "10px" }, text: "🎯 目的：在席ステータス（緑）を保ちながら、こっそりサボる！" }),
+      el("div", { style: { marginBottom: "6px", color: "#5be8ff" }, text: "① 右下のマウスパッドをドラッグ" }),
+      el("div", { style: { marginBottom: "10px", fontSize: "11px", color: "#c8b8e8" }, text: "→ 在席ゲージが回復（PCランプ緑キープ）" }),
+      el("div", { style: { marginBottom: "6px", color: "#c267ff" }, text: "② 左下「サボる」ボタンを長押し" }),
+      el("div", { style: { marginBottom: "10px", fontSize: "11px", color: "#c8b8e8" }, text: "→ サボり進捗が貯まる（=お金）。ただし在席ゲージは減りやすくなる" }),
+      el("div", { style: { marginBottom: "6px", color: "#ff5cb4" }, text: "③ 上の Teams にチャットが来たら即返信" }),
+      el("div", { style: { marginBottom: "0", fontSize: "11px", color: "#c8b8e8" }, text: "→ 別チャンネルから来た時は左の一覧から切替えて返信" }),
+    ]),
+    el("div", { style: { fontSize: "11px", color: "#ff5b6e", marginBottom: "14px" }, text: "在席ゲージ0 or チャット既読スルーで強制退場！" }),
+    el("button.pbtn.green", {
+      style: { fontSize: "16px", padding: "10px 28px" },
+      onclick: () => { tutorial.remove(); state.paused = false; }
+    }, [el("span", { text: "▶ スタート" })]),
+  ]);
+  screen.appendChild(tutorial);
 
   // DOM 参照
   const refs = {
@@ -526,7 +559,7 @@ export function startJiggler(mount, gameId) {
 
   // --- メインゲームループ ---
   const gameLoop = loop((dt) => {
-    if (!state.active) return;
+    if (!state.active || state.paused) return;
 
     state.elapsed += dt;
 
