@@ -6,7 +6,8 @@ desktop.ini
 *.swo
 
 # Local dev caches
-.claude/
+.claude/*
+!.claude/launch.json
 node_modules/
 .vscode/
 .idea/
