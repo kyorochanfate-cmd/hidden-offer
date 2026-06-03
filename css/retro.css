@@ -1537,7 +1537,10 @@ img, svg { image-rendering: pixelated; image-rendering: crisp-edges; }
 }
 
 .teams-msg-avatar.boss {
-  background: #c34e0a;
+  background: transparent;
+  object-fit: contain;
+  image-rendering: pixelated;
+  border-radius: 4px;
 }
 .teams-msg-avatar.me {
   background: #7a24db;
@@ -3455,7 +3458,10 @@ img, svg { image-rendering: pixelated; image-rendering: crisp-edges; }
 }
 
 .teams-msg-avatar.boss {
-  background: #c34e0a;
+  background: transparent;
+  object-fit: contain;
+  image-rendering: pixelated;
+  border-radius: 4px;
 }
 .teams-msg-avatar.me {
   background: #7a24db;
