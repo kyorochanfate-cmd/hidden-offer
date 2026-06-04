@@ -5936,91 +5936,137 @@ img, svg { image-rendering: pixelated; image-rendering: crisp-edges; }
   font-weight: 900;
   text-shadow: 0 0 6px rgba(255,210,74,0.7);
 }
-.exch-grid {
+/* ── ステージ（meet / quiz 共通ラッパー） ── */
+.exch-stage {
   flex: 1;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
-  gap: 8px;
-  padding: 10px 14px calc(14px + var(--safe-bottom));
-  align-content: start;
-  overflow-y: auto;
-}
-.exch-card {
-  background: #fff; color: #1a1230;
-  border: 3px solid #0a0518;
-  border-radius: 6px;
-  padding: 8px 6px;
-  text-align: center;
-  cursor: pointer;
-  position: relative;
-  box-shadow: 0 3px 0 rgba(0,0,0,0.5);
-  display: flex; flex-direction: column;
+  display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 3px;
-  min-height: 130px;
-  transition: transform 0.1s;
-}
-.exch-card:active { transform: translateY(2px); }
-.exch-card.face-down {
-  background: linear-gradient(135deg, #3a2658, #1a1230);
-  color: #fff;
   justify-content: center;
+  padding: 8px 14px calc(14px + var(--safe-bottom));
+  overflow: hidden;
 }
-.exch-card-num {
-  position: absolute;
-  top: 2px; left: 5px;
+
+/* ── 自己紹介フェーズ ── */
+.exch-meet-scene {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  animation: exch-slide-up 0.35s cubic-bezier(.2,.8,.2,1);
+}
+@keyframes exch-slide-up {
+  from { opacity: 0; transform: translateY(28px); }
+  to   { opacity: 1; transform: none; }
+}
+.exch-meet-counter {
   font-family: var(--r-font-en);
-  font-size: 11px; font-weight: 900;
-  color: var(--r-mute);
+  font-size: 12px; color: var(--r-cyan);
+  font-weight: 700; letter-spacing: .08em;
 }
-.exch-card-avatar {
-  width: 36px; height: 36px;
+.exch-card-anim {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  animation: exch-card-in 0.4s cubic-bezier(.2,.8,.2,1) 0.1s both;
+}
+@keyframes exch-card-in {
+  from { opacity: 0; transform: translateY(16px) rotate(-3deg); }
+  to   { opacity: 1; transform: none; }
+}
+.exch-char-avatar {
+  width: 72px; height: 72px;
   border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
-  color: #fff; font-weight: 900; font-size: 18px;
-  border: 2px solid #1a1230;
-  margin-top: 4px;
+  font-size: 36px; font-weight: 900; color: #fff;
+  border: 4px solid rgba(255,255,255,0.3);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.5);
 }
-.exch-card-name {
-  font-size: 12px; font-weight: 800;
-  line-height: 1.2;
+.exch-namecard {
+  background: #fff; color: #1a1230;
+  border: 3px solid #1a1230;
+  border-radius: 6px;
+  padding: 10px 16px;
+  text-align: center;
+  min-width: 180px;
+  box-shadow: 0 4px 0 rgba(0,0,0,0.5);
 }
-.exch-card-title {
-  font-size: 10px; color: #6d5d8a;
-  font-weight: 700;
+.exch-namecard-name {
+  font-size: 18px; font-weight: 900;
+  line-height: 1.2; color: #1a1230;
 }
-.exch-card-company {
-  font-size: 10px; color: #1a1230;
-  background: #ffd24a;
-  padding: 1px 4px;
+.exch-namecard-title {
+  font-size: 12px; color: #6d5d8a;
+  font-weight: 700; margin-top: 2px;
+}
+.exch-namecard-company {
+  font-size: 11px; color: #fff;
+  background: #1a1230;
+  padding: 2px 8px;
   border-radius: 3px;
-  margin-top: 2px;
-  line-height: 1.2;
+  margin-top: 6px;
+  display: inline-block;
 }
-.exch-card-back-num {
-  font-family: var(--r-font-en);
-  font-size: 32px; font-weight: 900;
-  color: var(--r-yellow);
-  text-shadow: 0 0 10px rgba(255,210,74,0.6), 2px 2px 0 #0a0518;
+.exch-meet-tap {
+  font-size: 11px; color: var(--r-mute);
+  letter-spacing: .06em;
+  animation: exch-blink 1.2s ease infinite;
 }
-.exch-card-back-label {
-  font-size: 11px; color: var(--r-sub);
-  font-weight: 700;
-  margin-top: 2px;
+@keyframes exch-blink {
+  0%, 100% { opacity: 1; } 50% { opacity: 0.3; }
 }
-.exch-card.correct {
-  border-color: var(--r-lime) !important;
-  box-shadow: 0 0 15px rgba(108,240,110,0.8), 0 3px 0 rgba(0,0,0,0.5);
-  animation: exch-correct-pulse 0.4s ease;
+
+/* ── クイズフェーズ ── */
+.exch-quiz-scene {
+  width: 100%;
+  animation: exch-slide-up 0.3s cubic-bezier(.2,.8,.2,1);
 }
-.exch-card.wrong {
-  border-color: var(--r-red) !important;
-  box-shadow: 0 0 15px rgba(255,91,110,0.8), 0 3px 0 rgba(0,0,0,0.5);
-  animation: exch-wrong-shake 0.4s ease;
+.exch-choice-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
 }
-@keyframes exch-correct-pulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.08); }
+.exch-choice-btn {
+  background: rgba(255,255,255,0.08);
+  border: 2px solid rgba(255,255,255,0.2);
+  border-radius: 10px;
+  padding: 12px 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  color: #fff;
+  font-family: var(--r-font-jp);
+  transition: transform 0.1s, background 0.15s;
+  min-height: 90px;
+  justify-content: center;
+}
+.exch-choice-btn:active { transform: scale(0.96); }
+.exch-choice-icon {
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px; font-weight: 900; color: #fff;
+  border: 3px solid rgba(255,255,255,0.25);
+  flex-shrink: 0;
+}
+.exch-choice-name {
+  font-size: 15px; font-weight: 800;
+  text-align: center; line-height: 1.2;
+}
+.exch-choice-btn.correct {
+  background: rgba(108,240,110,0.2);
+  border-color: var(--r-lime);
+  box-shadow: 0 0 14px rgba(108,240,110,0.5);
+}
+.exch-choice-btn.wrong {
+  background: rgba(255,91,110,0.2);
+  border-color: var(--r-red);
+  box-shadow: 0 0 14px rgba(255,91,110,0.5);
 }
 @keyframes exch-wrong-shake {
   0%, 100% { transform: translateX(0); }
