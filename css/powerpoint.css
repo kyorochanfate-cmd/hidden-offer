@@ -239,7 +239,7 @@
   cursor: pointer; padding: 0;
 }
 .pp-swatch.sel { outline: 2px solid var(--pp-accent); outline-offset: 1px; }
-.pp-pbtns { display: flex; flex-wrap: wrap; gap: 3px; }
+.pp-pbtns { display: flex; flex-wrap: nowrap; gap: 3px; align-items: center; }
 .pp-szbtn {
   border: 1px solid var(--pp-sep-dark); background: #fff; color: var(--pp-ink);
   border-radius: 3px; padding: 5px 9px; font-size: 11px; cursor: pointer; font-weight: 600;
@@ -391,11 +391,14 @@
 .pp-szbtn.step {
   font-size: 16px;
   font-weight: 800;
-  min-width: 44px;
+  min-width: 30px;
+  width: 30px;
   height: 28px;
+  padding: 0;
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
 }
 
 /* スライド切り替え時のフラッシュエフェクト */
