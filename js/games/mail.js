@@ -46,6 +46,7 @@ const EMAIL_POOL = [
   { id:"r1", type:"reply", from:"佐藤部長", time:"08:22", isBoss:true,
     subject:"【至急】今日のクライアント訪問の資料確認",
     body:"おい、今日10時にA社に行くんだが、昨日頼んだ提案書の最終版できてるよな？朝イチで確認させてくれ。",
+    hint:"10時訪問。部長は資料を見たい。いつ渡せるか明示すべし。",
     replies:[
       { text:"承知しました。ただいま最終確認中です。9時半までにお送りします。",      correct:true  },
       { text:"申し訳ございません。まだ完成しておりません。",                          correct:false },
@@ -55,6 +56,7 @@ const EMAIL_POOL = [
   { id:"r2", type:"reply", from:"高橋@Bシステムズ", time:"08:18",
     subject:"本日午後の打ち合わせ、会場変更のご連絡",
     body:"お世話になっております。本日14時の打ち合わせですがA棟からB棟3Fに変更となりました。ご確認いただけますでしょうか。",
+    hint:"取引先からの変更通知。認識した旨を端的・丁寧に。",
     replies:[
       { text:"ご連絡ありがとうございます。承知しました。B棟3Fに伺います。",  correct:true  },
       { text:"了解です！またよろしくお願いします！",                          correct:false },
@@ -64,6 +66,7 @@ const EMAIL_POOL = [
   { id:"r3", type:"reply", from:"佐藤部長", time:"08:31", isBoss:true,
     subject:"例の件、どうなった？",
     body:"先週話した新規案件の進捗、どうなってる？今日中に報告しろ。",
+    hint:"「今日中に報告しろ」と期限が明示されている。これに応える。",
     replies:[
       { text:"現在対応中です。本日中にご報告いたします。",                    correct:true  },
       { text:"先週の件でしょうか？内容を確認してからご連絡します。",          correct:false },
@@ -73,6 +76,7 @@ const EMAIL_POOL = [
   { id:"r4", type:"reply", from:"中村@G法律事務所", time:"08:25",
     subject:"Re: 契約書について ─ 本日中にご回答いただけますか",
     body:"先日お送りした契約書の修正案について、本日中にご回答いただくことは可能でしょうか。先方締切の都合がございまして…",
+    hint:"「本日中に回答可能か」と聞かれている。可否をはっきり示す。",
     replies:[
       { text:"ご連絡ありがとうございます。本日中にご回答いたします。",        correct:true  },
       { text:"承知しました。来週早々にご回答いたします。",                    correct:false },
@@ -82,6 +86,7 @@ const EMAIL_POOL = [
   { id:"r5", type:"reply", from:"佐藤部長", time:"08:35", isBoss:true,
     subject:"朝礼の議題、追加しておけ",
     body:"今日の朝礼に「Q3売上レビュー」を議題に追加しておいてくれ。議事録係は君だからな。",
+    hint:"指示は「議題に追加」。余計な提案や辞退はせず、指示通り実行を伝える。",
     replies:[
       { text:"承知しました。議題に追加しておきます。",                        correct:true  },
       { text:"かしこまりました！万全の態勢で臨みます！！",                    correct:false },
@@ -330,6 +335,12 @@ export function startMail(mount, gameId) {
       { text:"このメールに返信は不要です。",            correct:false },
       { text:"恐れ入りますがご確認ください。",          correct:false },
     ];
+    if (email.hint) {
+      area.appendChild(el("div.olk-reply-hint", {}, [
+        el("span.olk-reply-hint-icon", { text: "💡" }),
+        el("span", { text: email.hint }),
+      ]));
+    }
     area.appendChild(el("div.olk-reply-head", { text: "返信文を選択:" }));
     choices.forEach(r => {
       area.appendChild(

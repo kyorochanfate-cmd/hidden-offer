@@ -6406,6 +6406,20 @@ img, svg { image-rendering: pixelated; image-rendering: crisp-edges; }
 .olk-read-replyarea {
   margin-top: 10px;
 }
+.olk-reply-hint {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  background: #fff4ce;
+  border-left: 3px solid #ffb900;
+  padding: 8px 10px;
+  font-size: 11px;
+  color: #4a3c0e;
+  line-height: 1.4;
+  margin-bottom: 8px;
+  border-radius: 2px;
+}
+.olk-reply-hint-icon { flex-shrink: 0; }
 .olk-reply-head {
   font-size: 11px;
   font-weight: 600;
