@@ -62,9 +62,20 @@ export const GAMES = {
     color: "#9bb8d9",
     app: "空き個室サーチ",
   },
+  mail: {
+    id: "mail",
+    title: "Morning Mail Check",
+    subtitle: "朝イチメールチェック",
+    jpTitle: "朝イチメールチェック",
+    theme: "朝礼前にメールを仕分けろ",
+    posting: "朝礼前の5分でメールを完全処理できる方",
+    salary: "処理数歩合制 / 誤仕分けでライフ消費",
+    color: "#1a3a6b",
+    app: "メール",
+  },
 };
 
-export const GAME_ORDER = ["powerpotter", "chatrally", "jiggler", "exchange", "toilet"];
+export const GAME_ORDER = ["powerpotter", "chatrally", "jiggler", "exchange", "toilet", "mail"];
 
 // --- お祈りメール（ハズレ） ---
 export const REJECTION_MAILS = [

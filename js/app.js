@@ -16,6 +16,7 @@ import { startChatRally } from "./games/chatrally.js?v=1.2.5";
 import { startJiggler } from "./games/jiggler.js?v=1.2.5";
 import { startExchange } from "./games/exchange.js?v=1.2.5";
 import { startToilet } from "./games/toilet.js?v=1.2.5";
+import { startMail } from "./games/mail.js?v=1.2.5";
 
 const GAME_LAUNCHERS = {
   powerpotter: startPowerPotter,
@@ -23,6 +24,7 @@ const GAME_LAUNCHERS = {
   jiggler: startJiggler,
   exchange: startExchange,
   toilet: startToilet,
+  mail: startMail,
 };
 
 const app = document.getElementById("app");
