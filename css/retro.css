@@ -6277,10 +6277,12 @@ img, svg { image-rendering: pixelated; image-rendering: crisp-edges; }
   background: #fff;
 }
 .olk-list {
-  flex: 1;
+  flex: 0 0 50%;
+  height: 50%;
   overflow-y: auto;
   background: #fff;
   min-height: 0;
+  border-bottom: 2px solid #0078d4;
 }
 .olk-row {
   display: flex;
@@ -6357,17 +6359,20 @@ img, svg { image-rendering: pixelated; image-rendering: crisp-edges; }
 /* ── 閲覧ペイン ───────────────────────────────────────────────── */
 .olk-reading {
   background: #fff;
-  border-top: 1px solid #e1dfdd;
   padding: 10px 12px;
-  flex-shrink: 0;
-  max-height: 50%;
+  flex: 0 0 50%;
+  height: 50%;
   overflow-y: auto;
-  display: none;
+  display: block;
+  min-height: 0;
 }
-.olk-reading.open { display: block; }
 .olk-read-empty {
-  display: none;
+  text-align: center;
+  color: #a19f9d;
+  font-size: 12px;
+  padding: 40px 12px;
 }
+.olk-reading.open .olk-read-empty { display: none; }
 .olk-read-subject {
   font-size: 15px;
   font-weight: 700;
