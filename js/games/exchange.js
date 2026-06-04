@@ -4,9 +4,9 @@
 // 制限時間内に正しい名刺をタップ。ラウンドが進むほど人数増・記憶時間短縮。
 // =========================================================================
 
-import { el, clear, loop, pick } from "../dom.js?v=1.2.4";
-import { Router } from "../app.js?v=1.2.4";
-import { finishGame } from "./result.js?v=1.2.4";
+import { el, clear, loop, pick } from "../dom.js?v=1.2.5";
+import { Router } from "../app.js?v=1.2.5";
+import { finishGame } from "./result.js?v=1.2.5";
 
 // 取引先プール（出るたび顔・色変える）
 const CONTACTS = [
