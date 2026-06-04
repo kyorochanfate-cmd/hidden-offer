@@ -5936,142 +5936,139 @@ img, svg { image-rendering: pixelated; image-rendering: crisp-edges; }
   font-weight: 900;
   text-shadow: 0 0 6px rgba(255,210,74,0.7);
 }
-/* ── ステージ（meet / quiz 共通ラッパー） ── */
-.exch-stage {
-  flex: 1;
+/* ── キャラシーン ── */
+.exch-scene {
+  flex: 0 0 auto;
   display: flex;
-  flex-direction: column;
-  align-items: center;
+  align-items: flex-end;
   justify-content: center;
-  padding: 8px 14px calc(14px + var(--safe-bottom));
-  overflow: hidden;
+  padding: 8px 14px 0;
+  min-height: 160px;
 }
-
-/* ── 自己紹介フェーズ ── */
-.exch-meet-scene {
-  width: 100%;
+.exch-char-wrap {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 12px;
-  cursor: pointer;
-  animation: exch-slide-up 0.35s cubic-bezier(.2,.8,.2,1);
+  gap: 8px;
+  animation: exch-char-in 0.3s cubic-bezier(.2,.8,.2,1);
 }
-@keyframes exch-slide-up {
-  from { opacity: 0; transform: translateY(28px); }
+@keyframes exch-char-in {
+  from { opacity: 0; transform: translateY(16px); }
   to   { opacity: 1; transform: none; }
 }
-.exch-meet-counter {
-  font-family: var(--r-font-en);
-  font-size: 12px; color: var(--r-cyan);
-  font-weight: 700; letter-spacing: .08em;
-}
-.exch-card-anim {
+
+/* 仮キャラスプライト（画像追加後は img.exch-sprite に差替え） */
+.exch-sprite-ph {
+  width: 90px; height: 110px;
+  border-radius: 8px 8px 0 0;
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 10px;
+  justify-content: center;
+  border: 3px solid rgba(255,255,255,0.25);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.5);
+  image-rendering: pixelated;
+}
+.exch-sprite { width: 90px; height: 110px; object-fit: contain; image-rendering: pixelated; }
+.exch-sprite-initial {
+  font-size: 48px; font-weight: 900; color: #fff;
+  text-shadow: 2px 2px 0 rgba(0,0,0,0.4);
+}
+
+/* 名刺プロップ（自己紹介時に下に表示） */
+.exch-namecard-prop {
+  background: #fff; color: #1a1230;
+  border: 2px solid #1a1230;
+  border-radius: 4px;
+  padding: 6px 12px;
+  text-align: center;
+  min-width: 150px;
+  box-shadow: 0 3px 0 rgba(0,0,0,0.4);
   animation: exch-card-in 0.4s cubic-bezier(.2,.8,.2,1) 0.1s both;
 }
 @keyframes exch-card-in {
-  from { opacity: 0; transform: translateY(16px) rotate(-3deg); }
+  from { opacity: 0; transform: translateY(10px) rotate(-2deg); }
   to   { opacity: 1; transform: none; }
 }
-.exch-char-avatar {
-  width: 72px; height: 72px;
-  border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 36px; font-weight: 900; color: #fff;
-  border: 4px solid rgba(255,255,255,0.3);
-  box-shadow: 0 6px 20px rgba(0,0,0,0.5);
+.exch-nc-name    { font-size: 15px; font-weight: 900; }
+.exch-nc-title   { font-size: 11px; color: #6d5d8a; font-weight: 700; margin-top: 2px; }
+.exch-nc-company { font-size: 10px; background: #1a1230; color: #fff; padding: 1px 6px; border-radius: 2px; margin-top: 4px; display: inline-block; }
+
+/* ── 台詞エリア ── */
+.exch-dialogue {
+  padding: 8px 14px;
+  min-height: 60px;
+  display: flex;
+  align-items: center;
 }
-.exch-namecard {
+.exch-bubble-char {
   background: #fff; color: #1a1230;
-  border: 3px solid #1a1230;
-  border-radius: 6px;
-  padding: 10px 16px;
-  text-align: center;
-  min-width: 180px;
-  box-shadow: 0 4px 0 rgba(0,0,0,0.5);
+  padding: 10px 14px;
+  border-radius: 0 12px 12px 12px;
+  font-size: 13px; font-weight: 700; line-height: 1.5;
+  box-shadow: 0 3px 0 rgba(0,0,0,0.4);
+  width: 100%;
+  animation: exch-bubble-in 0.2s ease;
 }
-.exch-namecard-name {
-  font-size: 18px; font-weight: 900;
-  line-height: 1.2; color: #1a1230;
+.exch-bubble-player {
+  background: #6264a7; color: #fff;
+  padding: 10px 14px;
+  border-radius: 12px 0 12px 12px;
+  font-size: 13px; font-weight: 700; line-height: 1.5;
+  box-shadow: 0 3px 0 rgba(0,0,0,0.4);
+  width: 100%;
+  text-align: right;
+  margin-left: auto;
+  animation: exch-bubble-in 0.2s ease;
 }
-.exch-namecard-title {
-  font-size: 12px; color: #6d5d8a;
-  font-weight: 700; margin-top: 2px;
+@keyframes exch-bubble-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: none; }
 }
-.exch-namecard-company {
-  font-size: 11px; color: #fff;
-  background: #1a1230;
-  padding: 2px 8px;
-  border-radius: 3px;
-  margin-top: 6px;
-  display: inline-block;
+
+/* ── アクションエリア ── */
+.exch-action {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 4px 14px calc(8px + var(--safe-bottom));
 }
-.exch-meet-tap {
-  font-size: 11px; color: var(--r-mute);
-  letter-spacing: .06em;
+.exch-tap-hint {
+  text-align: right;
+  font-size: 12px; color: var(--r-mute);
+  padding: 8px 4px;
+  cursor: pointer;
   animation: exch-blink 1.2s ease infinite;
 }
 @keyframes exch-blink {
   0%, 100% { opacity: 1; } 50% { opacity: 0.3; }
 }
-
-/* ── クイズフェーズ ── */
-.exch-quiz-scene {
-  width: 100%;
-  animation: exch-slide-up 0.3s cubic-bezier(.2,.8,.2,1);
-}
 .exch-choice-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 10px;
+  gap: 8px;
 }
 .exch-choice-btn {
   background: rgba(255,255,255,0.08);
-  border: 2px solid rgba(255,255,255,0.2);
-  border-radius: 10px;
-  padding: 12px 10px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  cursor: pointer;
+  border: 2px solid rgba(255,255,255,0.25);
+  border-radius: 8px;
+  padding: 14px 8px;
   color: #fff;
   font-family: var(--r-font-jp);
-  transition: transform 0.1s, background 0.15s;
-  min-height: 90px;
-  justify-content: center;
-}
-.exch-choice-btn:active { transform: scale(0.96); }
-.exch-choice-icon {
-  width: 44px; height: 44px;
-  border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 22px; font-weight: 900; color: #fff;
-  border: 3px solid rgba(255,255,255,0.25);
-  flex-shrink: 0;
-}
-.exch-choice-name {
   font-size: 15px; font-weight: 800;
-  text-align: center; line-height: 1.2;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: transform 0.1s, background 0.1s;
 }
+.exch-choice-btn:active { transform: scale(0.95); background: rgba(255,255,255,0.15); }
 .exch-choice-btn.correct {
-  background: rgba(108,240,110,0.2);
+  background: rgba(108,240,110,0.25);
   border-color: var(--r-lime);
-  box-shadow: 0 0 14px rgba(108,240,110,0.5);
+  box-shadow: 0 0 12px rgba(108,240,110,0.4);
 }
 .exch-choice-btn.wrong {
-  background: rgba(255,91,110,0.2);
+  background: rgba(255,91,110,0.25);
   border-color: var(--r-red);
-  box-shadow: 0 0 14px rgba(255,91,110,0.5);
-}
-@keyframes exch-wrong-shake {
-  0%, 100% { transform: translateX(0); }
-  25% { transform: translateX(-5px); }
-  75% { transform: translateX(5px); }
 }
 .exch-toast {
   position: absolute;
