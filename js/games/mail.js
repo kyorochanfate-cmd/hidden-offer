@@ -58,15 +58,15 @@ const EMAIL_POOL = [
   },
   {
     id:"p5", isSuspicious: true,
-    from: { name:"Amazon", address:"noreply@amazon-security-alert.com" },
+    from: { name:"ShopNow", address:"noreply@shopnow-security-alert.com" },
     time:"07:45",
     subject:"【重要】アカウントへの不審なアクセスを検知しました",
     bodyParts:[
       { type:"text", content:"お客様のアカウントで不審なログインが検出されました。\n24時間以内にご対応いただかない場合、アカウントは永久停止となります。\n" },
-      { type:"link", display:"今すぐアカウントを保護する", realUrl:"http://amazon-security-alert.com/verify?tkn=9x8k2" },
+      { type:"link", display:"今すぐアカウントを保護する", realUrl:"http://shopnow-security-alert.com/verify?tkn=9x8k2" },
     ],
     tell:"link",
-    reason:"「24時間以内」「永久停止」と煽り、焦らせて判断力を奪う典型的な手口。リンク先も amazon.co.jp とは無関係のドメインです。",
+    reason:"「24時間以内」「永久停止」と煽り、焦らせて判断力を奪う典型的な手口。リンク先も公式ドメインとは無関係のサイトです。",
   },
   {
     id:"p6", isSuspicious: true,
@@ -107,15 +107,15 @@ const EMAIL_POOL = [
   },
   {
     id:"p8", isSuspicious: true,
-    from: { name:"三菱UFJ銀行", address:"info@mufg-security-notice.com" },
+    from: { name:"さくら銀行", address:"info@sakura-bank-security-notice.com" },
     time:"07:22",
     subject:"【緊急】お客様のお取引を一時停止いたしました",
     bodyParts:[
       { type:"text", content:"拝啓、お客様。\n\n不正利用の疑いがございましたため、お客様のご口座を一時停止させていただきました。\nお早めに下記よりご本人確認の手続きをおとり下さい。\n手続きが完了しない場合、口座は永続的に利用停止となる場合があります。\n\n※本メールに心当たりがない場合もお手続きをお願い致します。\n" },
-      { type:"link", display:"本人確認はこちら", realUrl:"http://mufg-secure-login.cn/verify" },
+      { type:"link", display:"本人確認はこちら", realUrl:"http://sakura-bank-secure-login.cn/verify" },
     ],
     tell:"content",
-    reason:"「心当たりがない場合もお手続きを」という一文が典型的な手口。本物の銀行は絶対にそのような案内をしません。リンク先も .cn ドメインで中国のサーバーです。",
+    reason:"「心当たりがない場合もお手続きを」という一文が典型的な手口。本物の銀行は絶対にそのような案内をしません。リンク先も .cn ドメインで海外のサーバーです。",
   },
   {
     id:"p9", isSuspicious: true,
@@ -123,7 +123,7 @@ const EMAIL_POOL = [
     time:"08:50",
     subject:"急ぎでお願い",
     bodyParts:[
-      { type:"text", content:"今すぐギフトカードを購入してもらいたい。\nAmazonギフト券3万円分を5枚、今日中にコードを教えてくれ。\n理由は後で説明する。誰にも言わないでくれ。\n\n佐藤" },
+      { type:"text", content:"今すぐギフトカードを購入してもらいたい。\nネットショップのギフト券3万円分を5枚、今日中にコードを教えてくれ。\n理由は後で説明する。誰にも言わないでくれ。\n\n佐藤" },
     ],
     tell:"content",
     reason:"アドレスは本物に見えますが「ギフトカードを購入して」「誰にも言わないで」は100%詐欺の手口（ビジネスメール詐欺）。本物の上司が業務でギフトカードを要求することは絶対にありません。",
@@ -304,9 +304,12 @@ export function startMail(mount, gameId) {
     ]);
     refs.envelope.appendChild(fromInspect);
 
-    refs.envelope.appendChild(el("div.olk-ph-subject", { text: email.subject }));
-    refs.envelope.appendChild(el("div.olk-ph-time", { text: email.time }));
-    refs.envelope.appendChild(el("div.olk-ph-divider"));
+    refs.envelope.appendChild(
+      el("div.olk-ph-subject-wrap", {}, [
+        el("div.olk-ph-subject", { text: email.subject }),
+        el("div.olk-ph-time", { text: email.time }),
+      ])
+    );
 
     // 本文
     const bodyEl = el("div.olk-ph-body");
