@@ -277,12 +277,13 @@ export function startJiggler(mount, gameId) {
   ];
 
   function appendMessage(sender, text, time, isBoss) {
-    const avatarChar = isBoss ? "佐" : "自";
-    const avatarClass = isBoss ? "boss" : "me";
     const msgClass = isBoss ? "" : "my-message";
-    
+    const avatarEl = isBoss
+      ? el("img.teams-msg-avatar.boss", { src: "assets/img/sato_normal.png", alt: "佐藤部長" })
+      : el("div.teams-msg-avatar.me", { text: "自" });
+
     const msgNode = el(`div.teams-msg.${msgClass}`, {}, [
-      el(`div.teams-msg-avatar.${avatarClass}`, { text: avatarChar }),
+      avatarEl,
       el("div.teams-msg-content", {}, [
         el("div.teams-msg-meta", {}, [
           el("span.teams-msg-sender", { text: sender }),

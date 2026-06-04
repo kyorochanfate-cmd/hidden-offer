@@ -180,7 +180,7 @@ export function renderJobs(mount) {
         catchphrase = "URGENT! COMPLETE\n至急スライド完成！";
         rewardText = "+5円 / 箇所";
         mediaNode = el("div", { style: { position: "relative", width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center" } }, [
-          el("img", { src: "assets/img/boss.png", alt: "佐藤部長", style: { width: "48px", height: "auto", imageRendering: "pixelated" } })
+          el("img", { src: "assets/img/sato_normal.png", alt: "佐藤部長", style: { width: "48px", height: "auto", imageRendering: "pixelated" } })
         ]);
       } else if (id === "chatrally") {
         headerText = "チャット忖度ラリー";

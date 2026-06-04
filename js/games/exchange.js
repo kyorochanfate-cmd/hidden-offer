@@ -52,7 +52,7 @@ export function startExchange(mount, gameId) {
     ]),
 
     el("div.exch-bosswrap", {}, [
-      el("img.exch-boss", { src: "assets/img/boss.png", alt: "佐藤部長" }),
+      el("img.exch-boss#exch-boss", { src: "assets/img/sato_normal.png", alt: "佐藤部長" }),
       el("div.exch-bubble#exch-bubble", { text: "今日交換した名刺、覚えておけよ。" }),
     ]),
 
@@ -73,6 +73,7 @@ export function startExchange(mount, gameId) {
 
   const refs = {
     bubble: root.querySelector("#exch-bubble"),
+    bossImg: root.querySelector("#exch-boss"),
     grid: root.querySelector("#exch-grid"),
     lives: root.querySelector("#exch-lives"),
     score: root.querySelector("#exch-score"),
@@ -80,6 +81,8 @@ export function startExchange(mount, gameId) {
     timerFill: root.querySelector("#exch-timer-fill"),
     toast: root.querySelector("#exch-toast"),
   };
+
+  function setBossImg(name) { refs.bossImg.src = `assets/img/${name}.png`; }
 
   // --- ラウンド進行 ---
   function startRound() {
@@ -98,6 +101,7 @@ export function startExchange(mount, gameId) {
 
     refs.stats.textContent = `ROUND ${state.round} / ${MAX_ROUNDS}`;
     refs.bubble.textContent = `今から${cardCount}名と名刺交換。よく覚えておけよ。`;
+    setBossImg("sato_normal");
 
     renderCards(true);  // 表向き
     state.phase = "memorize";
@@ -135,6 +139,7 @@ export function startExchange(mount, gameId) {
       refs.score.textContent = `${state.score}円`;
       toast(`正解！ +${gain}円`, "ok");
       refs.bubble.textContent = "うむ、よく覚えていたな。";
+      setBossImg("sato_smile");
     } else {
       state.lives--;
       refs.lives.textContent = "❤".repeat(Math.max(0, state.lives)) + "🖤".repeat(Math.max(0, MAX_LIVES - state.lives));
@@ -143,6 +148,7 @@ export function startExchange(mount, gameId) {
       refs.bubble.textContent = pickedIdx < 0
         ? `おい、答えないとは何事か！${target.name}${target.title}だぞ！`
         : `違う！${target.name}${target.title}は ${state.targetIdx + 1} 番だ！`;
+      setBossImg("sato_angry");
     }
 
     setTimeout(() => {
