@@ -6094,222 +6094,359 @@ img, svg { image-rendering: pixelated; image-rendering: crisp-edges; }
 .exch-toast.ng { border-color: var(--r-red); color: var(--r-red); }
 
 /* =========================================================================
-   朝イチメールチェック — mail game styles
+   朝イチメールチェック — Outlook風UI (.olk-*)
    ========================================================================= */
-.mail-game {
+.olk-app {
   display: flex;
   flex-direction: column;
   height: 100%;
-  background: #0d1b2e;
-  color: #d4e4f7;
-  font-family: var(--r-font-jp);
-  position: relative;
+  width: 100%;
+  background: #faf9f8;
+  color: #201f1e;
+  font-family: "Segoe UI", "Yu Gothic UI", "Hiragino Kaku Gothic ProN", sans-serif;
   overflow: hidden;
+  position: relative;
 }
-.mail-topbar {
+
+/* ── ヘッダー ────────────────────────────────────────────────────── */
+.olk-header {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 6px 10px;
-  background: #1a3a6b;
-  border-bottom: 2px solid #2a5a9b;
+  padding: 0 8px;
+  height: 40px;
+  background: #0078d4;
+  color: #fff;
   flex-shrink: 0;
 }
-.mail-topbar-title {
-  flex: 1;
-  font-size: 13px;
-  font-weight: 800;
+.olk-back {
+  background: transparent;
+  border: 0;
   color: #fff;
+  font-size: 18px;
+  width: 32px;
+  height: 32px;
+  cursor: pointer;
+  padding: 0;
+  border-radius: 4px;
+}
+.olk-back:active { background: rgba(255,255,255,0.15); }
+.olk-app-icon {
+  font-size: 16px;
+  width: 24px;
   text-align: center;
 }
-.mail-topbar-meta {
-  font-size: 11px;
-  color: #9bb8d9;
+.olk-header-title {
+  font-size: 14px;
+  font-weight: 600;
+}
+.olk-header-spacer { flex: 1; }
+.olk-timer {
+  font-size: 12px;
+  font-weight: 600;
+  background: rgba(0,0,0,0.15);
+  padding: 4px 8px;
+  border-radius: 4px;
   white-space: nowrap;
 }
-.mail-boss-row {
+
+/* ── リボン ─────────────────────────────────────────────────────── */
+.olk-ribbon {
+  display: flex;
+  background: #f3f2f1;
+  border-bottom: 1px solid #e1dfdd;
+  flex-shrink: 0;
+  padding: 4px 4px;
+  gap: 2px;
+}
+.olk-ribbon-btn {
+  flex: 1;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 2px;
+  padding: 6px 4px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  cursor: pointer;
+  color: #201f1e;
+  font-family: inherit;
+  min-width: 0;
+}
+.olk-ribbon-btn:active:not(.disabled) { background: #edebe9; border-color: #c8c6c4; }
+.olk-ribbon-btn.disabled { opacity: 0.4; cursor: default; }
+.olk-rb-icon { font-size: 18px; line-height: 1; }
+.olk-rb-label { font-size: 10px; white-space: nowrap; }
+
+/* ── フォルダピル ──────────────────────────────────────────────── */
+.olk-folderbar {
+  display: flex;
+  gap: 6px;
+  padding: 6px 8px;
+  background: #fff;
+  border-bottom: 1px solid #e1dfdd;
+  overflow-x: auto;
+  flex-shrink: 0;
+  scrollbar-width: none;
+}
+.olk-folderbar::-webkit-scrollbar { display: none; }
+.olk-folder-pill {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 6px 10px;
-  background: #111e30;
-  border-bottom: 1px solid #1e3550;
+  gap: 4px;
+  padding: 4px 10px;
+  font-size: 11px;
+  color: #605e5c;
+  background: #f3f2f1;
+  border-radius: 12px;
+  white-space: nowrap;
   flex-shrink: 0;
-  min-height: 54px;
 }
-.mail-boss-sprite {
-  width: 44px;
-  height: 44px;
+.olk-folder-pill.active {
+  background: #deecf9;
+  color: #0078d4;
+  font-weight: 600;
+}
+.olk-folder-icon { font-size: 12px; }
+.olk-folder-badge {
+  background: #0078d4;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 10px;
+  margin-left: 2px;
+}
+
+/* ── ステータスバー（ボス） ───────────────────────────────────── */
+.olk-statusbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  background: #fff8e1;
+  border-bottom: 1px solid #ffe082;
+  flex-shrink: 0;
+  min-height: 44px;
+}
+.olk-boss-mini {
+  width: 32px;
+  height: 32px;
   object-fit: contain;
   image-rendering: pixelated;
   flex-shrink: 0;
 }
-.mail-boss-bubble {
-  background: rgba(255,255,255,0.07);
-  border: 1px solid rgba(255,255,255,0.15);
-  border-radius: 8px;
-  padding: 6px 10px;
-  font-size: 12px;
-  color: #d4e4f7;
+.olk-boss-text {
   flex: 1;
-  min-height: 32px;
-  display: flex;
-  align-items: center;
-}
-.mail-timer {
   font-size: 11px;
-  font-weight: 800;
-  color: #ffd24a;
-  white-space: nowrap;
+  color: #5d4e1f;
+  line-height: 1.3;
+  min-width: 0;
+}
+.olk-status-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
   flex-shrink: 0;
 }
-.mail-timer.urgent { color: var(--r-red); animation: pulse 0.5s infinite; }
-.mail-list {
+.olk-lives { font-size: 11px; letter-spacing: 1px; }
+.olk-score { font-size: 11px; font-weight: 700; color: #107c10; }
+
+/* ── タイマーバー ─────────────────────────────────────────────── */
+.olk-timerbar {
+  height: 3px;
+  background: #e1dfdd;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+.olk-timerbar-fill {
+  height: 100%;
+  width: 100%;
+  background: linear-gradient(to right, #107c10, #ffb900 70%, #d13438);
+  transition: width 0.1s linear;
+}
+
+/* ── メイン（リスト + 閲覧ペイン） ───────────────────────────── */
+.olk-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: #fff;
+}
+.olk-list {
   flex: 1;
   overflow-y: auto;
-  padding: 4px 0;
+  background: #fff;
+  min-height: 0;
 }
-.mail-item {
+.olk-row {
   display: flex;
-  align-items: flex-start;
+  align-items: stretch;
   gap: 8px;
-  padding: 8px 10px;
-  border-bottom: 1px solid #1e3550;
+  padding: 8px 10px 8px 0;
+  border-bottom: 1px solid #f3f2f1;
   cursor: pointer;
-  transition: background 0.1s;
+  position: relative;
 }
-.mail-item:active, .mail-item.selected { background: #1e3a5c; }
-.mail-item.read { opacity: 0.55; }
-.mail-item.processed { opacity: 0.4; }
-.mail-item-dot {
-  width: 8px;
-  height: 8px;
+.olk-row:active { background: #f3f2f1; }
+.olk-row.selected { background: #deecf9; }
+.olk-row.done { opacity: 0.45; }
+.olk-row-bar {
+  width: 3px;
+  background: #0078d4;
+  flex-shrink: 0;
+  border-radius: 0 2px 2px 0;
+}
+.olk-row.done .olk-row-bar { background: transparent; }
+.olk-avatar {
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
-  background: #4a8fe8;
-  margin-top: 4px;
-  flex-shrink: 0;
-}
-.mail-item.read .mail-item-dot, .mail-item.processed .mail-item-dot {
-  background: transparent;
-}
-.mail-item-body { flex: 1; min-width: 0; }
-.mail-item-from {
-  font-size: 12px;
-  font-weight: 800;
-  color: #d4e4f7;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.mail-item.read .mail-item-from { font-weight: 400; color: #7a9bbf; }
-.mail-item-subject {
-  font-size: 11px;
-  color: #9bb8d9;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  margin-top: 2px;
-}
-.mail-item-time {
-  font-size: 10px;
-  color: #5a7a9a;
-  flex-shrink: 0;
-  margin-top: 2px;
-}
-.mail-bottom-panel {
-  background: #0a1525;
-  border-top: 2px solid #2a5a9b;
-  padding: 10px;
-  flex-shrink: 0;
-  min-height: 120px;
-  transition: min-height 0.2s;
-}
-.mail-panel-from {
-  font-size: 11px;
-  color: #9bb8d9;
-  margin-bottom: 2px;
-}
-.mail-panel-subject {
-  font-size: 13px;
-  font-weight: 800;
-  color: #d4e4f7;
-  margin-bottom: 6px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.mail-panel-body {
-  font-size: 11px;
-  color: #7a9bbf;
-  margin-bottom: 8px;
-  line-height: 1.4;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-.mail-panel-tip {
-  font-size: 10px;
-  color: #ff8ade;
-  margin-bottom: 6px;
-}
-.mail-action-row {
+  background: #0078d4;
+  color: #fff;
   display: flex;
-  gap: 6px;
-}
-.mail-action-btn {
-  flex: 1;
-  padding: 10px 4px;
-  border: 2px solid rgba(255,255,255,0.2);
-  border-radius: 8px;
-  background: rgba(255,255,255,0.06);
-  color: #d4e4f7;
-  font-family: var(--r-font-jp);
-  font-size: 12px;
-  font-weight: 800;
-  cursor: pointer;
-  display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 3px;
-  transition: background 0.1s, transform 0.1s;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+  flex-shrink: 0;
+  margin-top: 2px;
 }
-.mail-action-btn:active { transform: scale(0.95); background: rgba(255,255,255,0.14); }
-.mail-action-btn .btn-icon { font-size: 18px; }
-.mail-action-btn.trash { border-color: #ff5b6e; }
-.mail-action-btn.flag  { border-color: #ffd24a; }
-.mail-action-btn.reply { border-color: #4a8fe8; }
-.mail-reply-grid {
+.olk-avatar.lg { width: 40px; height: 40px; font-size: 16px; }
+.olk-row-body { flex: 1; min-width: 0; }
+.olk-row-top {
   display: flex;
-  flex-direction: column;
+  justify-content: space-between;
+  align-items: baseline;
   gap: 6px;
-  margin-top: 4px;
 }
-.mail-reply-btn {
-  padding: 8px 10px;
-  border: 2px solid rgba(255,255,255,0.15);
-  border-radius: 6px;
-  background: rgba(255,255,255,0.05);
-  color: #d4e4f7;
-  font-family: var(--r-font-jp);
+.olk-row-from {
+  font-size: 13px;
+  font-weight: 600;
+  color: #201f1e;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.olk-row.done .olk-row-from { font-weight: 400; color: #605e5c; }
+.olk-row-time {
+  font-size: 10px;
+  color: #605e5c;
+  flex-shrink: 0;
+}
+.olk-row-subject {
+  font-size: 12px;
+  color: #201f1e;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-top: 1px;
+}
+.olk-row-preview {
   font-size: 11px;
+  color: #605e5c;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-top: 1px;
+}
+
+/* ── 閲覧ペイン ───────────────────────────────────────────────── */
+.olk-reading {
+  background: #fff;
+  border-top: 1px solid #e1dfdd;
+  padding: 10px 12px;
+  flex-shrink: 0;
+  max-height: 50%;
+  overflow-y: auto;
+  display: none;
+}
+.olk-reading.open { display: block; }
+.olk-read-empty {
+  display: none;
+}
+.olk-read-subject {
+  font-size: 15px;
+  font-weight: 700;
+  color: #201f1e;
+  margin-bottom: 8px;
+  line-height: 1.3;
+}
+.olk-read-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #f3f2f1;
+}
+.olk-read-from {
+  font-size: 13px;
+  font-weight: 600;
+  color: #201f1e;
+}
+.olk-read-to {
+  font-size: 10px;
+  color: #605e5c;
+}
+.olk-read-body {
+  font-size: 12px;
+  color: #323130;
+  line-height: 1.5;
+  white-space: pre-wrap;
+}
+.olk-read-replyarea {
+  margin-top: 10px;
+}
+.olk-reply-head {
+  font-size: 11px;
+  font-weight: 600;
+  color: #0078d4;
+  margin-bottom: 6px;
+}
+.olk-reply-btn {
+  display: block;
+  width: 100%;
   text-align: left;
+  background: #fff;
+  border: 1px solid #c8c6c4;
+  border-left: 3px solid #0078d4;
+  border-radius: 2px;
+  padding: 8px 10px;
+  margin-bottom: 6px;
+  font-family: inherit;
+  font-size: 12px;
+  color: #201f1e;
   cursor: pointer;
-  transition: background 0.1s;
+  line-height: 1.4;
 }
-.mail-reply-btn:active { background: rgba(255,255,255,0.12); }
-.mail-hint {
-  text-align: center;
-  color: #3a5a7a;
-  font-size: 12px;
-  padding: 16px 0;
+.olk-reply-btn:active { background: #deecf9; }
+
+/* ── トースト ────────────────────────────────────────────────── */
+.olk-toast {
+  position: absolute;
+  left: 50%;
+  top: 60px;
+  transform: translateX(-50%) scale(0.9);
+  background: #323130;
+  color: #fff;
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 600;
+  pointer-events: none;
+  opacity: 0;
+  transition: all 0.2s;
+  z-index: 100;
+  white-space: nowrap;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
 }
-.mail-lives {
-  font-size: 14px;
-  letter-spacing: 2px;
+.olk-toast.show {
+  opacity: 1;
+  transform: translateX(-50%) scale(1);
 }
-.mail-score {
-  font-size: 12px;
-  font-weight: 800;
-  color: var(--r-lime);
-}
+.olk-toast.ok { background: #107c10; }
+.olk-toast.ng { background: #d13438; }
