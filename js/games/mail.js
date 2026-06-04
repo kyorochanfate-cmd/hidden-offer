@@ -1,6 +1,6 @@
 // =========================================================================
-// mail.js — 朝イチメールチェック
-// Outlook風UI: ヘッダー + リボン + フォルダピル + 一覧 + 閲覧ペイン
+// mail.js — フィッシングメール判定ゲーム
+// 差出人・リンク・添付ファイルを🔍タップで検査 → 🗑削除 or ✅安全
 // =========================================================================
 
 import { el, clear } from "../dom.js?v=1.2.5";
@@ -8,96 +8,176 @@ import { Router } from "../app.js?v=1.2.5";
 import { finishGame } from "./result.js?v=1.2.5";
 
 const EMAIL_POOL = [
-  { id:"t1", type:"trash", from:"ECサイト通知",    time:"07:12",
-    subject:"【限定】本日だけポイント10倍！お見逃しなく",
-    body:"毎度ご愛顧いただきありがとうございます。本日限り全商品ポイント10倍キャンペーン開催中！" },
-  { id:"t2", type:"trash", from:"社内報編集部",    time:"07:45",
-    subject:"社内報 Vol.318｜今月の誕生日社員＆サークル活動",
-    body:"今月のお誕生日社員をご紹介します！バドミントンサークルも部員募集中です。" },
-  { id:"t3", type:"trash", from:"セキュリティ通知", time:"06:58",
-    subject:"【重要】あなたのアカウントに不審なアクセス",
-    body:"至急こちらのリンクからパスワードをご変更ください → http://login-c0mpany.example.com" },
-  { id:"t4", type:"trash", from:"総務部 福利厚生係", time:"07:30",
-    subject:"社員食堂メニュー変更のお知らせ（2ヶ月前）",
-    body:"2ヶ月前のメニュー変更のお知らせです。既に変更済みのためご参考まで。" },
-  { id:"t5", type:"trash", from:"健康管理室",       time:"08:00",
-    subject:"ラジオ体操参加のご案内（毎朝7:50・屋上）",
-    body:"毎朝の健康づくりにラジオ体操はいかがでしょうか。参加自由・任意です。" },
-  { id:"t6", type:"trash", from:"田所エージェント", time:"07:55",
-    subject:"あなたのキャリアに特別なオファーがございます",
-    body:"いつもお世話になっております。今回、あなたにぴったりの非公開求人が…" },
+  // ── フィッシング ─────────────────────────────────────────────────
+  {
+    id:"p1", isSuspicious: true,
+    from: { name:"佐藤部長", address:"sato-buchou@gmail-corp.net" },
+    time:"08:15",
+    subject:"【緊急】社内システムのパスワードを確認してください",
+    bodyParts:[
+      { type:"text", content:"お疲れ様です。セキュリティ監査のため、現在お使いのパスワードをご返信ください。\n\n対応期限：本日中" },
+    ],
+    tell:"from",
+    reason:"差出人アドレスのドメインが「gmail-corp.net」。社内の正規アドレスは @company.co.jp のはず。また、パスワードをメールで求めることは絶対にありません。",
+  },
+  {
+    id:"p2", isSuspicious: true,
+    from: { name:"社内ITサポート", address:"it-support@company.co.jp" },
+    time:"07:58",
+    subject:"社内ポータルのメンテナンス完了のお知らせ",
+    bodyParts:[
+      { type:"text", content:"メンテナンスが完了しました。以下よりログインをお願いします。\n" },
+      { type:"link", display:"https://portal.company.co.jp/login", realUrl:"http://c0mpany-portal.ru/steal" },
+    ],
+    tell:"link",
+    reason:"リンクの表示は正規URLに見えますが、実際の送り先は「c0mpany-portal.ru」（oが数字の0）という全く別のサイトです。",
+  },
+  {
+    id:"p3", isSuspicious: true,
+    from: { name:"人事部", address:"hr@cornpany.co.jp" },
+    time:"08:20",
+    subject:"年末調整フォームの提出をお願いします",
+    bodyParts:[
+      { type:"text", content:"お疲れ様です。年末調整のフォームを以下よりご提出ください。マイナンバーと口座情報の入力が必要です。\n" },
+      { type:"link", display:"年末調整フォームはこちら", realUrl:"http://hr-form-company.xyz/submit" },
+    ],
+    tell:"from",
+    reason:"ドメインが「cornpany.co.jp」。よく見ると m が rn に置き換えられています。フォントによっては見分けにくい古典的な手口です。",
+  },
+  {
+    id:"p4", isSuspicious: true,
+    from: { name:"経理部 鈴木", address:"suzuki@company.co.jp" },
+    time:"08:05",
+    subject:"Q3決算報告書（最終版）",
+    bodyParts:[
+      { type:"text", content:"お疲れ様です。先ほどお話しした資料を添付します。ご確認ください。\n" },
+      { type:"attachment", name:"Q3決算報告書_final.pdf.exe" },
+    ],
+    tell:"attachment",
+    reason:"ファイル名が「.pdf.exe」。PDFに偽装した実行ファイル（ウイルス）です。正規の資料がexeであることはありません。",
+  },
+  {
+    id:"p5", isSuspicious: true,
+    from: { name:"Amazon", address:"noreply@amazon-security-alert.com" },
+    time:"07:45",
+    subject:"【重要】アカウントへの不審なアクセスを検知しました",
+    bodyParts:[
+      { type:"text", content:"お客様のアカウントで不審なログインが検出されました。\n24時間以内にご対応いただかない場合、アカウントは永久停止となります。\n" },
+      { type:"link", display:"今すぐアカウントを保護する", realUrl:"http://amazon-security-alert.com/verify?tkn=9x8k2" },
+    ],
+    tell:"link",
+    reason:"「24時間以内」「永久停止」と煽り、焦らせて判断力を奪う典型的な手口。リンク先も amazon.co.jp とは無関係のドメインです。",
+  },
+  {
+    id:"p6", isSuspicious: true,
+    from: { name:"田所 誠（キャリアサポート）", address:"tadokoro@career-offer-jp.net" },
+    time:"07:33",
+    subject:"あなたのご経歴に特別なオファーがございます",
+    bodyParts:[
+      { type:"text", content:"突然のご連絡をお許しください。あなたのご活躍を拝見し、ぜひ一度お話を伺いたく存じます。\n報酬：年収2,000万円以上も可能\n" },
+      { type:"link", display:"詳細はこちら（登録不要）", realUrl:"http://career-phish.biz/track?uid=84729&ref=spam" },
+    ],
+    tell:"link",
+    reason:"「登録不要」と書きながら、URLにはトラッキングIDが付いています。アクセスするだけで個人情報が収集される仕組みです。",
+  },
+  {
+    id:"p7", isSuspicious: true,
+    from: { name:"システム管理者", address:"admin@company-helpdesk.net" },
+    time:"08:35",
+    subject:"あなたのメールボックスが満杯です",
+    bodyParts:[
+      { type:"text", content:"あなたのメールボックスの容量が98%に達しました。\n以下のリンクより今すぐ容量を拡張してください。対応しない場合、メールの送受信ができなくなります。\n" },
+      { type:"link", display:"容量を拡張する", realUrl:"http://mail-storage-expand.tk/auth" },
+    ],
+    tell:"from",
+    reason:"差出人が「company-helpdesk.net」と一見それらしいドメインですが、社内の正規アドレスは @company.co.jp です。メールボックス拡張を外部サイトで行うことはありません。",
+  },
 
-  { id:"f1", type:"flag", from:"人事部",          time:"08:05",
-    subject:"年末調整書類の提出について（12月25日締切）",
-    body:"年末調整の書類をご提出ください。締切：12月25日（金）。詳細は添付PDFをご確認ください。" },
-  { id:"f2", type:"flag", from:"山田@テクノA社",  time:"07:48",
-    subject:"来週の定例ミーティング、日程調整のお願い",
-    body:"来週の定例について以下の日程はいかがでしょうか。来週火曜14:00〜または木曜10:00〜" },
-  { id:"f3", type:"flag", from:"経理部",          time:"08:10",
-    subject:"10月分経費精算レポートの提出（月末まで）",
-    body:"10月分の経費精算レポートの提出をお願いします。提出期限：今月末日。" },
-  { id:"f4", type:"flag", from:"鈴木課長",        time:"07:52",
-    subject:"チームランチの候補日程（来月調整）",
-    body:"来月のチームランチを調整したいと思います。都合のよい日程をご連絡ください。" },
-  { id:"f5", type:"flag", from:"IT管理部",        time:"08:15",
-    subject:"PCソフトウェア更新のご案内（来週実施）",
-    body:"来週木曜にセキュリティソフトのアップデートを実施します。業務への影響はございません。" },
-
-  { id:"r1", type:"reply", from:"佐藤部長", time:"08:22", isBoss:true,
-    subject:"【至急】今日のクライアント訪問の資料確認",
-    body:"おい、今日10時にA社に行くんだが、昨日頼んだ提案書の最終版できてるよな？朝イチで確認させてくれ。",
-    hint:"10時訪問。部長は資料を見たい。いつ渡せるか明示すべし。",
-    replies:[
-      { text:"承知しました。ただいま最終確認中です。9時半までにお送りします。",      correct:true  },
-      { text:"申し訳ございません。まだ完成しておりません。",                          correct:false },
-      { text:"了解です。先ほど共有フォルダに入れておきましたのでご確認ください。",    correct:false },
-      { text:"確認しました。問題ないと思います。",                                    correct:false },
-    ]},
-  { id:"r2", type:"reply", from:"高橋@Bシステムズ", time:"08:18",
-    subject:"本日午後の打ち合わせ、会場変更のご連絡",
-    body:"お世話になっております。本日14時の打ち合わせですがA棟からB棟3Fに変更となりました。ご確認いただけますでしょうか。",
-    hint:"取引先からの変更通知。認識した旨を端的・丁寧に。",
-    replies:[
-      { text:"ご連絡ありがとうございます。承知しました。B棟3Fに伺います。",  correct:true  },
-      { text:"了解です！またよろしくお願いします！",                          correct:false },
-      { text:"承知しました。なお本日は欠席させていただきます。",              correct:false },
-      { text:"確認いたします。折り返しご連絡いたします。",                    correct:false },
-    ]},
-  { id:"r3", type:"reply", from:"佐藤部長", time:"08:31", isBoss:true,
-    subject:"例の件、どうなった？",
-    body:"先週話した新規案件の進捗、どうなってる？今日中に報告しろ。",
-    hint:"「今日中に報告しろ」と期限が明示されている。これに応える。",
-    replies:[
-      { text:"現在対応中です。本日中にご報告いたします。",                    correct:true  },
-      { text:"先週の件でしょうか？内容を確認してからご連絡します。",          correct:false },
-      { text:"申し訳ございません。まだ着手できていません。",                  correct:false },
-      { text:"了解しました。来週中にお送りします。",                          correct:false },
-    ]},
-  { id:"r4", type:"reply", from:"中村@G法律事務所", time:"08:25",
-    subject:"Re: 契約書について ─ 本日中にご回答いただけますか",
-    body:"先日お送りした契約書の修正案について、本日中にご回答いただくことは可能でしょうか。先方締切の都合がございまして…",
-    hint:"「本日中に回答可能か」と聞かれている。可否をはっきり示す。",
-    replies:[
-      { text:"ご連絡ありがとうございます。本日中にご回答いたします。",        correct:true  },
-      { text:"承知しました。来週早々にご回答いたします。",                    correct:false },
-      { text:"内容確認のうえ上長に相談してからご連絡いたします。",            correct:false },
-      { text:"ご依頼の件、難しい状況です。別途ご相談させてください。",        correct:false },
-    ]},
-  { id:"r5", type:"reply", from:"佐藤部長", time:"08:35", isBoss:true,
-    subject:"朝礼の議題、追加しておけ",
-    body:"今日の朝礼に「Q3売上レビュー」を議題に追加しておいてくれ。議事録係は君だからな。",
-    hint:"指示は「議題に追加」。余計な提案や辞退はせず、指示通り実行を伝える。",
-    replies:[
-      { text:"承知しました。議題に追加しておきます。",                        correct:true  },
-      { text:"かしこまりました！万全の態勢で臨みます！！",                    correct:false },
-      { text:"本日は別件があり議事録担当が難しい状況です。",                  correct:false },
-      { text:"Q3売上レビューですね。詳細資料もご用意しましょうか？",          correct:false },
-    ]},
+  {
+    id:"p7", isSuspicious: true,
+    from: { name:"システム管理者", address:"admin@company-helpdesk.net" },
+    time:"08:35",
+    subject:"あなたのメールボックスが満杯です",
+    bodyParts:[
+      { type:"text", content:"あなたのメールボックスの容量が98%に達しました。\n以下のリンクより今すぐ容量を拡張してください。対応しない場合、メールの送受信ができなくなります。\n" },
+      { type:"link", display:"容量を拡張する", realUrl:"http://mail-storage-expand.tk/auth" },
+    ],
+    tell:"from",
+    reason:"差出人が「company-helpdesk.net」と一見それらしいドメインですが、社内の正規アドレスは @company.co.jp です。メールボックス拡張を外部サイトで行うことはありません。",
+  },
+  {
+    id:"p8", isSuspicious: true,
+    from: { name:"三菱UFJ銀行", address:"info@mufg-security-notice.com" },
+    time:"07:22",
+    subject:"【緊急】お客様のお取引を一時停止いたしました",
+    bodyParts:[
+      { type:"text", content:"拝啓、お客様。\n\n不正利用の疑いがございましたため、お客様のご口座を一時停止させていただきました。\nお早めに下記よりご本人確認の手続きをおとり下さい。\n手続きが完了しない場合、口座は永続的に利用停止となる場合があります。\n\n※本メールに心当たりがない場合もお手続きをお願い致します。\n" },
+      { type:"link", display:"本人確認はこちら", realUrl:"http://mufg-secure-login.cn/verify" },
+    ],
+    tell:"content",
+    reason:"「心当たりがない場合もお手続きを」という一文が典型的な手口。本物の銀行は絶対にそのような案内をしません。リンク先も .cn ドメインで中国のサーバーです。",
+  },
+  {
+    id:"p9", isSuspicious: true,
+    from: { name:"佐藤部長", address:"sato.taro@company.co.jp" },
+    time:"08:50",
+    subject:"急ぎでお願い",
+    bodyParts:[
+      { type:"text", content:"今すぐギフトカードを購入してもらいたい。\nAmazonギフト券3万円分を5枚、今日中にコードを教えてくれ。\n理由は後で説明する。誰にも言わないでくれ。\n\n佐藤" },
+    ],
+    tell:"content",
+    reason:"アドレスは本物に見えますが「ギフトカードを購入して」「誰にも言わないで」は100%詐欺の手口（ビジネスメール詐欺）。本物の上司が業務でギフトカードを要求することは絶対にありません。",
+  },
+  {
+    id:"l1", isSuspicious: false,
+    from: { name:"佐藤部長", address:"sato.taro@company.co.jp" },
+    time:"08:30",
+    subject:"今日の14時、A社との打ち合わせ室を予約しておけ",
+    bodyParts:[
+      { type:"text", content:"第3会議室を14:00〜16:00で押さえておいてくれ。\n参加者：俺、山田、お前の3名。\n以上。" },
+    ],
+    tell: null,
+    reason:"差出人は正規の社内アドレス（@company.co.jp）。リンクも添付もなく、パスワードの要求もありません。",
+  },
+  {
+    id:"l2", isSuspicious: false,
+    from: { name:"山田太郎（テクノA社）", address:"yamada@techno-a.co.jp" },
+    time:"08:10",
+    subject:"来週の定例、資料を共有します",
+    bodyParts:[
+      { type:"text", content:"お世話になっております。来週火曜の定例に向けて資料を共有します。\nご確認のほどよろしくお願いいたします。\n" },
+      { type:"attachment", name:"定例資料_2024Q4.pptx" },
+    ],
+    tell: null,
+    reason:"差出人は取引先の正規アドレス。添付ファイルも .pptx（PowerPoint）で安全な形式です。",
+  },
+  {
+    id:"l3", isSuspicious: false,
+    from: { name:"IT管理部", address:"it-admin@company.co.jp" },
+    time:"07:50",
+    subject:"本日夜間：社内VPNメンテナンスのお知らせ",
+    bodyParts:[
+      { type:"text", content:"お疲れ様です。IT管理部です。\n本日22:00〜24:00にVPNのメンテナンスを実施します。\nその間はリモートアクセスが利用できません。ご不便をおかけします。" },
+    ],
+    tell: null,
+    reason:"社内の正規アドレスからの通知。パスワードやリンクのクリックを求めておらず、安全なメールです。",
+  },
+  {
+    id:"l4", isSuspicious: false,
+    from: { name:"人事部 採用担当", address:"recruit@company.co.jp" },
+    time:"08:22",
+    subject:"来月の新入社員研修について",
+    bodyParts:[
+      { type:"text", content:"お疲れ様です。来月の新入社員研修の日程が確定しましたのでお知らせします。\n\n日時：11月5日（火）10:00〜17:00\n場所：本社5F大会議室\n\nご参加をお待ちしております。" },
+    ],
+    tell: null,
+    reason:"社内アドレスからのシンプルな案内メール。リンクも添付もなく安全です。",
+  },
 ];
 
-const MAX_ROUNDS = 8;
+const MAX_ROUNDS = 6;
 const MAX_LIVES  = 3;
-const ROUND_SEC  = 90;
+const EMAILS_PER_ROUND = 4;
 
 const AVATAR_COLORS = ["#0078d4","#8764b8","#e3008c","#107c10","#ca5010","#5c2d91","#038387","#c19c00"];
 function avatarColor(name) {
@@ -108,85 +188,49 @@ function avatarColor(name) {
 
 export function startMail(mount, gameId) {
   const state = {
-    active:    true,
-    round:     1,
-    lives:     MAX_LIVES,
-    score:     0,
-    correct:   0,
-    emails:    [],
-    processed: new Set(),
-    selected:  null,
-    phase:     "list",
-    timer:     ROUND_SEC,
+    active:   true,
+    round:    1,
+    lives:    MAX_LIVES,
+    score:    0,
+    correct:  0,
+    queue:    [],
+    current:  null,
+    phase:    "judge",  // judge | verdict
+    tooltipEl: null,
   };
 
   const root = el("div.olk-app", {}, [
-    // ── ヘッダー（Outlook青）─────────────────────────────────────────
+    // ヘッダー
     el("div.olk-header", {}, [
       el("button.olk-back", { onclick: () => quit() }, [el("span", { text: "←" })]),
-      el("div.olk-app-icon", { text: "✉" }),
-      el("div.olk-header-title", { text: "受信トレイ" }),
+      el("div.olk-app-icon", { text: "🛡" }),
+      el("div.olk-header-title", { text: "メールセキュリティ" }),
       el("div.olk-header-spacer"),
-      el("div.olk-timer#olk-timer", { text: "朝礼 1:30" }),
+      el("div.olk-round-badge#olk-round", { text: "ROUND 1 / " + MAX_ROUNDS }),
     ]),
 
-    // ── リボン（アクション）──────────────────────────────────────────
-    el("div.olk-ribbon", {}, [
-      el("button.olk-ribbon-btn.disabled#olk-rb-trash", {
-        onclick: () => ribbonAction("trash"),
-      }, [
-        el("div.olk-rb-icon", { text: "🗑" }),
-        el("div.olk-rb-label", { text: "削除" }),
-      ]),
-      el("button.olk-ribbon-btn.disabled#olk-rb-flag", {
-        onclick: () => ribbonAction("flag"),
-      }, [
-        el("div.olk-rb-icon", { text: "🚩" }),
-        el("div.olk-rb-label", { text: "フラグ" }),
-      ]),
-      el("button.olk-ribbon-btn.disabled#olk-rb-reply", {
-        onclick: () => ribbonAction("reply"),
-      }, [
-        el("div.olk-rb-icon", { text: "↩" }),
-        el("div.olk-rb-label", { text: "返信" }),
-      ]),
-      el("button.olk-ribbon-btn.disabled", {}, [
-        el("div.olk-rb-icon", { text: "↪" }),
-        el("div.olk-rb-label", { text: "転送" }),
-      ]),
-    ]),
-
-    // ── フォルダピル ────────────────────────────────────────────────
-    el("div.olk-folderbar", {}, [
-      el("div.olk-folder-pill.active", {}, [
-        el("span.olk-folder-icon", { text: "📥" }),
-        el("span", { text: "受信トレイ" }),
-        el("span.olk-folder-badge#olk-count", { text: "0" }),
-      ]),
-      el("div.olk-folder-pill", {}, [el("span", { text: "下書き" })]),
-      el("div.olk-folder-pill", {}, [el("span", { text: "送信済み" })]),
-    ]),
-
-    // ── ステータスバー（ボス/ライフ/スコア/タイマー）─────────────────
+    // ボス反応
     el("div.olk-statusbar", {}, [
-      el("img.olk-boss-mini#olk-boss-img", { src: "assets/img/sato_normal.png", alt: "佐藤部長" }),
-      el("div.olk-boss-text#olk-boss-bubble", { text: "さっさと処理しろ。朝礼に間に合わんぞ。" }),
+      el("img.olk-boss-mini#olk-boss-img", { src:"assets/img/sato_normal.png", alt:"佐藤部長" }),
+      el("div.olk-boss-text#olk-boss-bubble", { text:"怪しいメールは即削除。引っかかるな。" }),
       el("div.olk-status-right", {}, [
-        el("div.olk-lives#olk-lives", { text: "❤❤❤" }),
-        el("div.olk-score#olk-score", { text: "0円" }),
+        el("div.olk-lives#olk-lives", { text:"❤❤❤" }),
+        el("div.olk-score#olk-score", { text:"0円" }),
       ]),
     ]),
 
-    // ── タイマーバー ────────────────────────────────────────────────
-    el("div.olk-timerbar", {}, [el("div.olk-timerbar-fill#olk-timer-fill")]),
+    // 進捗バー
+    el("div.olk-progress-wrap", {}, [el("div.olk-progress-fill#olk-progress")]),
 
-    // ── メイン: リスト + 閲覧ペイン ──────────────────────────────────
-    el("div.olk-main", {}, [
-      el("div.olk-list#olk-list"),
-      el("div.olk-reading#olk-reading"),
+    // メール表示エリア
+    el("div.olk-ph-wrap", {}, [
+      el("div.olk-ph-envelope#olk-ph-envelope"),
+      el("div.olk-ph-verdict#olk-ph-verdict"),
+      el("div.olk-ph-actions#olk-ph-actions"),
     ]),
 
-    el("div.olk-toast#olk-toast"),
+    // ツールチップ
+    el("div.olk-tt#olk-tt", {}, [el("div.olk-tt-inner#olk-tt-inner")]),
   ]);
 
   mount(root);
@@ -194,277 +238,245 @@ export function startMail(mount, gameId) {
   const refs = {
     bossImg:    root.querySelector("#olk-boss-img"),
     bossBubble: root.querySelector("#olk-boss-bubble"),
-    timerText:  root.querySelector("#olk-timer"),
-    timerFill:  root.querySelector("#olk-timer-fill"),
     lives:      root.querySelector("#olk-lives"),
     score:      root.querySelector("#olk-score"),
-    list:       root.querySelector("#olk-list"),
-    reading:    root.querySelector("#olk-reading"),
-    count:      root.querySelector("#olk-count"),
-    rbTrash:    root.querySelector("#olk-rb-trash"),
-    rbFlag:     root.querySelector("#olk-rb-flag"),
-    rbReply:    root.querySelector("#olk-rb-reply"),
-    toast:      root.querySelector("#olk-toast"),
+    round:      root.querySelector("#olk-round"),
+    progress:   root.querySelector("#olk-progress"),
+    envelope:   root.querySelector("#olk-ph-envelope"),
+    verdict:    root.querySelector("#olk-ph-verdict"),
+    actions:    root.querySelector("#olk-ph-actions"),
+    tt:         root.querySelector("#olk-tt"),
+    ttInner:    root.querySelector("#olk-tt-inner"),
   };
 
+  root.addEventListener("click", e => {
+    if (!e.target.closest(".olk-inspectable") && !e.target.closest("#olk-tt")) hideTooltip();
+  });
+
+  // ── ラウンド ──────────────────────────────────────────────────────
   function startRound() {
     if (!state.active) return;
     if (state.round > MAX_ROUNDS) { finish(true); return; }
 
-    state.processed = new Set();
-    state.selected  = null;
-    state.phase     = "list";
-    state.emails    = buildRoundEmails(state.round);
-    state.timer     = ROUND_SEC;
-
-    clearReading();
-    renderList();
-    updateRibbon();
-    runTimer();
-    setBoss("sato_normal", "さっさと処理しろ。朝礼に間に合わんぞ。");
+    const phishing = pickN(EMAIL_POOL.filter(e => e.isSuspicious), 2);
+    const legit    = pickN(EMAIL_POOL.filter(e => !e.isSuspicious), 2);
+    state.queue    = shuffle([...phishing, ...legit]);
+    refs.round.textContent = "ROUND " + state.round + " / " + MAX_ROUNDS;
+    showNext();
   }
 
-  function buildRoundEmails(round) {
-    const nReply = Math.min(3, 1 + Math.floor((round - 1) * 0.4));
-    const nFlag  = Math.min(3, 1 + Math.floor((round - 1) * 0.3));
-    const nTrash = Math.min(4, 2 + Math.floor((round - 1) * 0.2));
-    const trash = pickN(EMAIL_POOL.filter(e => e.type === "trash"), nTrash);
-    const flag  = pickN(EMAIL_POOL.filter(e => e.type === "flag"),  nFlag);
-    const reply = pickN(EMAIL_POOL.filter(e => e.type === "reply"), nReply);
-    return shuffle([...trash, ...flag, ...reply]);
+  function showNext() {
+    if (!state.active) return;
+    if (state.queue.length === 0) { state.round++; startRound(); return; }
+    state.current = state.queue.shift();
+    state.phase   = "judge";
+    updateProgress();
+    renderEnvelope(state.current);
   }
 
-  function renderList() {
-    clear(refs.list);
-    const remaining = state.emails.filter(e => !state.processed.has(e.id)).length;
-    refs.count.textContent = remaining;
+  function updateProgress() {
+    const done = EMAILS_PER_ROUND - state.queue.length;
+    refs.progress.style.width = (done / EMAILS_PER_ROUND * 100) + "%";
+  }
 
-    state.emails.forEach(email => {
-      const done     = state.processed.has(email.id);
-      const selected = state.selected === email.id;
-      const initial  = email.from[0] || "?";
-      const cls      = ["olk-row", done ? "done" : "", selected ? "selected" : ""].join(" ");
+  // ── メール描画 ────────────────────────────────────────────────────
+  function renderEnvelope(email) {
+    hideTooltip();
+    clear(refs.envelope);
+    clear(refs.verdict);
+    clear(refs.actions);
+    refs.verdict.classList.remove("show");
 
-      const item = el("div", {
-        class: cls,
-        onclick: () => !done && selectEmail(email.id),
-      }, [
-        el("div.olk-row-bar"),
-        el("div.olk-avatar", {
-          style: { background: avatarColor(email.from) },
-          text: initial,
-        }),
-        el("div.olk-row-body", {}, [
-          el("div.olk-row-top", {}, [
-            el("div.olk-row-from", { text: email.from }),
-            el("div.olk-row-time", { text: email.time }),
-          ]),
-          el("div.olk-row-subject", { text: email.subject }),
-          el("div.olk-row-preview", { text: email.body }),
-        ]),
-      ]);
-      refs.list.appendChild(item);
+    // FROM（タップで検査）
+    const fromInspect = el("div.olk-ph-from.olk-inspectable", {
+      onclick: () => toggleTooltip(fromInspect,
+        "📧 送信元アドレス",
+        email.from.address,
+        email.tell === "from"
+      ),
+    }, [
+      el("div.olk-avatar", { style:{ background: avatarColor(email.from.name) }, text: email.from.name[0] }),
+      el("div.olk-ph-from-meta", {}, [
+        el("div.olk-ph-from-name", { text: email.from.name }),
+        el("div.olk-ph-from-addr", { text: truncate(email.from.address, 30) }),
+      ]),
+      el("span.olk-inspect-chip", { text:"🔍 確認" }),
+    ]);
+    refs.envelope.appendChild(fromInspect);
+
+    refs.envelope.appendChild(el("div.olk-ph-subject", { text: email.subject }));
+    refs.envelope.appendChild(el("div.olk-ph-time", { text: email.time }));
+    refs.envelope.appendChild(el("div.olk-ph-divider"));
+
+    // 本文
+    const bodyEl = el("div.olk-ph-body");
+    email.bodyParts.forEach(part => {
+      if (part.type === "text") {
+        bodyEl.appendChild(el("div.olk-ph-text", { text: part.content }));
+      } else if (part.type === "link") {
+        const linkEl = el("div.olk-ph-link.olk-inspectable", {
+          onclick: () => toggleTooltip(linkEl,
+            "🔗 実際のリンク先URL",
+            part.realUrl,
+            email.tell === "link"
+          ),
+        }, [
+          el("span.olk-link-display", { text: part.display }),
+          el("span.olk-inspect-chip", { text:"🔍 確認" }),
+        ]);
+        bodyEl.appendChild(linkEl);
+      } else if (part.type === "attachment") {
+        const isBadExt = /\.(exe|xlsm|docm|js|vbs|bat|cmd)(\.|$)/i.test(part.name);
+        const attEl = el("div.olk-ph-attachment.olk-inspectable", {
+          onclick: () => toggleTooltip(attEl,
+            "📎 添付ファイル",
+            part.name,
+            email.tell === "attachment"
+          ),
+        }, [
+          el("span.olk-attach-icon", { text: isBadExt ? "⚠️" : "📄" }),
+          el("span.olk-attach-name", { text: part.name }),
+          el("span.olk-inspect-chip", { text:"🔍 確認" }),
+        ]);
+        bodyEl.appendChild(attEl);
+      }
     });
-  }
+    refs.envelope.appendChild(bodyEl);
 
-  function selectEmail(id) {
-    state.selected = id;
-    state.phase    = "action";
-    renderList();
-    renderReading(id);
-    updateRibbon();
-  }
-
-  function renderReading(id) {
-    const email = state.emails.find(e => e.id === id);
-    if (!email) return;
-    clear(refs.reading);
-    refs.reading.classList.add("open");
-    refs.reading.appendChild(el("div.olk-read-subject", { text: email.subject }));
-    refs.reading.appendChild(
-      el("div.olk-read-meta", {}, [
-        el("div.olk-avatar.lg", {
-          style: { background: avatarColor(email.from) },
-          text: email.from[0],
-        }),
-        el("div.olk-read-meta-text", {}, [
-          el("div.olk-read-from", { text: email.from }),
-          el("div.olk-read-to", { text: "宛先: 自分　" + email.time }),
+    // 判定ボタン
+    refs.actions.appendChild(
+      el("div.olk-judge-btns", {}, [
+        el("button.olk-judge-btn.delete", { onclick: () => handleJudge(true) }, [
+          el("div.olk-judge-icon", { text:"🗑" }),
+          el("div.olk-judge-label", { text:"削除（怪しい）" }),
+        ]),
+        el("button.olk-judge-btn.safe", { onclick: () => handleJudge(false) }, [
+          el("div.olk-judge-icon", { text:"✅" }),
+          el("div.olk-judge-label", { text:"安全（受信）" }),
         ]),
       ])
     );
-    refs.reading.appendChild(el("div.olk-read-body", { text: email.body }));
-    refs.reading.appendChild(el("div.olk-read-replyarea#olk-replyarea"));
   }
 
-  function clearReading() {
-    clear(refs.reading);
-    refs.reading.classList.remove("open");
-    refs.reading.appendChild(el("div.olk-read-empty", { text: "メールを選択してください" }));
-    state.selected = null;
-    state.phase    = "list";
-  }
+  // ── 判定 ──────────────────────────────────────────────────────────
+  function handleJudge(markedSuspicious) {
+    if (state.phase !== "judge") return;
+    state.phase = "verdict";
+    hideTooltip();
 
-  function updateRibbon() {
-    const enabled = !!state.selected && state.phase === "action";
-    [refs.rbTrash, refs.rbFlag, refs.rbReply].forEach(b => {
-      if (enabled) b.classList.remove("disabled");
-      else b.classList.add("disabled");
-    });
-  }
-
-  function ribbonAction(action) {
-    if (!state.selected || state.phase !== "action") return;
-    const email = state.emails.find(e => e.id === state.selected);
-    if (!email) return;
-    if (action === "reply") {
-      showReplyOptions(email);
-    } else {
-      handleAction(email, action);
-    }
-  }
-
-  function showReplyOptions(email) {
-    state.phase = "reply";
-    const area = refs.reading.querySelector("#olk-replyarea");
-    if (!area) return;
-    clear(area);
-    const choices = email.replies ? shuffle(email.replies.slice()) : [
-      { text:"承知しました。確認の上ご返信いたします。", correct:false },
-      { text:"ご連絡ありがとうございます。",            correct:false },
-      { text:"このメールに返信は不要です。",            correct:false },
-      { text:"恐れ入りますがご確認ください。",          correct:false },
-    ];
-    if (email.hint) {
-      area.appendChild(el("div.olk-reply-hint", {}, [
-        el("span.olk-reply-hint-icon", { text: "💡" }),
-        el("span", { text: email.hint }),
-      ]));
-    }
-    area.appendChild(el("div.olk-reply-head", { text: "返信文を選択:" }));
-    choices.forEach(r => {
-      area.appendChild(
-        el("button.olk-reply-btn", { onclick: () => handleReply(email, r) }, [
-          el("span", { text: r.text })
-        ])
-      );
-    });
-    updateRibbon();
-  }
-
-  function handleAction(email, action) {
-    const correct = email.type === action;
-    resolveAnswer(email, correct, correct ? null : email.type);
-  }
-
-  function handleReply(email, reply) {
-    if (email.type !== "reply") {
-      resolveAnswer(email, false, email.type);
-      return;
-    }
-    resolveAnswer(email, reply.correct, reply.correct ? null : "wrong_reply");
-  }
-
-  function resolveAnswer(email, correct, wrongType) {
-    state.processed.add(email.id);
-    clearReading();
-    renderList();
-    updateRibbon();
+    const email   = state.current;
+    const correct = markedSuspicious === email.isSuspicious;
 
     if (correct) {
-      const gain = 10 + state.round * 2;
-      state.score   += gain;
+      const gain = email.isSuspicious ? 15 : 10;
+      state.score  += gain;
       state.correct++;
       refs.score.textContent = state.score + "円";
-      toast("正解 +" + gain + "円", "ok");
-      setBoss("sato_smile", "よし。次だ。");
+      setBoss("sato_smile", email.isSuspicious ? "見抜いたな。よし。" : "正しい判断だ。");
     } else {
       state.lives--;
       refs.lives.textContent =
         "❤".repeat(Math.max(0, state.lives)) +
         "🖤".repeat(Math.max(0, MAX_LIVES - state.lives));
-      toast("ミス", "ng");
-      const msgs = {
-        trash:       "それはゴミ箱じゃないぞ！",
-        flag:        "急ぎだろ！フラグじゃなく返信しろ！",
-        reply:       "そんなメールに返信するな！",
-        wrong_reply: "その返信文は不適切だ！",
-      };
-      setBoss("sato_angry", msgs[wrongType] || "違うだろ！");
-      if (state.lives <= 0) { finish(false); return; }
+      setBoss("sato_angry",
+        email.isSuspicious ? "引っかかったぞ！フィッシングだ！" : "それは本物だ！誤検知するな！"
+      );
     }
 
-    if (state.processed.size >= state.emails.length) {
-      stopTimer();
-      setBoss("sato_smile", "全部片付けたか。朝礼に間に合ったぞ。");
-      setTimeout(() => {
-        if (!state.active) return;
-        state.round++;
-        startRound();
-      }, 1500);
+    showVerdict(email, correct, !correct && state.lives <= 0);
+  }
+
+  function showVerdict(email, correct, isGameOver) {
+    // 怪しい箇所をハイライト
+    if (email.tell) {
+      const map = { from: ".olk-ph-from", link: ".olk-ph-link", attachment: ".olk-ph-attachment", content: ".olk-ph-body" };
+      refs.envelope.querySelector(map[email.tell])?.classList.add("tell-highlight");
+    }
+
+    clear(refs.verdict);
+    refs.verdict.classList.add("show");
+
+    const isPhish = email.isSuspicious;
+    const resultText = correct
+      ? (isPhish ? "✅ 正解！フィッシングメールを削除しました" : "✅ 正解！安全なメールです")
+      : (isPhish ? "❌ フィッシングメールでした！" : "❌ これは安全なメールでした");
+
+    refs.verdict.appendChild(
+      el("div.olk-verdict-label." + (correct ? "ok" : "ng"), { text: resultText })
+    );
+    refs.verdict.appendChild(
+      el("div.olk-verdict-reason", { text: "💡 " + email.reason })
+    );
+
+    clear(refs.actions);
+    if (isGameOver) {
+      setTimeout(() => finish(false), 2500);
+    } else {
+      refs.actions.appendChild(
+        el("button.olk-next-btn", { onclick: () => showNext() }, [el("span", { text:"次のメール →" })])
+      );
     }
   }
 
-  let timerHandle = null;
-  function runTimer() {
-    stopTimer();
-    timerHandle = setInterval(() => {
-      state.timer -= 0.1;
-      const pct = Math.max(0, (state.timer / ROUND_SEC) * 100);
-      refs.timerFill.style.width = pct + "%";
-      const m = Math.floor(state.timer / 60);
-      const s = Math.floor(state.timer % 60);
-      refs.timerText.textContent = "朝礼 " + m + ":" + String(s).padStart(2, "0");
-      if (state.timer <= 0) {
-        stopTimer();
-        setBoss("sato_angry", "時間切れだ！");
-        finish(false);
-      }
-    }, 100);
-  }
-  function stopTimer() {
-    if (timerHandle) { clearInterval(timerHandle); timerHandle = null; }
+  // ── ツールチップ ──────────────────────────────────────────────────
+  function toggleTooltip(anchorEl, label, value, isBad) {
+    if (refs.tt.classList.contains("show") && state.tooltipEl === anchorEl) {
+      hideTooltip(); return;
+    }
+    state.tooltipEl = anchorEl;
+    clear(refs.ttInner);
+    refs.ttInner.appendChild(el("div.olk-tt-label", { text: label }));
+    refs.ttInner.appendChild(el("div.olk-tt-value." + (isBad ? "bad" : "good"), { text: value }));
+    if (isBad) refs.ttInner.appendChild(el("div.olk-tt-warn", { text:"⚠️ これは怪しい！" }));
+
+    const rect     = anchorEl.getBoundingClientRect();
+    const rootRect = root.getBoundingClientRect();
+    refs.tt.style.top  = (rect.bottom - rootRect.top + 4) + "px";
+    refs.tt.style.left  = "12px";
+    refs.tt.style.right = "12px";
+    refs.tt.classList.add("show");
   }
 
+  function hideTooltip() {
+    refs.tt.classList.remove("show");
+    state.tooltipEl = null;
+  }
+
+  // ── ユーティリティ ────────────────────────────────────────────────
   function setBoss(img, text) {
     refs.bossImg.src = "assets/img/" + img + ".png";
     refs.bossBubble.textContent = text;
   }
 
-  function toast(msg, kind) {
-    refs.toast.textContent = msg;
-    refs.toast.className   = "olk-toast show " + (kind || "");
-    setTimeout(() => { refs.toast.className = "olk-toast"; }, 1200);
-  }
+  function truncate(str, n) { return str.length > n ? str.slice(0, n) + "…" : str; }
 
-  function quit() { state.active = false; stopTimer(); Router.menu(); }
+  function quit() { state.active = false; Router.menu(); }
 
   function finish(cleared) {
     state.active = false;
-    stopTimer();
     const score = state.score;
     const coins = Math.floor(score / 5);
     let msg, comment;
     if (cleared) {
-      msg     = "全" + MAX_ROUNDS + "ラウンド完遂！正解 " + state.correct + "件、最終 " + score + "円。";
-      comment = "佐藤部長「メール処理も仕事のうちだ。よくやった。」";
+      msg     = "全" + MAX_ROUNDS + "ラウンド完遂！正解 " + state.correct + "件、" + score + "円。";
+      comment = "佐藤部長「なかなかやるな。うちの情報セキュリティは任せた。」";
     } else if (state.correct === 0) {
-      msg     = "メール仕分けゼロ。";
-      comment = "佐藤部長「メールの一本も処理できないのか。社会人失格だ。」";
+      msg     = "全問不正解。セキュリティ研修を受けてこい。";
+      comment = "佐藤部長「こんなんに引っかかるようじゃ、うちの機密が全部漏れるぞ。」";
     } else {
-      msg     = state.round + "ラウンドで力尽きた（正解 " + state.correct + "件）。";
-      comment = "佐藤部長「朝から何やってるんだ。もっと集中しろ。」";
+      msg     = state.round + "ラウンドで脱落（正解 " + state.correct + "件）。";
+      comment = "佐藤部長「クリックする前にアドレスをよく確認しろ。」";
     }
     finishGame(gameId, score, coins, msg, {
       isWin:      cleared,
-      allowances: [{ name: "仕分け正解 × " + state.correct, value: score }],
+      allowances: [{ name:"フィッシング検出 × " + state.correct, value: score }],
       deductions: [],
       bossComment: comment,
     });
   }
 
   startRound();
-  return { dispose() { state.active = false; stopTimer(); } };
+  return { dispose() { state.active = false; } };
 }
 
 function pickN(arr, n) {
