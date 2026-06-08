@@ -6808,11 +6808,10 @@ img, svg { image-rendering: pixelated; image-rendering: crisp-edges; }
   line-height: 1.7;
   color: var(--r-ink);
   white-space: pre-wrap;
+  text-align: left;
 }
 .story-textbox.narration .story-text {
   color: var(--r-sub);
-  font-size: 14px;
-  text-align: center;
 }
 .story-textbox.thought .story-text {
   color: var(--r-cyan);
