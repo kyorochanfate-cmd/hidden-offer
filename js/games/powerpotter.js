@@ -46,10 +46,18 @@ function rudeText(body) { return pick(RUDE_OPENERS) + body; }
 
 // --- ゲーム本体 ------------------------------------------------------------
 
-export function startPowerPotter(mount, gameId) {
+export function startPowerPotter(mount, gameId, params = {}) {
+  const storyMode = !!params.storyMode;
+  const STORY_CLEAR_COUNT = 10;
   const screen = el("div.ppt");
   buildShell(screen);
   mount(screen);
+
+  // ストーリーモードでは退勤（離脱）を封じる
+  if (storyMode) {
+    const quitBtn = screen.querySelector("#pp-quit");
+    if (quitBtn) quitBtn.remove();
+  }
 
   // 状態
   const state = {
@@ -94,7 +102,7 @@ export function startPowerPotter(mount, gameId) {
   refs.slide.addEventListener("click", () => selectElement(null));
 
   // 退勤ボタン
-  screen.querySelector("#pp-quit").addEventListener("click", () => quit(false));
+  screen.querySelector("#pp-quit")?.addEventListener("click", () => quit(false));
 
   function selectElement(id) {
     state.selected = id;
@@ -733,6 +741,13 @@ export function startPowerPotter(mount, gameId) {
     refs.completedText.textContent = `完遂 ${state.completed}`;
     flashApproved();
 
+    // ストーリーモード：規定数の修正をクリアしたら即終了
+    if (storyMode && state.completed >= STORY_CLEAR_COUNT) {
+      state.nextDelay = 999;
+      setTimeout(() => quit(true, "story_clear"), 700);
+      return;
+    }
+
     // 5回完了ごとにスライド切り替え
     if (state.completed > 0 && state.completed % 5 === 0) {
       state.nextDelay = 999; // 切り替え完了まで次の指示を出さない
@@ -909,7 +924,28 @@ export function startPowerPotter(mount, gameId) {
 
   function quit(forced, reason) {
     game.stop();
-    
+
+    if (storyMode) {
+      const mins = Math.floor(state.elapsed / 60);
+      const secs = Math.floor(state.elapsed % 60);
+      const elapsedStr = `${mins}分${secs}秒`;
+      let msg, comment;
+      if (reason === "story_clear") {
+        msg = `規定の${STORY_CLEAR_COUNT}件の修正をやり遂げ、スライドは無事に完成した（${elapsedStr}）。`;
+        comment = "佐藤部長「おう、今度のはいいじゃないか！　最初からこれを出せばよかったんだ。さすがだな。」";
+      } else {
+        msg = `上司の機嫌が限界に達し、スライドは未完成のまま――ゲームオーバー（${elapsedStr}）。`;
+        comment = "佐藤部長「……はぁ。話にならんな。最初からやり直しだ。」";
+      }
+      finishGame(gameId, state.completed * 100, 0, msg, {
+        isWin: reason === "story_clear",
+        allowances: [],
+        deductions: [],
+        bossComment: comment,
+      });
+      return;
+    }
+
     const unitPrice = 5;
     const completedPay = state.completed * unitPrice;
     const deductionVal = state.completed > 0 ? 5 : 0;
