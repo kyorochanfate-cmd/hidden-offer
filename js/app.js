@@ -8,6 +8,7 @@ import { renderJobs } from "./screens/jobs.js?v=1.2.5";
 import { renderGacha } from "./screens/gacha.js?v=1.2.5";
 import { renderCollection } from "./screens/collection.js?v=1.2.5";
 import { renderSettings } from "./screens/settings.js?v=1.2.5";
+import { startStory } from "./screens/story.js?v=1.2.5";
 import { GAMES } from "./data.js?v=1.2.5";
 
 // 各ミニゲームの起動関数
@@ -43,6 +44,7 @@ export const Router = {
       case "gacha":      result = renderGacha(mount); break;
       case "collection": result = renderCollection(mount); break;
       case "settings":   result = renderSettings(mount); break;
+      case "story":      result = startStory(mount, params); break;
       case "game":       result = GAME_LAUNCHERS[params.id]?.(mount, params.id); break;
       default:           result = renderMenu(mount);
     }
@@ -51,6 +53,7 @@ export const Router = {
   menu() { this.go("menu"); },
   gacha() { this.go("gacha"); },
   collection() { this.go("collection"); },
+  story(chapter = "ch1") { this.go("story", { chapter }); },
   game(id) { if (GAMES[id]) this.go("game", { id }); },
 };
 

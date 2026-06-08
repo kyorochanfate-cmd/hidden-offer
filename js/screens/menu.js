@@ -37,6 +37,7 @@ export function renderMenu(mount) {
 
       // メインボタン
       el("div", { style: { padding: "8px 22px 18px", display: "flex", flexDirection: "column", gap: "12px" } }, [
+        bigButton("ストーリー", "", "pink", () => Router.story()),
         bigButton("労働する", "", "green", () => Router.go("jobs")),
         bigButton("求人を探す", "", "yellow", () => Router.gacha()),
         bigButton("コレクション", "", "purple", () => Router.collection()),
