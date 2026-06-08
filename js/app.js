@@ -45,7 +45,7 @@ export const Router = {
       case "collection": result = renderCollection(mount); break;
       case "settings":   result = renderSettings(mount); break;
       case "story":      result = startStory(mount, params); break;
-      case "game":       result = GAME_LAUNCHERS[params.id]?.(mount, params.id); break;
+      case "game":       result = GAME_LAUNCHERS[params.id]?.(mount, params.id, params); break;
       default:           result = renderMenu(mount);
     }
     current = result || null;

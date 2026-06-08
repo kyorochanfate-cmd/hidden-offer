@@ -78,7 +78,7 @@ export function startStory(mount, params = {}) {
 
   const state = { idx: startIndex, finished: false };
 
-  const root = el("div.story-screen", {}, [
+  const root = el("div.screen.story-screen", {}, [
     el("div.story-bg"),
     el("div.story-sprite-wrap#story-sprite-wrap"),
     el("div.story-skip", { text: "スキップ ▶▶", onclick: (e) => { e.stopPropagation(); skipToEnd(); } }),
@@ -164,7 +164,7 @@ export function startStory(mount, params = {}) {
     StoryState.onContinue = () => {
       Router.go("story", { chapter: chapterId, index: state.idx + 1 });
     };
-    Router.game(beat.gameId);
+    Router.go("game", { id: beat.gameId, storyMode: true });
   }
 
   function showEnd() {
