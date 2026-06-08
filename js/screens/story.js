@@ -66,9 +66,61 @@ const CHAPTER_1 = [
   { type: "narration", text: "こんな時間に、誰が――。" },
 ];
 
+// ---- 第2章 ----
+const CHAPTER_2 = [
+  { type: "line", speaker: "高橋", sprite: "takahashi", text: "おい、そこ。お前の席の電話、鳴りっぱなしだぞ。早く取れよ。" },
+  { type: "narration", text: "営業部の高橋が、私のデスクの後ろを通りすがりざまに吐き捨てた。相変わらず愛想のない奴だ。私を一体何だと思っているんだろう。" },
+  { type: "narration", text: "ジリリリリリリン！\nジリリリリリリン！" },
+  { type: "narration", text: "黒いプラスチック製のビジネスフォンが、デスクの上で激しく震えている。" },
+  { type: "narration", text: "私は大きく息を吸い込み、受話器を持ち上げた。受話器のプラスチックの冷たさが、手のひらに伝わる。プロのサラリーマンたるもの、どんな時でも声のトーンは明るく、だ。" },
+  { type: "narration", text: "「お電話ありがとうございます。カスタマーサポートセンターでございます」" },
+  { type: "narration", text: "『おい！！！　どうなってるんだお前のところは！！！』" },
+  { type: "narration", text: "受話器の向こうから、鼓膜を破らんばかりの怒号が飛び込んできた。声の主はかなり興奮しているようで、受話器越しでもビンビンと怒りのバイブスが伝わってくる。" },
+  { type: "narration", text: "『こっちはな！　先週頼んだシステムが動かなくて大損害を被ってるんだよ！　責任者を出せ！　責任者を！　今すぐだ！！！』" },
+  { type: "narration", text: "出た、典型的な激昂型クレーマー。" },
+  { type: "narration", text: "並の社員ならここでパニックになるところだが、数々の修羅場をくぐり抜けてきた私の頭脳は、恐ろしいほど冷静だった。" },
+  { type: "thought", text: "（相手が怒鳴り散らしている間に、頭の中で「何が原因で、どう切り返せば相手が落ち着くか」のロードマップが瞬時に構築されていく。よし、まずは「徹底的な傾聴と共感」からだ）" },
+  { type: "narration", text: "「大変申し訳ございません。お客様に多大なご不便とご心配をおかけしておりますこと、心よりお詫び申し上げます」" },
+  { type: "narration", text: "声のトーン、頭を下げる角度、すべてが完璧。ビジネスマナー研修のお手本のような謝罪を繰り出す。" },
+  { type: "narration", text: "『謝って済むかよ！　口先だけなら何とでも言えるんだよ！　お前ら、本当に申し訳ないと思ってるのか！？　ええ！？　大体な、お前のその喋り方、何なんだよ！　さっきから聞いてりゃあ、マニュアル通りというか、心がこもってないんだよ！　お前、本当に生きてる人間か！？　ロボットと喋ってるみたいで余計に腹が立つんだよ！！！』" },
+  { type: "thought", text: "（ロボットみたい、だと？　こっちは最大限の誠意を持って、プロの対応をしてやっているというのに、随分な暴言を吐くクレーマーだ。理不尽にも程があるが、ここで言い返したら負けである。私はぐっとこらえた）" },
+  { type: "narration", text: "そこへ、私のパーテーションの横から佐藤課長がぬっと顔を覗かせ、手元のタブレットを見ながら小声で囁いてきた。" },
+  { type: "line", speaker: "佐藤課長", sprite: "sato_normal", text: "そこ、何をもたもたしてるんだ。相手は『人間味』を求めてるんだよ。もっと泥臭く、感情を揺さぶるような声を出すんだ。ほら、声を少し低くして、わざとらしくため息を混ぜるんだ。エモーショナルにいけ。そうすれば相手の反発が収まるから。" },
+  { type: "narration", text: "課長の無茶振りも大概だが、背に腹は変えられない。私はすぐさま喉のコンディションを切り替え、全力のクレーム対応に臨んだ。" },
+
+  { type: "game", gameId: "claim", label: "【クレーム対応】開始――" },
+
+  { type: "narration", text: "「お客様のお怒り、ごもっともです……。私の至らなさのせいで、お客様の大切なビジネスに傷をつけてしまいました。本当に……本当に、申し訳ありません……」" },
+  { type: "narration", text: "『……あ、いや。そこまで落ち込まなくてもいいけどさ』" },
+  { type: "narration", text: "よし、食いついた。受話器の向こうの空気が、明らかに軟化する。男の怒りのボルテージが、急速に冷えていくのが手に取るように分かった。" },
+  { type: "narration", text: "『まぁ、お前がそこまで言うならさ。別に、お前個人を責めたいわけじゃないんだよ。ただ、この画面の『送信』ボタンを押した時に、エラーコード「502」ってのが出てさ……』" },
+  { type: "thought", text: "（エラーコード502。バッドゲートウェイか）" },
+  { type: "narration", text: "それを聞いた瞬間、かつてマニュアルで目を通した社内システムのネットワーク構成図が、パッと頭の中に思い浮かんだ。第3サーバーのプロキシ設定の記述ミスに違いない。" },
+  { type: "narration", text: "「お客様、そのまま10秒ほどお時間をいただけますでしょうか」" },
+  { type: "narration", text: "私は外線を受け流しながら、片手で自社サーバーの設定画面を爆速で開いた。" },
+  { type: "narration", text: "ここからは時間との勝負だ。指先をキーボードの上で滑らせ、数万行に及ぶコードの波からバグを特定し、流れるように書き換えていく。我ながら、今日のタイピングのキレは神がかっている。ゾーンに入るとはまさにこのことだ。" },
+  { type: "narration", text: "「お待たせいたしました。お客様、もう一度『送信』ボタンを押していただけますか？」" },
+  { type: "narration", text: "『え？　ああ、ちょっと待って……あ、動いた。いけたわ。なんだ、直せるんじゃん。ありがとな。お前、最初は冷たい奴だと思ったけど、なかなかしっかりしてるじゃない。助かったよ』" },
+  { type: "narration", text: "「とんでもございません。また何かございましたら、いつでもお申し付けください」" },
+  { type: "narration", text: "通話が切れ、受話器を置く。" },
+  { type: "thought", text: "（ふぅ、大物だったな……。なぜか首のあたりが妙に熱い。知恵熱だろうか）" },
+  { type: "narration", text: "パチパチパチパチ。" },
+  { type: "narration", text: "背後から拍手が聞こえた。振り返ると、同期の花ちゃんが、目を輝かせて手を叩いていた。" },
+  { type: "line", speaker: "花", sprite: "hana_bigsmile", text: "すごーい！　さすが頼りになる！　あの鬼クレーマーをあっという間に丸め込んじゃうなんて、あんたはやっぱり天才ね！　もう本当に尊敬しちゃう！" },
+  { type: "narration", text: "「いやあ、まあね。プロだからね」" },
+  { type: "narration", text: "私はちょっと得意げになって髪をかき上げた。一仕事終えた充実感に浸りながら、次の案件をチェックするために画面の右下に目をやる。" },
+  { type: "narration", text: "【 21 : 35 】" },
+  { type: "thought", text: "（よし、まだ21時半か。これなら終電前に余裕で帰れそうだ）" },
+  { type: "narration", text: "だが、そんな私の前に、佐藤課長がどさりと新たな資料の束を置いた。" },
+  { type: "line", speaker: "佐藤課長", sprite: "sato_normal", text: "よし、そこ。次の仕事だ。" },
+];
+
 const CHAPTERS = {
   ch1: { id: "ch1", title: "第1章　お前は、今日も。", script: CHAPTER_1 },
+  ch2: { id: "ch2", title: "第2章　感情のサンドバッグ、あるいは過剰適応の果て", script: CHAPTER_2 },
 };
+
+const NEXT_CHAPTER = { ch1: "ch2" };
 
 export function startStory(mount, params = {}) {
   const chapterId = params.chapter || "ch1";
@@ -216,10 +268,17 @@ export function startStory(mount, params = {}) {
     root.querySelector("#story-nameplate").textContent = "";
     root.querySelector("#story-text").textContent = "";
 
+    const nextChapterId = NEXT_CHAPTER[chapterId];
+    const buttons = [];
+    if (nextChapterId && CHAPTERS[nextChapterId]) {
+      buttons.push(el("button.pbtn.purple.block", { onclick: () => Router.go("story", { chapter: nextChapterId }) }, [el("span", { text: "次の章へ" })]));
+    }
+    buttons.push(el("button.pbtn.outline.block", { onclick: () => Router.menu() }, [el("span", { text: "メニューへ戻る" })]));
+
     const overlay = el("div.story-end-overlay", {}, [
       el("div.story-end-title", { text: `── ${chapter.title}　了 ──` }),
-      el("div.story-end-sub", { text: "（つづく）" }),
-      el("button.pbtn.outline.block", { onclick: () => Router.menu() }, [el("span", { text: "メニューへ戻る" })]),
+      el("div.story-end-sub", { text: nextChapterId ? "" : "（つづく）" }),
+      ...buttons,
     ]);
     root.appendChild(overlay);
   }
