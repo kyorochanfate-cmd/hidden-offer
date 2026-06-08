@@ -797,7 +797,7 @@ export function startPowerPotter(mount, gameId, params = {}) {
     refs.bubbleStatus.classList.add("ng");
   }
 
-  const BOSS_MOOD_IMG = { rage: "sato_angry", irritated: "sato_angry", normal: "sato_normal", happy: "sato_smile" };
+  const BOSS_MOOD_IMG = { rage: "SATO_angry", irritated: "SATO_angry", normal: "SATO_normal", happy: "SATO_smile" };
   function setBossFace(mood) {
     const m = mood < 30 ? "rage" : mood < 60 ? "irritated" : mood < 85 ? "normal" : "happy";
     if (refs.bossFace.dataset.mood !== m) {
@@ -919,7 +919,7 @@ export function startPowerPotter(mount, gameId, params = {}) {
   applyElementStyles();
   renderSelection();
   renderPanel();
-  refs.bossFace.innerHTML = `<img class="boss-img boss-mood-normal" src="assets/img/sato_smile.png" alt="佐藤部長"/>`;
+  refs.bossFace.innerHTML = `<img class="boss-img boss-mood-normal" src="assets/img/SATO_smile.png" alt="佐藤部長"/>`;
   refs.bossFace.dataset.mood = "normal";
 
   function quit(forced, reason) {
@@ -1102,7 +1102,7 @@ function subBar() {
 function bossPanel() {
   return el("div.pp-bosspanel", {}, [
     el("div.pp-bossface#pp-bossface", { "data-mood": "normal" }, [
-      el("img.boss-img.boss-mood-normal", { src: "assets/img/boss.png", alt: "佐藤部長" })
+      el("img.boss-img.boss-mood-normal", { src: "assets/img/SATO_normal.png", alt: "佐藤部長" })
     ]),
     el("div.pp-bubble-wrap", {}, [
       el("div.pp-bubble-name", { text: "佐藤部長" }),
