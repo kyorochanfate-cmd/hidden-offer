@@ -80,7 +80,10 @@ export function startStory(mount, params = {}) {
   const root = el("div.screen.story-screen", {}, [
     el("div.story-bg"),
     el("div.story-sprite-wrap#story-sprite-wrap"),
-    el("div.story-skip", { text: "スキップ ▶▶", onclick: (e) => { e.stopPropagation(); skipToEnd(); } }),
+    el("div.story-topbar", {}, [
+      el("div.story-toolbtn", { text: "≡ ログ", onclick: (e) => { e.stopPropagation(); openLog(); } }),
+      el("div.story-toolbtn", { text: "スキップ ▶▶", onclick: (e) => { e.stopPropagation(); skipToEnd(); } }),
+    ]),
     el("div.story-textbox#story-textbox", {}, [
       el("div.story-nameplate#story-nameplate"),
       el("div.story-text#story-text"),
@@ -88,8 +91,15 @@ export function startStory(mount, params = {}) {
     ]),
   ]);
 
+  const seenBeats = [];
+  for (let i = 0; i < startIndex && i < chapter.script.length; i++) {
+    const b = chapter.script[i];
+    if (b.type !== "game") seenBeats.push(b);
+  }
+
   root.addEventListener("click", (e) => {
-    if (e.target.closest(".story-skip")) return;
+    if (e.target.closest(".story-topbar")) return;
+    if (e.target.closest(".story-log-modal")) return;
     advance();
   });
 
@@ -130,6 +140,37 @@ export function startStory(mount, params = {}) {
       launchGame(beat);
       return;
     }
+    if (beat.type !== "game" && seenBeats[seenBeats.length - 1] !== beat) {
+      seenBeats.push(beat);
+    }
+  }
+
+  function openLog() {
+    const list = el("div.story-log-list");
+    seenBeats.forEach((b) => {
+      const row = el("div.story-log-row");
+      if (b.type === "line") {
+        row.classList.add("dialogue");
+        row.appendChild(el("div.story-log-name", { text: b.speaker }));
+        row.appendChild(el("div.story-log-text", { text: b.text }));
+      } else if (b.type === "thought") {
+        row.classList.add("thought");
+        row.appendChild(el("div.story-log-text", { text: b.text }));
+      } else {
+        row.classList.add("narration");
+        row.appendChild(el("div.story-log-text", { text: b.text }));
+      }
+      list.appendChild(row);
+    });
+    const modal = el("div.story-log-modal", { onclick: (e) => e.stopPropagation() }, [
+      el("div.story-log-header", {}, [
+        el("div.story-log-title", { text: "テキストログ" }),
+        el("div.story-log-close", { text: "✕ 閉じる", onclick: () => modal.remove() }),
+      ]),
+      list,
+    ]);
+    root.appendChild(modal);
+    list.scrollTop = list.scrollHeight;
   }
 
   function buildSprite(speaker, spriteKey) {
