@@ -169,7 +169,7 @@ export function startChatRally(mount, gameId) {
     // 佐藤部長ならボス顔、他はテキスト頭文字
     const isBoss = sender === "佐藤部長";
     const avatarContent = isBoss 
-      ? el("img", { src: "assets/img/sato_normal.png", alt: "B" })
+      ? el("img", { src: "assets/img/SATO_normal.png", alt: "B" })
       : el("span", { text: sender.slice(-2) });
 
     const msg = el("div.teams-msg", {}, [

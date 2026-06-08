@@ -9,16 +9,15 @@ import { StoryState } from "../storyState.js?v=1.2.5";
 
 // 各キャラのバストアップ画像（無い場合は色付きプレースホルダ）
 const SPRITES = {
-  sato_normal:  "assets/img/sato_normal.png",
-  sato_smile:   "assets/img/sato_smile.png",
-  sato_angry:   "assets/img/sato_angry.png",
-  hana_normal:  "assets/img/hana_normal.png",
-  hana_bigsmile:"assets/img/hana_bigsmile.png",
+  sato_normal:  "assets/img/SATO_normal.png",
+  sato_smile:   "assets/img/SATO_smile.png",
+  sato_angry:   "assets/img/SATO_angry.png",
+  hana_normal:  "assets/img/HANA_normal.png",
+  hana_bigsmile:"assets/img/HANA_smile.png",
+  takahashi:    "assets/img/TAKAHASHI.png",
 };
 
-const PLACEHOLDER = {
-  "高橋": { initial: "高", color: "#5b6b7a" },
-};
+const PLACEHOLDER = {};
 
 // ---- 第1章 ----
 const CHAPTER_1 = [
@@ -52,8 +51,8 @@ const CHAPTER_1 = [
   { type: "narration", text: "花の笑顔の奥に、ほんの一瞬、何かに怯えるような陰がよぎった気がした。だが、それもすぐに消えてしまった。" },
 
   { type: "narration", text: "夕暮れ時、給湯室の前で、営業部の高橋とすれ違う。" },
-  { type: "line", speaker: "高橋", sprite: "ph_takahashi", text: "おい、お前。例の件、まだ終わってないのか？　どんだけ仕事が遅いんだよ。给料泥棒って言葉、知ってるか？" },
-  { type: "line", speaker: "高橋", sprite: "ph_takahashi", text: "はぁ……お前みたいなのがいるから、こっちまで評価が下がるんだよ。次は無いと思え。" },
+  { type: "line", speaker: "高橋", sprite: "takahashi", text: "おい、お前。例の件、まだ終わってないのか？　どんだけ仕事が遅いんだよ。给料泥棒って言葉、知ってるか？" },
+  { type: "line", speaker: "高橋", sprite: "takahashi", text: "はぁ……お前みたいなのがいるから、こっちまで評価が下がるんだよ。次は無いと思え。" },
   { type: "thought", text: "（……高橋さんの言葉は、いつも刃物みたいだ。けれど、なぜだろう。刺さるはずの言葉が、最近どこか「型通り」に聞こえる）" },
   { type: "narration", text: "「お前」は、高橋の言葉をただ黙って受け止める。反論する理由も、その必要性も、見当たらなかったから。" },
 
@@ -184,10 +183,5 @@ export function startStory(mount, params = {}) {
     root.appendChild(overlay);
   }
 
-  return {
-    dispose() {
-      StoryState.active = false;
-      StoryState.onContinue = null;
-    },
-  };
+  return { dispose() {} };
 }

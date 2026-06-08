@@ -211,7 +211,7 @@ export function startMail(mount, gameId) {
 
     // ボス反応
     el("div.olk-statusbar", {}, [
-      el("img.olk-boss-mini#olk-boss-img", { src:"assets/img/sato_normal.png", alt:"佐藤部長" }),
+      el("img.olk-boss-mini#olk-boss-img", { src:"assets/img/SATO_normal.png", alt:"佐藤部長" }),
       el("div.olk-boss-text#olk-boss-bubble", { text:"怪しいメールは即削除。引っかかるな。" }),
       el("div.olk-status-right", {}, [
         el("div.olk-lives#olk-lives", { text:"❤❤❤" }),
@@ -375,13 +375,13 @@ export function startMail(mount, gameId) {
       state.score  += gain;
       state.correct++;
       refs.score.textContent = state.score + "円";
-      setBoss("sato_smile", email.isSuspicious ? "見抜いたな。よし。" : "正しい判断だ。");
+      setBoss("SATO_smile", email.isSuspicious ? "見抜いたな。よし。" : "正しい判断だ。");
     } else {
       state.lives--;
       refs.lives.textContent =
         "❤".repeat(Math.max(0, state.lives)) +
         "🖤".repeat(Math.max(0, MAX_LIVES - state.lives));
-      setBoss("sato_angry",
+      setBoss("SATO_angry",
         email.isSuspicious ? "引っかかったぞ！フィッシングだ！" : "それは本物だ！誤検知するな！"
       );
     }

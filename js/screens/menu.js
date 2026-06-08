@@ -22,7 +22,7 @@ export function renderMenu(mount) {
 
       // 佐藤部長＆吹き出し
       el("div.boss-showcase", {}, [
-        el("img", { src: "assets/img/sato_normal.png", alt: "佐藤部長" }),
+        el("img", { src: "assets/img/SATO_normal.png", alt: "佐藤部長" }),
         el("div.boss-speech-bubble", { text: getRandomBossQuote() }),
       ]),
 

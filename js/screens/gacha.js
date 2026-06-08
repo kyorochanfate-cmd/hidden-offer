@@ -48,7 +48,7 @@ function intro(body) {
   const elements = [
     // エージェント紹介カード
     el("div.retro-card", { style: { display: "flex", gap: "12px", alignItems: "center" } }, [
-      el("img", { src: "assets/img/tadokoro.png", style: { width: "72px", height: "auto", flex: "none", imageRendering: "pixelated", filter: "drop-shadow(0 0 8px rgba(194,103,255,.5))" } }),
+      el("img", { src: "assets/img/TADOKORO.png", style: { width: "72px", height: "auto", flex: "none", imageRendering: "pixelated", filter: "drop-shadow(0 0 8px rgba(194,103,255,.5))" } }),
       el("div", { style: { flex: "1", minWidth: "0" } }, [
         el("div.label", { text: "AGENT" }),
         el("div.h", { text: "転職エージェント 田所" }),
