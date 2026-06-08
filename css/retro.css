@@ -6921,3 +6921,185 @@ img, svg { image-rendering: pixelated; image-rendering: crisp-edges; }
   color: var(--r-sub);
 }
 .story-end-overlay .pbtn { max-width: 240px; }
+
+/* =========================================================================
+   claim.js — クレーム対応ミニゲーム
+   ========================================================================= */
+.claim-game {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 14px;
+  gap: 12px;
+  background: linear-gradient(180deg, var(--r-bg-1), var(--r-bg-0));
+  font-family: var(--r-font-jp);
+  color: var(--r-ink);
+  overflow-y: auto;
+}
+.claim-header {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.claim-title {
+  font-weight: 700;
+  font-size: 16px;
+}
+.claim-sub {
+  font-size: 12px;
+  color: var(--r-sub);
+  letter-spacing: .06em;
+}
+.claim-gauge-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.claim-gauge-label {
+  font-size: 11px;
+  color: var(--r-sub);
+  letter-spacing: .08em;
+}
+.claim-gauge-track {
+  height: 14px;
+  border-radius: 7px;
+  background: rgba(0,0,0,.35);
+  box-shadow: inset 0 0 0 2px var(--r-bg-2);
+  overflow: hidden;
+}
+.claim-gauge-fill {
+  height: 100%;
+  width: 70%;
+  background: var(--r-red);
+  transition: width .25s ease, background .25s ease;
+}
+.claim-stage {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.claim-customer {
+  background: var(--r-bg-2);
+  border-radius: 10px;
+  padding: 12px;
+  box-shadow: inset 0 0 0 2px rgba(255,255,255,.06);
+}
+.claim-customer-label {
+  font-size: 11px;
+  color: var(--r-sub);
+  letter-spacing: .1em;
+  margin-bottom: 6px;
+}
+.claim-customer-text {
+  font-size: 14px;
+  line-height: 1.6;
+  text-align: left;
+}
+.claim-timer-track {
+  height: 6px;
+  border-radius: 3px;
+  background: rgba(0,0,0,.35);
+  overflow: hidden;
+}
+.claim-timer-fill {
+  height: 100%;
+  width: 100%;
+  background: var(--r-cyan);
+  transition: width .1s linear;
+}
+.claim-choices {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.claim-choice {
+  text-align: left;
+  font-family: var(--r-font-jp);
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--r-ink);
+  background: var(--r-bg-2);
+  border: none;
+  border-radius: 10px;
+  padding: 10px 12px;
+  box-shadow: inset 0 0 0 2px rgba(255,255,255,.06);
+  cursor: pointer;
+  transition: background .15s ease, box-shadow .15s ease;
+}
+.claim-choice:hover:not(:disabled) {
+  background: var(--r-bg-1);
+  box-shadow: inset 0 0 0 2px var(--r-purple);
+}
+.claim-choice:disabled {
+  opacity: .55;
+  cursor: default;
+}
+.claim-result-pop {
+  align-self: flex-start;
+  font-weight: 700;
+  font-size: 13px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  letter-spacing: .04em;
+}
+.claim-result-pop.good {
+  background: rgba(52,199,89,.18);
+  color: var(--r-green);
+  box-shadow: inset 0 0 0 2px var(--r-green);
+}
+.claim-result-pop.bad {
+  background: rgba(255,91,110,.18);
+  color: var(--r-red);
+  box-shadow: inset 0 0 0 2px var(--r-red);
+}
+.claim-result-comment {
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--r-sub);
+}
+.claim-code {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background: #1a1230;
+  border-radius: 10px;
+  padding: 10px;
+  box-shadow: inset 0 0 0 2px var(--r-bg-2);
+  font-family: "VT323", "Press Start 2P", monospace;
+}
+.claim-code-line {
+  display: flex;
+  gap: 10px;
+  align-items: baseline;
+  padding: 6px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background .15s ease;
+}
+.claim-code-line:hover {
+  background: rgba(255,255,255,.06);
+}
+.claim-code-num {
+  color: var(--r-mute);
+  font-size: 13px;
+  min-width: 18px;
+  text-align: right;
+}
+.claim-code-text {
+  color: var(--r-ink);
+  font-size: 14px;
+  white-space: pre;
+}
+.claim-code-line.hit {
+  background: rgba(52,199,89,.2);
+  box-shadow: inset 0 0 0 2px var(--r-green);
+}
+.claim-code-line.miss {
+  background: rgba(255,91,110,.2);
+  box-shadow: inset 0 0 0 2px var(--r-red);
+}
+.claim-code-line.reveal {
+  background: rgba(255,210,74,.18);
+  box-shadow: inset 0 0 0 2px var(--r-yellow);
+}

@@ -73,6 +73,17 @@ export const GAMES = {
     color: "#1a3a6b",
     app: "メール",
   },
+  claim: {
+    id: "claim",
+    title: "Claim Handler",
+    subtitle: "クレーム対応",
+    jpTitle: "クレーム対応",
+    theme: "怒れる客を共感で宥め、システム障害の原因を突き止めよ",
+    posting: "（ストーリー専用）カスタマーサポート電話応対シミュレーター",
+    salary: "—",
+    color: "#7a2e2e",
+    app: "カスタマーサポート",
+  },
 };
 
 export const GAME_ORDER = ["powerpotter", "chatrally", "jiggler", "exchange", "toilet", "mail"];
