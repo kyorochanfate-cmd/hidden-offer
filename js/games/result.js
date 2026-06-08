@@ -6,6 +6,7 @@ import { el } from "../dom.js?v=1.2.5";
 import { Store } from "../state.js?v=1.2.5";
 import { Router } from "../app.js?v=1.2.5";
 import { GAMES } from "../data.js?v=1.2.5";
+import { StoryState } from "../storyState.js?v=1.2.5";
 
 export function finishGame(gameId, score, coins, message, details = {}) {
   Store.addCoins(coins);
@@ -89,11 +90,24 @@ export function finishGame(gameId, score, coins, message, details = {}) {
       ]),
 
       // アクション
-      el("div", { style: { display: "flex", gap: "10px" } }, [
-        el("button.pbtn.green", { style: { flex: "1" }, onclick: () => { mask.remove(); Router.game(gameId); } }, [el("span", { text: "もう一度" })]),
-        el("button.pbtn.yellow", { style: { flex: "1" }, onclick: () => { mask.remove(); Router.gacha(); } }, [el("span", { text: "エージェント" })]),
-      ]),
-      el("button.pbtn.outline.block", { onclick: () => { mask.remove(); Router.menu(); } }, [el("span", { text: "メニューへ" })]),
+      ...(StoryState.active
+        ? [el("button.pbtn.purple.block", {
+            onclick: () => {
+              mask.remove();
+              const cont = StoryState.onContinue;
+              StoryState.active = false;
+              StoryState.onContinue = null;
+              if (cont) cont();
+              else Router.menu();
+            },
+          }, [el("span", { text: "ストーリーへ戻る" })])]
+        : [
+            el("div", { style: { display: "flex", gap: "10px" } }, [
+              el("button.pbtn.green", { style: { flex: "1" }, onclick: () => { mask.remove(); Router.game(gameId); } }, [el("span", { text: "もう一度" })]),
+              el("button.pbtn.yellow", { style: { flex: "1" }, onclick: () => { mask.remove(); Router.gacha(); } }, [el("span", { text: "エージェント" })]),
+            ]),
+            el("button.pbtn.outline.block", { onclick: () => { mask.remove(); Router.menu(); } }, [el("span", { text: "メニューへ" })]),
+          ]),
     ]),
   ]);
   document.getElementById("app").appendChild(mask);
