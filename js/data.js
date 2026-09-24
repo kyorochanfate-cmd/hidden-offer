@@ -122,22 +122,31 @@ export const TITLES = [
   { id: "title_legend", name: "伝説の中間管理職", power: 9999, desc: "上にも下にも気を遣い、心は空。" },
 ];
 
+import { BLACK_JOBS } from "./blackJobs.js?v=1.2.5";
+export { BLACK_JOBS };
+
 export function getCollectionEntry(id) {
   const m = REJECTION_MAILS.find((x) => x.id === id);
   if (m) return { ...m, kind: "mail" };
   const t = TITLES.find((x) => x.id === id);
   if (t) return { ...t, kind: "title" };
+  const j = BLACK_JOBS.find((x) => x.id === id);
+  if (j) return { ...j, kind: "job" };
   return null;
 }
 
 // --- ガチャ抽選 ---
-// 戻り値: {type:"unlock", gameId} | {type:"mail", entry} | {type:"title", entry}
+// 戻り値: {type:"unlock", gameId} | {type:"mail", entry} | {type:"title", entry} | {type:"job", entry}
 export function rollGacha(unlockedGames) {
   const locked = GAME_ORDER.filter((id) => !unlockedGames.includes(id));
-  if (locked.length > 0 && Math.random() < 0.55) {
+  if (locked.length > 0 && Math.random() < 0.4) {
     return { type: "unlock", gameId: locked[0] };
   }
-  if (Math.random() < 0.5) {
+  const r = Math.random();
+  if (r < 0.55) {
+    return { type: "job", entry: BLACK_JOBS[(Math.random() * BLACK_JOBS.length) | 0] };
+  }
+  if (r < 0.8) {
     return { type: "mail", entry: REJECTION_MAILS[(Math.random() * REJECTION_MAILS.length) | 0] };
   }
   return { type: "title", entry: TITLES[(Math.random() * TITLES.length) | 0] };

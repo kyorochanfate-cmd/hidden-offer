@@ -91,16 +91,25 @@ export function finishGame(gameId, score, coins, message, details = {}) {
 
       // アクション
       ...(StoryState.active
-        ? [el("button.pbtn.purple.block", {
-            onclick: () => {
-              mask.remove();
-              const cont = StoryState.onContinue;
-              StoryState.active = false;
-              StoryState.onContinue = null;
-              if (cont) cont();
-              else Router.menu();
-            },
-          }, [el("span", { text: "ストーリーへ戻る" })])]
+        ? (details.isWin !== false
+          ? [el("button.pbtn.purple.block", {
+              onclick: () => {
+                mask.remove();
+                const cont = StoryState.onContinue;
+                StoryState.active = false;
+                StoryState.onContinue = null;
+                if (cont) cont();
+                else Router.menu();
+              },
+            }, [el("span", { text: "ストーリーへ戻る" })])]
+          : [el("button.pbtn.outline.block", {
+              onclick: () => {
+                mask.remove();
+                StoryState.active = false;
+                StoryState.onContinue = null;
+                Router.go("chapterSelect");
+              },
+            }, [el("span", { text: "章選択へ戻る" })])])
         : [
             el("div", { style: { display: "flex", gap: "10px" } }, [
               el("button.pbtn.green", { style: { flex: "1" }, onclick: () => { mask.remove(); Router.game(gameId); } }, [el("span", { text: "もう一度" })]),

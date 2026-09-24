@@ -6,6 +6,7 @@
 import { el, clear } from "../dom.js?v=1.2.5";
 import { Router } from "../app.js?v=1.2.5";
 import { StoryState } from "../storyState.js?v=1.2.5";
+import { Store } from "../state.js?v=1.2.5";
 
 // 各キャラのバストアップ画像（無い場合は色付きプレースホルダ）
 const SPRITES = {
@@ -115,12 +116,69 @@ const CHAPTER_2 = [
   { type: "line", speaker: "佐藤課長", sprite: "sato_normal", text: "よし、そこ。次の仕事だ。" },
 ];
 
+// ---- 第3章 ----
+const CHAPTER_3 = [
+  { type: "narration", text: "どさり、と置かれた資料の束の一番上には、付箋が一枚貼られていた。" },
+  { type: "narration", text: "『共有メールボックス　未処理 3,214件』" },
+  { type: "line", speaker: "佐藤課長", sprite: "sato_normal", text: "先月から誰も手をつけてない共有アドレスだ。取引先からの連絡に、怪しいメールも山ほど混じってる。本物は残して、偽物は消せ。今日中にな。" },
+  { type: "thought", text: "（3,214件。今日中。……今日は、あと2時間半しかない）" },
+  { type: "line", speaker: "佐藤課長", sprite: "sato_smile", text: "お前ならできるだろ。さっきのクレーム対応、見てたぞ。" },
+  { type: "narration", text: "褒め言葉のようで、逃げ道を塞ぐ言葉だった。課長はそれだけ言うと、鞄を持って帰っていった。" },
+  { type: "narration", text: "私はメールソフトを開き、画面いっぱいに並んだ未読の太字を見つめた。" },
+  { type: "thought", text: "（大丈夫。一通ずつ見ていけば、必ず終わる）" },
+
+  { type: "game", gameId: "mail", label: "【共有メールボックス整理】開始――" },
+
+  { type: "narration", text: "最後の一通を処理して、私は椅子の背にもたれた。" },
+  { type: "narration", text: "受信トレイの数字は、きれいに「0」になっている。" },
+  { type: "thought", text: "（終わった……。3,000通以上あったはずだ。どれだけ時間がかかったんだろう）" },
+  { type: "narration", text: "画面の右下に目をやる。" },
+  { type: "narration", text: "【 21 : 41 】" },
+  { type: "thought", text: "（……6分？）" },
+  { type: "thought", text: "（いや、そんなはずはない。3,000通を6分で読めるわけがない。時計がおかしいんだ。きっと、このパソコンの時計が遅れているだけだ）" },
+  { type: "narration", text: "首のあたりが、また熱かった。さっきよりも、少しだけ強く。" },
+
+  { type: "narration", text: "背後で、給湯室のドアが開く音がした。" },
+  { type: "line", speaker: "高橋", sprite: "takahashi", text: "……まだいたのかよ。" },
+  { type: "narration", text: "高橋は缶コーヒーを片手に、私の画面を覗き込んだ。空っぽの受信トレイを見て、眉をひそめる。" },
+  { type: "line", speaker: "高橋", sprite: "takahashi", text: "それ、課長が今日押し付けてったやつだろ。もう終わったのか？" },
+  { type: "narration", text: "「ええ、まあ。なんとか」" },
+  { type: "line", speaker: "高橋", sprite: "takahashi", text: "……なあ。前から思ってたんだけどさ。" },
+  { type: "line", speaker: "高橋", sprite: "takahashi", text: "お前、瞬きしてるか？" },
+  { type: "narration", text: "「……え？」" },
+  { type: "line", speaker: "高橋", sprite: "takahashi", text: "いや、いい。忘れろ。疲れてんのは俺の方だな。" },
+  { type: "narration", text: "高橋はそれ以上何も言わずに、フロアを出ていった。いつもの嫌味が、今日は一言もなかった。" },
+  { type: "thought", text: "（瞬き。……しているに決まっている。しているはずだ）" },
+  { type: "narration", text: "意識して、目を閉じて、開けてみる。できた。ほら、ちゃんとできる。" },
+  { type: "thought", text: "（ただ、今のが「いつもの」瞬きだったのかどうか、なぜか自信が持てなかった）" },
+
+  { type: "narration", text: "パタパタと足音がして、花ちゃんが戻ってきた。忘れ物を取りに来たらしい。" },
+  { type: "line", speaker: "花", sprite: "hana_bigsmile", text: "あれっ、まだいたの！？　って、うそ、あのメールボックス空っぽになってる！　課長が「一週間はかかる」って言ってたやつだよ！？" },
+  { type: "line", speaker: "花", sprite: "hana_normal", text: "……ねえ、ほんとに大丈夫？　ちゃんと休んでる？" },
+  { type: "narration", text: "「大丈夫だよ。プロだからね」" },
+  { type: "line", speaker: "花", sprite: "hana_normal", text: "……そっか。うん。そうだよね。" },
+  { type: "narration", text: "花ちゃんは笑った。けれど、その笑顔は、何かを言いかけて飲み込んだ人の顔に見えた。" },
+  { type: "line", speaker: "花", sprite: "hana_bigsmile", text: "じゃ、お先に！　おつかれさま！" },
+
+  { type: "narration", text: "再び、フロアに一人きりになる。" },
+  { type: "narration", text: "パソコンを閉じようとした、その時だった。" },
+  { type: "narration", text: "ポン、と通知音が鳴った。空になったはずの受信トレイに、一通だけメールが届いている。" },
+  { type: "narration", text: "差出人：システム管理部\n件名：【定期メンテナンス】個体番号 H-07 稼働ログのご確認" },
+  { type: "thought", text: "（システム管理部……？　うちの会社に、そんな部署あったか？）" },
+  { type: "thought", text: "（個体番号。稼働ログ。……いかにも、って感じの件名だ。さっきまで散々見てきた、典型的なフィッシングメールの手口じゃないか）" },
+  { type: "narration", text: "本文を開く気には、なれなかった。開いてはいけない気がした。" },
+  { type: "narration", text: "私は迷わず、そのメールを削除した。" },
+  { type: "thought", text: "（よし。これで、本当に0件だ）" },
+  { type: "narration", text: "ゴミ箱の中で、そのメールの未読マークだけが、いつまでも消えずに光っていた。" },
+];
+
 const CHAPTERS = {
   ch1: { id: "ch1", title: "第1章　お前は、今日も。", script: CHAPTER_1 },
   ch2: { id: "ch2", title: "第2章　感情のサンドバッグ、あるいは過剰適応の果て", script: CHAPTER_2 },
+  ch3: { id: "ch3", title: "第3章　迷惑メールフォルダの中身", script: CHAPTER_3 },
 };
 
-const NEXT_CHAPTER = { ch1: "ch2" };
+const NEXT_CHAPTER = { ch1: "ch2", ch2: "ch3" };
 
 export function startStory(mount, params = {}) {
   const chapterId = params.chapter || "ch1";
@@ -245,9 +303,7 @@ export function startStory(mount, params = {}) {
 
   function skipToEnd() {
     if (state.finished) return;
-    while (state.idx < chapter.script.length && chapter.script[state.idx].type !== "game") {
-      state.idx++;
-    }
+    state.idx = chapter.script.length;
     render();
   }
 
@@ -261,6 +317,7 @@ export function startStory(mount, params = {}) {
 
   function showEnd() {
     state.finished = true;
+    Store.clearChapter(chapterId);
     clear(root.querySelector("#story-sprite-wrap"));
     const textbox = root.querySelector("#story-textbox");
     textbox.classList.remove("narration", "thought", "dialogue");
