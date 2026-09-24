@@ -15,8 +15,7 @@ export function renderMenu(mount) {
       // ロゴ
       el("div", { style: { padding: "calc(16px + var(--safe-top)) 16px 4px", textAlign: "center" } }, [
         el("div.neon-sparks", {}, [
-          el("div.neon-logo-jp", { text: "非公開", style: { lineHeight: "0.95" } }),
-          el("div.neon-logo-jp", { text: "求人", style: { lineHeight: "0.95" } }),
+          el("div.title-logo", { text: "HUMAN.exe" }),
         ]),
       ]),
 
@@ -37,7 +36,7 @@ export function renderMenu(mount) {
 
       // メインボタン
       el("div", { style: { padding: "8px 22px 18px", display: "flex", flexDirection: "column", gap: "12px" } }, [
-        bigButton("ストーリー", "", "pink", () => Router.story()),
+        bigButton("ストーリー", "", "pink", () => Router.go("chapterSelect")),
         bigButton("労働する", "", "green", () => Router.go("jobs")),
         bigButton("求人を探す", "", "yellow", () => Router.gacha()),
         bigButton("コレクション", "", "purple", () => Router.collection()),

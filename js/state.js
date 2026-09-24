@@ -19,11 +19,13 @@ const defaultState = () => DEV_UNLOCK_ALL
       coins: 9999,
       unlockedGames: [...GAME_ORDER],   // 全求人アンロック
       collections: [],
+      clearedChapters: ["ch1", "ch2", "ch3"],  // 開発モードは全章開放
     })
   : ({
       coins: 0,
       unlockedGames: [STARTER_GAME_ID],
       collections: [],
+      clearedChapters: [],
     });
 
 let state = load();
@@ -40,6 +42,7 @@ function load() {
       coins: parsed.coins | 0,
       unlockedGames: parsed.unlockedGames,
       collections: parsed.collections || [],
+      clearedChapters: parsed.clearedChapters || [],
     };
   } catch {
     return defaultState();
@@ -76,6 +79,13 @@ export const Store = {
   // --- コレクション ---
   addCollection(id) { state.collections.push(id); save(); },
   get collections() { return state.collections; },
+
+  // --- 章クリア ---
+  clearChapter(id) {
+    if (!state.clearedChapters.includes(id)) { state.clearedChapters.push(id); save(); }
+  },
+  isChapterCleared(id) { return state.clearedChapters.includes(id); },
+  get clearedChapters() { return state.clearedChapters; },
 
   reset() { state = defaultState(); save(); },
 };

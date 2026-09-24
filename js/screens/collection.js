@@ -4,7 +4,7 @@
 
 import { el } from "../dom.js?v=1.2.5";
 import { Store } from "../state.js?v=1.2.5";
-import { REJECTION_MAILS, TITLES } from "../data.js?v=1.2.5";
+import { REJECTION_MAILS, TITLES, BLACK_JOBS } from "../data.js?v=1.2.5";
 import { Router } from "../app.js?v=1.2.5";
 
 export function renderCollection(mount) {
@@ -14,6 +14,7 @@ export function renderCollection(mount) {
 
   const mails = REJECTION_MAILS.filter((m) => counts[m.id]);
   const titles = TITLES.filter((t) => counts[t.id]);
+  const jobs = BLACK_JOBS.filter((j) => counts[j.id]);
 
   const sections = [];
   if (uniques === 0) {
@@ -31,6 +32,15 @@ export function renderCollection(mount) {
         mails.map((m) => el("div.retro-row", { onclick: () => showDetail(mailDetail(m)) }, [
           el("div.av", { style: { display: "grid", placeItems: "center", background: "#3a1818", color: "var(--r-red)", fontSize: "20px" }, text: "💌" }),
           el("div.t", {}, [el("div.tt", { text: m.from }), el("div.ss", { text: `お祈り ×${counts[m.id]}` })]),
+          el("div.go", { text: "▶" }),
+        ]))));
+    }
+    if (jobs.length) {
+      sections.push(el("div.retro-section", { text: "ブラック求人ファイル", style: { marginTop: "4px" } }));
+      sections.push(el("div", { style: { padding: "0 14px", display: "flex", flexDirection: "column", gap: "10px" } },
+        jobs.map((j) => el("div.retro-row", { onclick: () => showDetail(jobDetail(j)) }, [
+          el("div.av", { style: { display: "grid", placeItems: "center", background: "#3a2a10", color: "var(--r-yellow)", fontSize: "20px" }, text: "📋" }),
+          el("div.t", {}, [el("div.tt", { text: j.title }), el("div.ss", { text: `${j.company} ×${counts[j.id]}` })]),
           el("div.go", { text: "▶" }),
         ]))));
     }
@@ -69,6 +79,15 @@ function mailDetail(m) {
     el("div.label", { style: { color: "var(--r-red)" }, text: "FROM: " + m.from }),
     el("div.h", { text: "選考結果のお知らせ" }),
     el("div.body", { text: m.body }),
+  ]);
+}
+
+function jobDetail(j) {
+  return el("div.retro-card", { style: { maxWidth: "320px", boxShadow: "inset 0 0 0 2px var(--r-yellow), 0 6px 0 rgba(0,0,0,.4)" } }, [
+    el("div.label", { style: { color: "var(--r-yellow)" }, text: "COMPANY: " + j.company }),
+    el("div.h", { text: j.title }),
+    el("div", { style: { fontSize: "12px", color: "var(--r-sub)", margin: "4px 0 8px" }, text: "待遇: " + j.salary }),
+    el("div.body", { text: j.body }),
   ]);
 }
 

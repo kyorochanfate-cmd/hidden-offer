@@ -190,6 +190,13 @@ function reveal(body, results) {
         el("div.h", { text: "選考結果（お祈りメール）", style: { fontSize: "16px" } }),
         el("div.body", { text: result.entry.body.split("\n")[0] + "…", style: { fontSize: "12px", marginTop: "2px" } }),
       ]);
+    } else if (result.type === "job") {
+      Store.addCollection(result.entry.id);
+      return el("div.retro-card", { style: { borderColor: "var(--r-yellow)", boxShadow: "inset 0 0 0 2px var(--r-yellow), 0 4px 0 rgba(0,0,0,.4)", margin: "6px 0", padding: "10px 12px" } }, [
+        el("div.label", { style: { color: "var(--r-yellow)" }, text: "JOB OFFER: " + result.entry.company }),
+        el("div.h", { text: result.entry.title, style: { fontSize: "16px" } }),
+        el("div.body", { text: `${result.entry.salary} / ${result.entry.body.split("。")[0]}…`, style: { fontSize: "12px", marginTop: "2px" } }),
+      ]);
     } else {
       Store.addCollection(result.entry.id);
       return el("div.retro-card", { style: { borderColor: "var(--r-cyan)", boxShadow: "inset 0 0 0 2px var(--r-cyan), 0 4px 0 rgba(0,0,0,.4)", margin: "6px 0", padding: "10px 12px" } }, [

@@ -38,6 +38,32 @@
    ========================================================================= */
 
 /* ピクセル風ボタン（3D太枠・立体感） */
+/* タイトルロゴ HUMAN.exe */
+.title-logo {
+  font-family: "VT323", "Press Start 2P", "Courier New", monospace;
+  font-size: 72px;
+  font-weight: 700;
+  letter-spacing: .04em;
+  color: #e8d8c0;
+  text-align: center;
+  padding: 10px 0;
+  text-shadow:
+    2px 2px 0 #1a0a00,
+    4px 4px 0 rgba(120,0,0,.4);
+  position: relative;
+}
+.title-logo::after {
+  content: "_";
+  display: inline-block;
+  margin-left: 4px;
+  animation: cursor-blink 1.1s steps(2, end) infinite;
+  color: #b85850;
+}
+@keyframes cursor-blink {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+
 .pbtn {
   position: relative;
   display: flex;
@@ -49,21 +75,21 @@
   font-size: 19px;
   line-height: 1.15;
   color: #ffffff;
-  background: var(--r-violet);
+  background: #4a2e7a;
   padding: 14px 22px;
   border: 0;
   cursor: pointer;
   user-select: none;
-  text-shadow: 1px 1px 0 #00000080;
+  text-shadow: 1px 1px 0 #00000060;
   box-shadow:
-    0 0 0 3px #1a1230,
-    inset 0 -6px 0 rgba(0, 0, 0, .28),
-    inset 0 4px 0 rgba(255, 255, 255, .18);
-  border-radius: 4px;
+    inset 0 -3px 0 rgba(0, 0, 0, .35),
+    inset 0 1px 0 rgba(255, 255, 255, .15),
+    0 2px 4px rgba(0,0,0,.4);
+  border-radius: 8px;
   white-space: nowrap;
   transition: transform .06s linear, filter .15s ease;
 }
-.pbtn:active { transform: translateY(2px); filter: brightness(.92); }
+.pbtn:active { transform: translateY(2px); filter: brightness(.9); box-shadow: inset 0 -1px 0 rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.1); }
 .pbtn[disabled], .pbtn:disabled {
   opacity: .55; pointer-events: none; filter: grayscale(.4);
 }
@@ -72,19 +98,19 @@
   opacity: .85; margin-top: 3px;
 }
 
-/* バリアント */
-.pbtn.green  { background: linear-gradient(180deg, #7ef077, #34a341); color: #08220e; text-shadow: 1px 1px 0 #ffffff60; }
-.pbtn.yellow { background: linear-gradient(180deg, #ffe366, var(--r-gold)); color: #2a1900; text-shadow: 1px 1px 0 #ffffff70; }
-.pbtn.purple { background: linear-gradient(180deg, #c79bff, #7a39d1); }
-.pbtn.pink   { background: linear-gradient(180deg, #ffa1d3, #d23b8a); }
-.pbtn.red    { background: linear-gradient(180deg, #ff8a8a, #c63238); }
+/* バリアント — 彩度を落として統一感を出す */
+.pbtn.green  { background: #2a5c30; }
+.pbtn.yellow { background: #5a4a10; }
+.pbtn.purple { background: #3a2060; }
+.pbtn.pink   { background: #5a1840; }
+.pbtn.red    { background: #5a1820; }
 .pbtn.outline {
   background: transparent;
   box-shadow:
-    0 0 0 3px var(--r-purple),
-    inset 0 0 0 2px #1a1230;
-  color: var(--r-purple);
-  text-shadow: 0 0 8px rgba(194, 103, 255, .7);
+    inset 0 0 0 2px rgba(180,160,220,.5),
+    0 2px 4px rgba(0,0,0,.3);
+  color: rgba(200,180,240,.9);
+  text-shadow: none;
 }
 .pbtn.block { width: 100%; }
 
@@ -137,13 +163,11 @@
   transform: translate(-50%, -50%);
   width: 130%; height: 140%;
   background: radial-gradient(ellipse at center,
-    rgba(180, 0, 0, .55) 0%,
-    rgba(110, 0, 0, .32) 35%,
-    rgba(40, 0, 0, .15) 60%,
-    transparent 75%);
-  filter: blur(10px);
+    rgba(180, 0, 0, .30) 0%,
+    rgba(110, 0, 0, .15) 45%,
+    transparent 70%);
+  filter: blur(12px);
   z-index: -1;
-  animation: ominous-aura 6s infinite ease-in-out;
   pointer-events: none;
 }
 .neon-sparks::after {
@@ -218,11 +242,11 @@ img, svg { image-rendering: pixelated; image-rendering: crisp-edges; }
 .retro-bg-fx .fx:hover {
   opacity: 0.85;
 }
-.retro-bg-fx .fx.coin   { color: var(--r-yellow); text-shadow: 0 0 10px rgba(255,210,74,.8); }
-.retro-bg-fx .fx.doc    { color: #e8e6dc; text-shadow: 0 0 10px rgba(232,230,220,.4); }
-.retro-bg-fx .fx.mouse  { color: var(--r-cyan); text-shadow: 0 0 10px rgba(91,232,255,.5); }
-.retro-bg-fx .fx.coffee { color: #e8b48e; text-shadow: 0 0 10px rgba(232,180,142,.5); }
-.retro-bg-fx .fx.spark  { color: var(--r-lime); text-shadow: 0 0 10px rgba(108,240,110,.7); }
+.retro-bg-fx .fx.coin   { color: var(--r-yellow); }
+.retro-bg-fx .fx.doc    { color: #e8e6dc; }
+.retro-bg-fx .fx.mouse  { color: var(--r-cyan); }
+.retro-bg-fx .fx.coffee { color: #e8b48e; }
+.retro-bg-fx .fx.spark  { color: var(--r-lime); }
 
 @keyframes floaty {
   0%, 100% { transform: translateY(0) scale(1) rotate(var(--rot, 0deg)); }
@@ -254,12 +278,7 @@ img, svg { image-rendering: pixelated; image-rendering: crisp-edges; }
   font-family: var(--r-font-jp);
   font-size: 26px; font-weight: 700; letter-spacing: .04em;
   color: #fff; text-align: center;
-  text-shadow:
-    0 0 4px #fff,
-    0 0 10px rgba(194,103,255,.9),
-    0 0 22px rgba(138,77,255,.7),
-    3px 3px 0 #1a1230;
-  animation: text-flicker 5s infinite;
+  text-shadow: 2px 2px 0 #1a1230;
 }
 
 /* 日本語メインタイトル用 — おどろおどろしい血染めロゴ */
@@ -2139,11 +2158,11 @@ img, svg { image-rendering: pixelated; image-rendering: crisp-edges; }
 .retro-bg-fx .fx:hover {
   opacity: 0.85;
 }
-.retro-bg-fx .fx.coin   { color: var(--r-yellow); text-shadow: 0 0 10px rgba(255,210,74,.8); }
-.retro-bg-fx .fx.doc    { color: #e8e6dc; text-shadow: 0 0 10px rgba(232,230,220,.4); }
-.retro-bg-fx .fx.mouse  { color: var(--r-cyan); text-shadow: 0 0 10px rgba(91,232,255,.5); }
-.retro-bg-fx .fx.coffee { color: #e8b48e; text-shadow: 0 0 10px rgba(232,180,142,.5); }
-.retro-bg-fx .fx.spark  { color: var(--r-lime); text-shadow: 0 0 10px rgba(108,240,110,.7); }
+.retro-bg-fx .fx.coin   { color: var(--r-yellow); }
+.retro-bg-fx .fx.doc    { color: #e8e6dc; }
+.retro-bg-fx .fx.mouse  { color: var(--r-cyan); }
+.retro-bg-fx .fx.coffee { color: #e8b48e; }
+.retro-bg-fx .fx.spark  { color: var(--r-lime); }
 
 @keyframes floaty {
   0%, 100% { transform: translateY(0) scale(1) rotate(var(--rot, 0deg)); }
@@ -2175,12 +2194,7 @@ img, svg { image-rendering: pixelated; image-rendering: crisp-edges; }
   font-family: var(--r-font-jp);
   font-size: 26px; font-weight: 700; letter-spacing: .04em;
   color: #fff; text-align: center;
-  text-shadow:
-    0 0 4px #fff,
-    0 0 10px rgba(194,103,255,.9),
-    0 0 22px rgba(138,77,255,.7),
-    3px 3px 0 #1a1230;
-  animation: text-flicker 5s infinite;
+  text-shadow: 2px 2px 0 #1a1230;
 }
 
 /* 日本語メインタイトル用 — おどろおどろしい血染めロゴ */

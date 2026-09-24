@@ -9,6 +9,7 @@ import { renderGacha } from "./screens/gacha.js?v=1.2.5";
 import { renderCollection } from "./screens/collection.js?v=1.2.5";
 import { renderSettings } from "./screens/settings.js?v=1.2.5";
 import { startStory } from "./screens/story.js?v=1.2.5";
+import { renderChapterSelect } from "./screens/chapterSelect.js?v=1.2.5";
 import { GAMES } from "./data.js?v=1.2.5";
 
 // 各ミニゲームの起動関数
@@ -47,6 +48,7 @@ export const Router = {
       case "collection": result = renderCollection(mount); break;
       case "settings":   result = renderSettings(mount); break;
       case "story":      result = startStory(mount, params); break;
+      case "chapterSelect": result = renderChapterSelect(mount); break;
       case "game":       result = GAME_LAUNCHERS[params.id]?.(mount, params.id, params); break;
       default:           result = renderMenu(mount);
     }
